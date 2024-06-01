@@ -1,5 +1,7 @@
 local B = CBW_Battle
 
+
+
 local applyflip = function(mo1, mo2)
 	if mo1.eflags & MFE_VERTICALFLIP then
 		mo2.eflags = $|MFE_VERTICALFLIP
@@ -256,6 +258,36 @@ B.MetalAura = function(mo,target, override)
 		mo.eflags = $|MFE_VERTICALFLIP
 		P_MoveOrigin(mo,target.x,target.y,target.z+target.height*3/4)
 	end
+	mo.flags2 = $ & ~(MF2_DONTDRAW)
+end
+
+B.SparkAura = function(mo,target, override)
+	if not(target and target.valid and target.player and target.player.actionstate == state_ringspark
+		and target.player.playerstate == PST_LIVE) and not(override)
+		target.state = S_METALSONIC_RINGSPARK3
+		P_RemoveMobj(mo)
+	return end
+	mo.scale = target.scale
+	if G_GametypeHasTeams then
+		mo.colorized = true --colorize
+		mo.color = target.color
+	end
+	applyflip(target, mo)
+	P_MoveOrigin(mo, target.x, target.y, overlayZ(target, mo.type, (target.flags2 & MF2_OBJECTFLIP)))
+	--if target.player.actiontime > 999 then
+	mo.flags2 = $ & ~(MF2_DONTDRAW)
+	--end
+end
+
+B.Auras = {}
+
+function B.AuraThinker()
+	for i = 1, #B.Auras do
+		local aura = B.Auras[i]
+		if aura.valid then
+			B.SparkAura(aura, aura.target)
+		end
+	end
 end
 
 ---Metal Sonic "gather" spheres-
@@ -301,13 +333,16 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if player.actionstate ~= state_ringspark then--If we're not Ring Sparking 
 		player.actionrings = 10 --Everything costs 5 rings
 		player.energyattack_ringsparktimer = 0
-		if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
+	end
+
+	--print(player.playerstate == PST_LIVE)
+
+	if (player.actionstate ~= state_ringspark) then
+		if (mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 			mo.state = S_METALSONIC_RINGSPARK3
-			P_RemoveMobj(mo.energyattack_sparkaura)
-			mo.energyattack_sparkaura = nil
 		end
 	end
-	
+
 	if player.actionstate ~= state_dashslicer then
 		player.energyattack_sliceangle = nil
 	end
@@ -351,10 +386,15 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		resetVars(player)
 		return
 	end
+
+	if not(charging or chargetrigger or ((player.actionstate == state_energyblast) and player.actiontime < 100))  then
+		S_StopSoundByID(mo, sfx_bechrg)
+	end
 	
 	//Start charging blast
 	if chargetrigger
 		B.PayRings(player,player.actionrings)
+		S_StartSound(mo, sfx_bechrg)
 		player.actionstate = state_charging
 		player.actiontime = 0
 		player.energyattack_chargemeter = FRACUNIT
@@ -367,7 +407,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		S_StartSound(mo,sfx_s3k7a)
 		local aura = P_SpawnMobj(mo.x,mo.y,mo.z,MT_ENERGYAURA)
 		if aura and aura.valid then
-			B.MetalAura(aura, mo, true)
+			aura.flags2 = $|MF2_DONTDRAW
 			aura.target = mo
 			aura.spriteyoffset = -16*FRACUNIT
 		end
@@ -554,17 +594,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				mo.state = S_METALSONIC_RINGSPARK2
 			end
 
-			if not (mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
+			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,overlayZ(mo, auraMobj, (mo.flags2 & MF2_OBJECTFLIP)), auraMobj) --Spawn One
-				P_MoveOrigin(mo.energyattack_sparkaura, mo.x,mo.y,overlayZ(mo, mo.energyattack_sparkaura.type, (mo.flags2 & MF2_OBJECTFLIP)))
-				mo.energyattack_sparkaura.tracer = mo --Set its tracer to us
-				mo.energyattack_sparkaura.fuse = -1 --Don't disappear
+				mo.energyattack_sparkaura.flags2 = $|MF2_DONTDRAW
+				table.insert(B.Auras, mo.energyattack_sparkaura)
 				mo.energyattack_sparkaura.target = mo
-				--mo.energyattack_sparkaura.flags = $|MF_MISSILE
-				if G_GametypeHasTeams() then --if it's a team gametype
-					mo.energyattack_sparkaura.colorized = true --Colorize it
-					mo.energyattack_sparkaura.color = mo.color
-				end
 			end
 			
 			if player.rings and ((player.doaction == 2 or (player.pflags & PF_SPINDOWN)) or player.actiontime <= forcetime_ringspark) then --If we have rings, and are holding either the action button or spin
@@ -743,19 +777,5 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		local flags = PF_SPINNING|PF_JUMPED|PF_THOKKED --For simultaneous removal
 		player.pflags = $&~(flags)
 		player.secondjump = 0
-	end
-end
-
-B.RingsparkColorizer = function(player) --PostThinkFrame
-	if player.mo and player.mo.valid then
-		if player.mo.sprite == SPR_PLAY and player.mo.skin == skinname and player.mo.sprite2 == SPR2_RSPF and (player.mo.frame == 1|FF_ANIMATE|FF_FULLBRIGHT) then --if we're ring spark flashing
-			player.mo.colorized = true
-			player.ringspark_color = true --Mark as colorized
-		else --if we're not
-			if player.ringspark_color then --If we're marked as colorized
-				player.mo.colorized = false
-				player.ringspark_color = false --Mark as not colorized
-			end
-		end
 	end
 end

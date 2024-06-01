@@ -8,6 +8,11 @@ addHook("MobjThinker", B.StunBreakVFXThinker, MT_STUNBREAK)
 addHook("MobjThinker",function(mo) B.EnergyGather(mo,mo.target,mo.extravalue1,mo.extravalue2) end,MT_ENERGYGATHER)
 addHook("MobjThinker", B.TargetDummyThinker, MT_TARGETDUMMY)
 addHook("MobjThinker",function(mo) B.MetalAura(mo,mo.target) end, MT_ENERGYAURA)
+addHook("MobjThinker", function(mo) 
+	if mo and mo.valid and mo.target and mo.target.valid then
+		B.SparkAura(mo, mo.target) 
+	end
+end, MT_RINGSPARKAURA)
 
 //Shields (yeah, this is pretty messy...)
 local colorsh = function(mo, redcol, bluecol)
