@@ -416,12 +416,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "Energy Blast ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
+		player.actiontext = "Energy Blast  ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
 		B.DrawAimLine(player,mo.angle)
 		if player.actiontime > threshold2
 			--B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
 			--B.DrawAimLine(player,mo.angle-sideangle*(blastcount2>>1))
-			player.actiontext = "(HOLD) Triple Blast ".."\x83"..(player.actionrings/2).." Each".."\x80"
+			player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80"
 		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
@@ -483,10 +483,10 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Release blast
 	if (blasttrigger) then
 		doBlast(mo, player) --blast
-		B.PayRings(player,player.actionrings/2)
 		player.energyattack_chargebuffer = blastbuffer --set buffer
 		if charged then
 			player.energyattack_charged = true --make it known
+			B.PayRings(player,player.actionrings/2)
 			--player.energyattack_chargemeter = FRACUNIT
 		else
 			stallOrFall(mo, player, cooldown_blast)
@@ -512,7 +512,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.energyattack_counter = $ or 0 --make counter if non-existent
 		if player.energyattack_charged then
 			local val = (player.actionrings/2)
-			player.actiontext = "Energy Blast ".."\x82"..val.."\x80"
+			player.actiontext = "Energy Blast  ".."\x82"..val.."\x80"
 			player.action2text = "Blasts Left: "..2-player.energyattack_counter
 			if (doaction == 2) then --if we're charged
 				--print("charged and holding down")
