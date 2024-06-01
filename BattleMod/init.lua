@@ -37,7 +37,8 @@ local directories = {
             "Info_Actions",
             "Info_ActRoboMissile",
             "Info_ActRockBlast",
-            "Info_ActTailSweep"
+            "Info_ActTailSweep",
+            "Info_RingSpark"
         },
     },
     
@@ -296,6 +297,7 @@ local directories = {
             "Exec_ControlPoint",
             "Exec_Dashmode",
             "Exec_Diamond",
+            "Exec_EnergyAttack",
             "Exec_HUD",
             "Exec_HurtMsg",
             "Exec_ItemSpawn",

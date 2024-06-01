@@ -2,6 +2,9 @@ local B = CBW_Battle
 B.InputControl = function(player)
 	player.thinkmoveangle = B.GetInputAngle(player)
 	player.realbuttons = player.cmd.buttons
+	player.realsidemove = player.cmd.sidemove
+	player.realforwardmove = player.cmd.forwardmove
+	player.realangleturn = player.cmd.angleturn
 	
 	if player.lockaim and player.mo then --Aim is being locked in place
 		player.cmd.aiming = player.aiming>>16

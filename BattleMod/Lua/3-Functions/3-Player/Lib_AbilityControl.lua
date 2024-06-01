@@ -278,6 +278,13 @@ B.exhaust = function(player)
 		player.ledgemeter = min($,player.exhaustmeter+(FRACUNIT/2))
     	player.exhaustmeter = min($,player.ledgemeter)
 	end
+
+	--Ring Spark exhaust
+	local ringsparkExhaust = 25
+	local state_ringspark = 4 --Magic Number :(
+	if (player.actionstate == state_ringspark) and player.energyattack_ringsparktimer and (player.energyattack_ringsparktimer > ringsparkExhaust) then
+		player.exhaustmeter = max(0,$-FRACUNIT/100)
+	end
 	
 	--Refill meter
 	if (P_IsObjectOnGround(mo) or P_PlayerInPain(player)) and not player.actionstate and not override then
