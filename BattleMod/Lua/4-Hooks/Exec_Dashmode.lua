@@ -15,5 +15,6 @@ end)
 addHook("PostThinkFrame", do
     for player in players.iterate do
         B.DashmodeColorizer(player) --Colorize instead of orange flashing (Kinda hacky but best we can do as of 2.2.13)
+        B.RingsparkColorizer(player) --Same deal as above
     end
 end)
