@@ -384,18 +384,6 @@ B.tailsthrow = function(player)
 	end
 end
 
-B.dashmodesound = function(player)
-	if not (player.mo or player.charflags & SF_MACHINE) then
-		return
-	end
-
-	if player.dashmode >= 3*TICRATE and P_IsObjectOnGround(player.mo) then
-		S_StartSoundAtVolume(player.mo, sfx_dashm, 50)
-	else
-		S_StopSoundByID(player.mo, sfx_dashm)
-	end
-end
-
 B.sneakertrail = function(player)
 	if player.powers[pw_sneakers] and player.mo and player.speed > 30*player.mo.scale and leveltime%3 then
 		local speedtrail = P_SpawnGhostMobj(player.mo)
@@ -471,7 +459,6 @@ B.CharAbilityControl = function(player)
 	B.flashingnerf(player)
 	B.hammerthrustfactor(player)
 	B.tailsthrow(player)
-	B.dashmodesound(player)
 	B.sneakertrail(player)
 	B.invinciblespark(player)
 	B.semisuper(player)

@@ -57,6 +57,7 @@ B.Guard = function(player,buttonpressed)
 				player.powers[pw_flashing] = 0
 				player.guardbuffer = 2
 			end
+			player.dashmode = 0 --You can't bump people with dashmode parry
 			player.guard = 1
 			S_StartSound(mo,sfx_cdfm39)
 			player.guardtics = TICRATE*4/7 //20
