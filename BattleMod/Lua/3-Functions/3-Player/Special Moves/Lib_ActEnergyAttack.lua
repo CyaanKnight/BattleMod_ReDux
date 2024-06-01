@@ -304,6 +304,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 	if player.actionstate ~= state_ringspark then--If we're not Ring Sparking 
 		player.actionrings = 5 --Everything costs 5 rings
+		player.energyattack_ringsparktimer = 0
 		if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
 			mo.state = S_METALSONIC_RINGSPARK3
 			P_RemoveMobj(mo.energyattack_sparkaura)
