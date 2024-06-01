@@ -157,6 +157,9 @@ B.PlayerThinkFrame = function(player)
 			S_StartSound(nil, sfx_cddone, player)
 		end
 	end
+	if player.spentrings then
+		player.spentrings = max(0,$-1)
+	end
 	--player.actioncooldown = max(0,$-1)
 	B.DoBackdraft(player)
 	

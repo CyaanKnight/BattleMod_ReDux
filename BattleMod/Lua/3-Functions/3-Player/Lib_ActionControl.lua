@@ -103,6 +103,7 @@ B.CheckRings=function(player,doaction,rings)
 end
 
 B.PayRings=function(player,spendrings,sound)
+	player.spentrings = TICRATE/2
 	if spendrings == nil then spendrings = player.actionrings end
 	if spendrings == 0 then return end
 	player.rings = $-spendrings

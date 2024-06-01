@@ -1,3 +1,10 @@
+Maincfg Category
+LoopTitle = true
+TitlePicsMode = None
+TitleMap = 99
+TitleScrollSpeed = 0
+NumDemos = 0
+
 Level BZ
 LevelName = Training
 SelectHeading = Training

@@ -4,6 +4,22 @@ local TF_GRAY = 1
 local TF_YELLOW = 2
 local TF_RED = 3
 
+B.TIMETRANS = function(time, speed, minimum, cap, debug)
+    speed = speed or 1
+    local level = (time / speed / 10) * 10
+    level = max(10, min(100, level))
+    
+	if minimum then level = max($, minimum / 10 * 10) end
+	if cap then level = min($, cap / 10 * 10) end
+
+    if level == 100 then
+		if debug then print(level) end
+    else
+		if debug then print(level) end
+        return _G["V_" .. (100 - level) .. "TRANS"]
+    end
+end
+
 B.RingsHUD = function(v, player, cam)
 	if not (B.HUDMain)
 	or not (player.battleconfig_newhud)
@@ -85,9 +101,10 @@ B.RingsHUD = function(v, player, cam)
 			local lastcooldown = player.lastcooldown or 1
 			local scale_factor = 1000
 			local scaled_ratio = (player.actioncooldown * scale_factor) / lastcooldown
-			local angles = scaled_ratio * 360 / scale_factor
+			local spacing = 4 --maybe this makes it more performant?
+			local angles = scaled_ratio * (360/spacing) / scale_factor
 			for n=1, angles do
-				local p = v.getSpritePatch("CDBR", 0, 0, n*ANG1)
+				local p = v.getSpritePatch("CDBR", leveltime/4 % 4, 0, n*ANG1*spacing)
 				v.draw(x, y-9, p, flags_hudtrans)
 			end
 			--[[
@@ -184,5 +201,12 @@ B.RingsHUD = function(v, player, cam)
 		x = $+12
 		y = $-12
 		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale, v.getSpritePatch("SWET", frame), flags_hudtrans)
+	end
+
+	--Ring spent effect
+	if player.spentrings then
+		local scale2 = FRACUNIT*5 - (player.spentrings * (FRACUNIT*4)/(TICRATE/2))
+		local transrights = B.TIMETRANS(player.spentrings * 6) or 0
+		v.drawScaled(x*FRACUNIT + FRACUNIT/2, y*FRACUNIT, scale2, ringpatch, flags|transrights)
 	end
 end

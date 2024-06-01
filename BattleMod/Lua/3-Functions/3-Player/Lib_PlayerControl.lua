@@ -17,6 +17,7 @@ B.InitPlayer = function(player)
 	player.actionstate = 0
 	player.actioncooldown = TICRATE
 	player.lastcooldown = nil
+	player.spentrings = 0
 	player.prevrings = 0
 	player.ringhudflash = 0
 	player.actionallowed = true
@@ -123,7 +124,7 @@ B.InitPlayer = function(player)
         player.battleconfig_hammerstrafe = false
     end
 	if player.battleconfig_glidestrafe == nil then
-        player.battleconfig_glidestrafe = false
+        player.battleconfig_glidestrafe = true
     end
 	if player.battleconfig_slipstreambutton == nil then
 		player.battleconfig_slipstreambutton = BT_WEAPONNEXT

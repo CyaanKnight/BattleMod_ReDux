@@ -276,6 +276,7 @@ local directories = {
             "Lib_HUDSpecials",
             "Lib_HUDTeammates",
             "Lib_HUDTimer",
+            "Lib_HUDTitle",
             "Lib_SwitchHud",
             "Lib_ToggleVanillaHUD"
         }

@@ -221,7 +221,8 @@ COM_AddCommand("battleconfig_hammerstrafe", function(player, arg)
     elseif arg == "off" or arg == "Off" or arg == "0" or arg == "false" then
         player.battleconfig_hammerstrafe = false
     else
-        CONS_Printf(player,'battleconfig_hammerstrafe <On/Off> - Default is Off')
+        local value = player.battleconfig_hammerstrafe
+        CONS_Printf(player,'battleconfig_hammerstrafe <On/Off> - Default is On - Currently '+value)
     return end
 end,0)
 

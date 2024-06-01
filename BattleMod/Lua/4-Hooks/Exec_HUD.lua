@@ -44,3 +44,6 @@ hud.add(B.DebugHUD)
 
 --Score screen
 hud.add(F.RankingHUD, "scores")
+
+--Title HUD
+hud.add(B.TitleHUD, "title")
