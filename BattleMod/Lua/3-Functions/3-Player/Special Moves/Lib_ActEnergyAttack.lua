@@ -233,11 +233,7 @@ local stallOrFall = function(mo, player, cooldown)
 		chargefall(player)
 		resetVars(player)
 		if cooldown then
-			if player.rings < (player.actionrings/3) then
-				B.ApplyCooldown(player,cooldown_multiblast)
-			else
-				B.ApplyCooldown(player,cooldown_blast)
-			end
+			B.ApplyCooldown(player,cooldown)
 		end
 	end
 end
@@ -303,7 +299,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate ~= state_ringspark then--If we're not Ring Sparking 
-		player.actionrings = 5 --Everything costs 5 rings
+		player.actionrings = 10 --Everything costs 5 rings
 		player.energyattack_ringsparktimer = 0
 		if mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid then
 			mo.state = S_METALSONIC_RINGSPARK3
@@ -380,13 +376,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "Energy Blast" --Tell the player they can release for a blast
+		player.actiontext = "Energy Blast ".."\x82"..player.actionrings.."\x80" --Tell the player they can release for a blast
 		B.DrawAimLine(player,mo.angle)
 		if player.actiontime > threshold2
 			--B.DrawAimLine(player,mo.angle+sideangle*(blastcount2>>1))
 			--B.DrawAimLine(player,mo.angle-sideangle*(blastcount2>>1))
-			player.actiontext = "(HOLD) Energy Blast x3"
-			player.actionrings = 15
+			player.actiontext = "(HOLD) Triple Blast ".."\x83"..(player.actionrings/2).." Each".."\x80"
 		end
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
@@ -448,13 +443,13 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Release blast
 	if (blasttrigger) then
 		doBlast(mo, player) --blast
-		B.PayRings(player,player.actionrings)
+		B.PayRings(player,player.actionrings/2)
 		player.energyattack_chargebuffer = blastbuffer --set buffer
 		if charged then
 			player.energyattack_charged = true --make it known
 			--player.energyattack_chargemeter = FRACUNIT
 		else
-			stallOrFall(mo, player, true)
+			stallOrFall(mo, player, cooldown_blast)
 		end
 		player.actiontime = 0
 		player.actionstate = state_energyblast
@@ -476,7 +471,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if player.actionstate == state_energyblast then
 		player.energyattack_counter = $ or 0 --make counter if non-existent
 		if player.energyattack_charged then
-			player.actiontext = "Energy Blast"
+			local val = (player.actionrings/2)
+			player.actiontext = "Energy Blast ".."\x82"..val.."\x80"
 			player.action2text = "Blasts Left: "..2-player.energyattack_counter
 			if (doaction == 2) then --if we're charged
 				--print("charged and holding down")
@@ -488,7 +484,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 						--print("buffer zero")
 						player.energyattack_counter = $+1 --Increase blast count
 						doBlast(mo, player) --blast
-						B.PayRings(player,player.actionrings/3) --Charge
+						B.PayRings(player,player.actionrings/2) --Charge
 						player.energyattack_chargebuffer = blastbuffer --set buffer
 					else
 						if player.energyattack_chargebuffer < blastbuffer/2 then --"My cat vomitting on the floor at 3am"
@@ -498,15 +494,19 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 					end
 					player.actionstate = state_energyblast --Blast
 				else
-					stallOrFall(mo, player, true)
+					if player.rings < player.actionrings/2 then
+						stallOrFall(mo, player, cooldown_multiblast)
+					else
+						stallOrFall(mo, player, cooldown_blast)
+					end
 					--resetVars(player)
 				end
 			else
-				stallOrFall(mo, player, true)
+				stallOrFall(mo, player, cooldown_blast)
 				--resetVars(player)
 			end
 		else
-			stallOrFall(mo, player, true)
+			stallOrFall(mo, player, cooldown_blast)
 		end
 	end
 	
