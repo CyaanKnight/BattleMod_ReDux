@@ -329,7 +329,7 @@ end
 -- @flag: 1 = red, 2 = blue
 local function capFlag(p, flag)
 	p.gotflag = 0
-
+	
 	if flag == 1 then F.RedScore = $+1 elseif flag == 2 then F.BlueScore = $+1 end
 	spawnFlag(flag == 1 and 2 or 1) --respawn opposite team flag
 	P_AddPlayerScore(p, FLG_SCORE)
@@ -388,6 +388,10 @@ local function delayCap(p, team)
 	if cap then
 		capFlag(p, team)
 		p.ctf_slowcap = nil
+		for player in players.iterate() do
+			if player.spectator and not player.spectator_abuse then continue end
+			player.gotflag = 0 // its the winning score removing this from everyone should be fine
+		end
 
 	elseif p.ctf_slowcap % 35 == 11 then
 		S_StartSoundAtVolume(nil, sfx, 160)
@@ -498,7 +502,7 @@ F.FlagPreThinker = function()
 
 			if p.gotflag and on_base then
 				-- If the flag is home and we're home, cap
-				if F.IsFlagAtBase(p.ctfteam) then 
+				if F.IsFlagAtBase(p.ctfteam) and not p.exiting then 
 					capFlag(p, p.ctfteam)
 					return
 				end
