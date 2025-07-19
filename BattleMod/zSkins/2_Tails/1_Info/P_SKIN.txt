@@ -1,2 +1,16 @@
 name = tails
+realname = Tails
+hudname = TAILS
+startcolor = 96
+prefcolor = Orange
+supercolor = Orange
+ability = CA_FLY
 actionspd = 115
+normalspeed = 30
+runspeed = 25
+thrustfactor = 5
+accelstart = 96
+acceleration = 45
+followitem = MT_TAILSOVERLAY
+contspeed = 7
+contangle = 0

@@ -1,2 +1,15 @@
 name = sonic
+flags = SF_SUPER
+realname = Sonic
+hudname = SONIC
+startcolor = 96
+prefcolor = Blue
+supercolor = Gold
+ability = CA_THOK
 actionspd = 36
+normalspeed = 36
+thrustfactor = 5
+accelstart = 96
+acceleration = 40
+contspeed = 17
+contangle = 3
