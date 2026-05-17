@@ -3,7 +3,7 @@
 local B = CBW_Battle
 local S = B.SkinVars
 
-local refiretime = 22
+local refiretime = 20
 
 B.NewGunLook = function(player)
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
@@ -106,11 +106,11 @@ local function newGunslinger(player)
 	end
 
 	//State: ready to gunsling
-	if not ((player.pflags&PF_SLIDING) or (player.exiting) or (P_PlayerInPain(player)))
+	if not ((player.pflags&(PF_SLIDING|PF_THOKKED)and not(player.pflags&PF_BOUNCING)) or (player.exiting) or (P_PlayerInPain(player)))
 	and not (player.weapondelay)
 	and not (player.panim == PA_ABILITY2)
 	and not (player.airgun)
-	and (player.pflags&PF_JUMPED or onground or sliding or player.pflags&PF_BOUNCING) then
+	and (player.pflags&(PF_JUMPED|PF_BOUNCING) or onground or sliding) then
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
@@ -167,10 +167,13 @@ local function newGunslinger(player)
 			local bullet = nil
 
 			if sliding then
-				player.actionstate = 0
-				player.actiontime = 0
-				B.ApplyCooldown(player, TICRATE*3)
-				player.pflags = $ & ~PF_SPINNING
+			    player.actiontime = $+1
+				if player.actiontime >= 8 then
+				    player.actionstate = 0
+				    player.actiontime = 0
+				    B.ApplyCooldown(player, TICRATE*3)
+				    player.pflags = $ & ~PF_SPINNING
+				end
 			end
 
 			mo.state = S_PLAY_FIRE
@@ -282,8 +285,7 @@ local function newGunslinger(player)
 	and not(player.pflags & PF_BOUNCING)
 	    if mo.state == S_PLAY_FALL
 	        mo.state = S_FANG_AIRSHOT_FINISH
-		end
-	    if mo.state == S_FANG_AIRSHOT_FINISH then
+	    elseif mo.state == S_FANG_AIRSHOT_FINISH then
 		    mo.tics = player.weapondelay
 		end
 	end
@@ -298,7 +300,9 @@ local function newGunslinger(player)
 	
     //Tailbounce gunning
 	if (player.pflags&PF_BOUNCING) and player.airgun == true and player.weapondelay
-	    if mo.state == S_FANG_BCESHOT_FINISH then
+	    if mo.state == S_PLAY_BOUNCE
+	        mo.state = S_FANG_BCESHOT_FINISH
+	    elseif mo.state == S_FANG_BCESHOT_FINISH then
 		    mo.tics = player.weapondelay
 		end
 	end
@@ -374,3 +378,4 @@ B.PreGunslinging = function(player)
 	end
 -- 	player.cmd.buttons = $&~BT_JUMP
 end
+					
