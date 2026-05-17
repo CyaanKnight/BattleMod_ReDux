@@ -1,15 +1,15 @@
 local B = CBW_Battle
 local S = B.SkinVars
 local cooldown = TICRATE * 3
-local cooldown2 = TICRATE * 5
+local cooldown2 = TICRATE * 3/2
 local duration = 3 * TICRATE
-local xythrust = 20
+local xythrust = 26
 local zthrust = 9
 local dropspeed = 20
-local nojumpwindow = 10
-local rollspeed = 48
-local dodgeroll_time = 10
-local dodgeroll_endlag = 20
+local nojumpwindow = 8
+local rollspeed = 40
+local dodgeroll_time = 12
+local dodgeroll_endlag = 10
 local state_dodgeroll = 3
 local state_fret = 4
 
@@ -86,7 +86,7 @@ B.Action.Slide = function(mo,doaction)
 	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) then
 			player.actionstate = 0
 			player.actiontime = 0
-			B.ApplyCooldown(player, cooldown)
+			B.ApplyCooldown(player, cooldown2)
 			return
 		end
 		player.lockaim = true
@@ -157,8 +157,8 @@ B.Action.Slide = function(mo,doaction)
 		player.actiontime = 1
 		mo.state = S_FANG_SPRINGDROP
 		//Apply momentum
-		mo.momx = $/2
-		mo.momy = $/2
+		//mo.momx = $/2
+		//mo.momy = $/2
 		B.ZLaunch(mo,-dropspeed*FRACUNIT,false)
 		//Effects
 		S_StartSound(mo,sfx_zoom)
@@ -192,7 +192,7 @@ B.Action.Slide = function(mo,doaction)
 	and (not bouncing
 	or mo.eflags & MFE_SPRUNG
 	or mo.state == S_PLAY_BOUNCE_LANDING) then
-	    B.ApplyCooldown(player,cooldown)
+	    B.ApplyCooldown(player,cooldown2)
 		if P_IsObjectOnGround(mo)
 			mo.state = S_PLAY_BOUNCE_LANDING
 		else
@@ -206,7 +206,7 @@ B.Action.Slide = function(mo,doaction)
 	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) then
 			player.actionstate = 0
 			player.actiontime = 0
-			B.ApplyCooldown(player, cooldown)
+			B.ApplyCooldown(player, cooldown2)
 			return
 		end
 		player.actionsuper = false
@@ -341,6 +341,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		mo[n1].state = S_PLAY_BOUNCE
 		plr[n1].actionstate = 0
 		plr[n1].actiontime = 0
+		plr[n1].nobombjump = true
 		B.ApplyCooldown(plr[n1],cooldown)
 		S_StartSound(mo[n1], sfx_boingf)
 		local bomb = B.throwbomb(mo[n1])
@@ -371,10 +372,10 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 				fanghop(plr[n1])
 			end
 			if plr[n2] then
-				B.DoPlayerTumble(plr[n2], 25, angle[n1], mo[n1].scale*3, true, true)
+				B.DoPlayerTumble(plr[n2], 22, angle[n1], mo[n1].scale*3, true, true)
 			end
 			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
-			B.ZLaunch(mo[n2], 10 * mo[n2].scale, false)
+			B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
 			B.ApplyCooldown(plr[n1],cooldown)
 			return true
 		end
@@ -395,7 +396,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			plr[n1].lockjumpframe = 0
 		end
 		if plr[n2] then
-			B.DoPlayerTumble(plr[n2], 50, angle[n1], mo[n1].scale*3, true, false)
+			B.DoPlayerTumble(plr[n2], 25, angle[n1], mo[n1].scale*3, true, true)
 		end
 		P_InstaThrust(mo[n2], angle[n2], -mo[n1].scale * 5)
 		B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
@@ -435,5 +436,6 @@ B.Fang_SlideJump = function(player)
 	P_DoJump(player)
 	player.mo.state = S_PLAY_ROLL
 	player.pflags = $ & ~PF_NOJUMPDAMAGE
+	P_Thrust(mo,mo.angle,5*mo.scale)
 	return true
 end
