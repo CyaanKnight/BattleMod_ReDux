@@ -309,7 +309,6 @@ function B.HummingTop_MainHook(player)
 					end
 				end
 				if (mo.dropdash_prep == 100) then
-					player.pflags = $|PF_SHIELDABILITY
 				
 					local mo = mo
 

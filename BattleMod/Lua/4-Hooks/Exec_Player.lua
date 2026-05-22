@@ -407,3 +407,9 @@ end)
 addHook("MobjLineCollide", function(mo, line)
 	return B.Sonic_HTopLineCollide(mo, line)
 end, MT_PLAYER)
+
+addHook("ShieldSpecial", function(player)
+	if player.mo and player.mo.valid and (player.mo.dropdash_prep) then
+		return textures
+	end
+end)

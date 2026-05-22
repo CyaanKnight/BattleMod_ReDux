@@ -148,6 +148,7 @@ B.CanShieldActive = function(player)
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]
 		and not (player.pflags&PF_SHIELDABILITY)
+		and not (player.mo and player.mo.valid and player.mo.dropdash_prep)
 	then
 		return true
 	end
