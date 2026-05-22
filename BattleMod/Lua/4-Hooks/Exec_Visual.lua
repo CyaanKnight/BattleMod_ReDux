@@ -478,8 +478,20 @@ B.BattleTagPointers = function(mo)
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
-	if not(target) then
-		target = mo
+	if not(target and target.valid) then
+		delete = true
+	end
+	if delete then
+		if mo.tracer and mo.tracer.valid and mo.tracer.player then
+			if mo.tracer.btagpointer2 == mo then
+				mo.tracer.btagpointer2 = nil
+			end
+			if mo.tracer.btagpointer == mo then
+				mo.tracer.btagpointer = nil
+			end
+		end
+		P_RemoveMobj(mo)
+		return
 	end
 	local rx = target.x
 	local ry = target.y
@@ -560,18 +572,6 @@ B.BattleTagPointers = function(mo)
 		mo.flags = $ & ~MF_NOSECTOR
 	end
 	mo.interpolation_fix = true
-	if delete then
-		if mo.tracer and mo.tracer.valid and mo.tracer.player then
-			if mo.tracer.btagpointer2 == mo then
-				mo.tracer.btagpointer2 = nil
-			end
-			if mo.tracer.btagpointer == mo then
-				mo.tracer.btagpointer = nil
-			end
-		end
-		P_RemoveMobj(mo)
-		return
-	end
 
 end
 addHook("MobjThinker", B.BattleTagPointers, MT_BTAG_POINTER)
