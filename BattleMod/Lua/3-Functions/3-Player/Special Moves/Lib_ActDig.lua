@@ -269,9 +269,18 @@ B.Action.Dig=function(mo,doaction)
 		player.kgrab.momy = mo.momy
 		player.kgrab.momz = mo.momz
 		
-		if player.kgrab.player and player.kgrab.player.valid
+		if player.kgrab.valid and player.kgrab.player then
+			player.kgrab.tracer = mo
+			player.kgrab.player.powers[pw_carry] = CR_PLAYER
+
+			player.kgrab.player.canstunbreak = 1
+			player.kgrab.player.customstunbreakcost = 25
+			player.kgrab.player.customstunbreaktics = 0
+
 			player.kgrab.player.actioncooldown = 2
-			player.kgrab.state = S_PLAY_PAIN
+			if player.kgrab.state ~= S_PLAY_PAIN then
+				player.kgrab.state = S_PLAY_PAIN
+			end
         end
 		
 		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
