@@ -500,6 +500,9 @@ B.Action.TailSwipe = function(mo,doaction)
 		player.actionstate = state_dash
 		player.actiontime = 0
 		mo.state = S_PLAY_ROLL
+		// hitbox
+		local hitbox = B.BattleHitboxSpawn(player, 18*player.mo.scale, 1*player.mo.scale, 2, S_TAILS_POUNCE, true, 0)
+		hitbox.tics = TICRATE/2
 		//Physics
 		P_Thrust(mo,mo.angle,thrustfactor*thrustpower)
 		P_SetObjectMomZ(mo,FRACUNIT*3,false)

@@ -109,6 +109,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			P_SetObjectMomZ(mo,FixedMul(player.jumpfactor,FRACUNIT*10/B.WaterFactor(mo)),0)
 			S_StartSound(mo,sfx_s3ka0)
 		else //Ground
+			local hitbox = B.BattleHitboxSpawn(player, 20*player.mo.scale, 1*player.mo.scale, TICRATE, S_UNKNOWN, true, 1)
 			player.actionstate = ground_special
 			mo.amy_spinanimtimer = 0
 			B.ControlThrust(mo,mo.scale/4)

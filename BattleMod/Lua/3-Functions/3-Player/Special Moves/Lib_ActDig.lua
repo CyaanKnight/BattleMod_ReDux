@@ -177,6 +177,7 @@ B.Action.Dig=function(mo,doaction)
 	if trigger_drilldive
 		B.PayRings(player)
 		player.actionstate = state_drilldive
+		player.battlehitbox = false
 		mo.state = S_PLAY_ROLL
 		local dir = R_PointToAngle2(0,0,mo.momx,mo.momy)
 		local speed = FixedHypot(mo.momx,mo.momy)
@@ -192,7 +193,9 @@ B.Action.Dig=function(mo,doaction)
 		player.actiontime = $+1
 		B.DrawSVSprite(player,1+player.actiontime%4)
 		P_SpawnGhostMobj(mo)
-		
+
+		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, -24*player.mo.scale, 2, player.mo.state, false, 0)
+
 		if B.ButtonCheck(player, BT_JUMP) == 1 and player.exhaustmeter
 			B.ResetPlayerProperties(player,true,false)
 			B.ApplyCooldown(player,cancelcooldown)
@@ -394,6 +397,8 @@ B.Action.Dig=function(mo,doaction)
 		if grounded
 			player.actionstate = state_rising
 			B.DrawSVSprite(player,5)
+			local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_UNKNOWN, false, 0)
+			hitbox.radius = 36*player.mo.scale
 		end
 		if player.cmd.buttons&BT_JUMP then
 			mo.momx = $ / 3
