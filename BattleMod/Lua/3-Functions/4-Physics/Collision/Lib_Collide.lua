@@ -209,11 +209,15 @@ B.UpdateRecoilState = function(mo)
 		end
 		if P_IsObjectOnGround(mo) then //Grounded
 			if not(mo.player.charability == CA_GLIDEANDCLIMB) then
-				mo.state = S_PLAY_SKID
-				mo.player.panim = 0
-				mo.frame = 0
+				if not(mo.recoilanim_override) then
+					mo.state = S_PLAY_SKID
+					mo.player.panim = 0
+					mo.frame = 0
+				end
 			else
-				mo.state = S_PLAY_GLIDE_LANDING
+				if not(mo.recoilanim_override) then
+					mo.state = S_PLAY_GLIDE_LANDING
+				end
 				mo.player.powers[pw_nocontrol] = $-1
 			end
 			if mo.player.skidtime == 0 and mo.recoilthrust > mo.scale*5 then
@@ -229,12 +233,15 @@ B.UpdateRecoilState = function(mo)
 			//Keep our variables up with current trajectory
 			mo.recoilthrust = FixedHypot(mo.momx,mo.momy)
 			mo.recoilangle = R_PointToAngle2(0,0,mo.momx,mo.momy)
-			mo.player.panim = PA_FALL
-			mo.state = S_PLAY_FALL
+			if not(mo.recoilanim_override) then
+				mo.player.panim = PA_FALL
+				mo.state = S_PLAY_FALL
+			end
 		end
 		mo.player.drawangle = mo.recoilangle+ANGLE_180
 		return true
 	else //Not in disadvantage state, reset variables
+		mo.air_recoilanim_override = nil
 		mo.recoilangle = nil
 		mo.recoilthrust = nil
 		return false
