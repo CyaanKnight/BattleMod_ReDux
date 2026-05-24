@@ -11,6 +11,9 @@ local rockblasttime_x = 25 //Time in tics before horizontal rockblast disappears
 local rockblasttime_y = 32 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
 
+
+local kb_stunbreakcost = 30
+
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
 		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
@@ -277,7 +280,7 @@ B.Action.Dig=function(mo,doaction)
 			player.kgrab.player.powers[pw_carry] = CR_PLAYER
 
 			player.kgrab.player.canstunbreak = 1
-			player.kgrab.player.customstunbreakcost = 25
+			player.kgrab.player.customstunbreakcost = kb_stunbreakcost
 			player.kgrab.player.customstunbreaktics = 0
 
 			player.kgrab.player.actioncooldown = 2
