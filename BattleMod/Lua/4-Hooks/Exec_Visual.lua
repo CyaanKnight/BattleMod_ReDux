@@ -221,8 +221,8 @@ B.BattleTagPointers = function(mo)
 			if flag and flag.valid then --Flag exists?
 				
 				-- Booleans
-				local flag_tossed  		= (flag.flagtossed  and true) or false
-				local flag_dropped 		= (flag.flagdropped and true) or false
+				local flag_tossed  		= (flag.flag_wastossed  and true) or false
+				local flag_dropped 		= (flag.flag_wasdropped and true) or false
 				local flag_inposession  = (flag.player 	    and true) or false
 
 				if flag_inposession then
@@ -246,12 +246,16 @@ B.BattleTagPointers = function(mo)
 		if mo.allydrop then --Enemy flag was dropped, and this is the special arrow?
 
 			arrowscale = ARROW_CONSTANTSCALE
-			if enemyflag_state == st_dropped then
+			--if enemyflag_state == st_dropped then
 				--Someone needs to grab it before the enemy team does
-				target = enemyflag
-				color = enemycolor
+			target = enemyflag
+			color = enemycolor
 				--Point to the enemy flag
-			else
+			--else
+				--delete = true
+			--end
+
+			if target and target.valid and target.player then
 				hide = true
 			end
 
@@ -263,50 +267,13 @@ B.BattleTagPointers = function(mo)
 			--Point to your team's base
 
 		else --The Constant CTF Arrows
-			if homeflag_state == st_dropped then --Enemy flagholder dropped the flag?
-				--You need to return it
+			--Someone needs to grab the enemy flag
+			if (homeflag_state == st_atbase) and (enemyflag_state == st_atbase) then
+				target = enemyflag
+				color = enemycolor
+			else
 				target = homeflag
 				color = homecolor
-				--Point to your team's flag
-				
-			elseif homeflag_state == st_tossed then --Enemy flagholder tossed the flag?
-				--You need to return it
-				target = homeflag
-				color = homecolor
-				--Point to your team's flag
-
-			elseif homeflag_state == st_inposession then --Enemy flagholder has the flag?
-				--You need to return it
-				target = homeflag
-				color = homecolor
-				--Point to your team's flag
-
-			else --Your team's flag must be at base
-
-				if enemyflag_state == st_dropped then --Flagholder dropped the flag?
-					--The allydrop arrow already takes care of this
-					target = homeflag
-					color = homecolor
-					--Point to your team's flag
-
-				elseif enemyflag_state == st_tossed then --Flagholder tossed the flag?
-					--Assume they tossed it for a reason, and know what they are doing
-					target = homeflag
-					color = homecolor
-					--Point to your team's flag
-
-				elseif enemyflag_state == st_inposession then --Flagholder has the enemy flag?
-					--Base still needs to be defended
-					target = homeflag
-					color = homecolor
-					--Point to your team's flag
-
-				else --Enemy flag must be at base
-					--Someone needs to grab the enemy flag
-					target = enemyflag
-					color = enemycolor
-					--Point to the enemy team's flag
-				end
 			end
 		end
 	elseif B.TagGametype() then
@@ -429,7 +396,7 @@ B.BattleTagPointers = function(mo)
 	end
 
 	if (type(target) == "userdata") and (userdataType(target) == "mobj_t") and not(target and target.valid) then
-		hide = true
+		delete = true
 	end
 
 	if hide then
@@ -478,9 +445,6 @@ B.BattleTagPointers = function(mo)
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
-	if not(target and target.valid) then
-		delete = true
-	end
 	if delete then
 		if mo.tracer and mo.tracer.valid and mo.tracer.player then
 			if mo.tracer.btagpointer2 == mo then

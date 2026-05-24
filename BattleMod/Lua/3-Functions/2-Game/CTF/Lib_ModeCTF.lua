@@ -176,6 +176,7 @@ F.FlagIntangible = function(mo)
 		mo.tosstime = 2
 		mo.flagdropped = true
 		mo.flagtossed = true
+		mo.flag_wastossed = true
 		S_StartSound(mo, sfx_toss)
 	end
 
@@ -184,6 +185,7 @@ F.FlagIntangible = function(mo)
 		if spawntype == 2 then
 			mo.intangibletime = TICRATE*grace1.value
 			mo.flagdropped = true
+			mo.flag_wasdropped = true
 			if lasttouched then --Flag captures should be exempt
 				teamSound_flag(mo, lasttouched.player, sfx_flgwht, nil, 255)
 				mo.hud_timer = 0
