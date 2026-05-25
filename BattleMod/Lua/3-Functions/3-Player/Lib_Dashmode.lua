@@ -214,11 +214,6 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 
 		local dashmode_limit = skins[player.mo.skin].normalspeed+(skins[player.mo.skin].normalspeed/3)
 		
-		
-
-		if dashing and (player.normalspeed+(FRACUNIT/5) >= dashmode_limit) then
-			B.XYLimit(player.mo, dashmode_limit)
-		end
 
 		if charging then
 			player.mo.dashmode_charging = true
@@ -226,6 +221,11 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 		
 		if dashing then --Dashing?
 			player.mo.dashmode_reached = true --Mark it
+
+			if (player.normalspeed+(FRACUNIT/5) >= dashmode_limit) then
+				player.normalspeed = dashmode_limit
+			end
+
 			if not(spindashing) then
 				player.mo.dashmode_launch = true
 			end
