@@ -464,7 +464,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 -- 				P_SpawnThokMobj(player)
 			end
 			if player.actiontime == threshold2 then
-			print(mo.energyattack_chargemeter)
+			--print(mo.energyattack_chargemeter)
 			S_StartSound(mo,sfx_s1c3)
 				for l = 0,8
 					P_SpawnParaloop(mo.x,mo.y,mo.z+mo.height/2,256*mo.scale,16,MT_NIGHTSPARKLE,mo.angle+45*l*ANG1,nil,1)
