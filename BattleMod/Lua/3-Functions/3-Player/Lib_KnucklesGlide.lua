@@ -19,6 +19,11 @@ B.GlideSound = function(player)
     local glidelaunch = (gliding and not(player.mo.knux_glidelaunch))
 
     if gliding then
+
+        // add hitbox
+		if not player.battlehitbox then
+			local hitbox = B.BattleHitboxSpawn(player, 18*player.mo.scale, 1*player.mo.scale, 2, player.mo.state, true, 0)
+		end
         if glidelaunch then
             B.teamSound(player.mo, player, sfx_nullba, GLIDE_LAUNCH, 255, selfisenemy)
             player.mo.knux_glidelaunch = true

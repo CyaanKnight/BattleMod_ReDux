@@ -11,6 +11,9 @@ local rockblasttime_x = 25 //Time in tics before horizontal rockblast disappears
 local rockblasttime_y = 32 //Time in tics before vertical rockblast disappears
 local zthreshold = 8 //Z Distance from ground (in fracunits) that will cause Knuckles to resurface
 
+
+local kb_stunbreakcost = 30
+
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
 		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
@@ -177,6 +180,7 @@ B.Action.Dig=function(mo,doaction)
 	if trigger_drilldive
 		B.PayRings(player)
 		player.actionstate = state_drilldive
+		player.battlehitbox = false
 		mo.state = S_PLAY_ROLL
 		local dir = R_PointToAngle2(0,0,mo.momx,mo.momy)
 		local speed = FixedHypot(mo.momx,mo.momy)
@@ -192,7 +196,9 @@ B.Action.Dig=function(mo,doaction)
 		player.actiontime = $+1
 		B.DrawSVSprite(player,1+player.actiontime%4)
 		P_SpawnGhostMobj(mo)
-		
+
+		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, -24*player.mo.scale, 2, player.mo.state, false, 0)
+
 		if B.ButtonCheck(player, BT_JUMP) == 1 and player.exhaustmeter
 			B.ResetPlayerProperties(player,true,false)
 			B.ApplyCooldown(player,cancelcooldown)
@@ -269,9 +275,18 @@ B.Action.Dig=function(mo,doaction)
 		player.kgrab.momy = mo.momy
 		player.kgrab.momz = mo.momz
 		
-		if player.kgrab.player and player.kgrab.player.valid
+		if player.kgrab.valid and player.kgrab.player then
+			player.kgrab.tracer = mo
+			player.kgrab.player.powers[pw_carry] = CR_PLAYER
+
+			player.kgrab.player.canstunbreak = 1
+			player.kgrab.player.customstunbreakcost = kb_stunbreakcost
+			player.kgrab.player.customstunbreaktics = 0
+
 			player.kgrab.player.actioncooldown = 2
-			player.kgrab.state = S_PLAY_PAIN
+			if player.kgrab.state ~= S_PLAY_PAIN then
+				player.kgrab.state = S_PLAY_PAIN
+			end
         end
 		
 		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
@@ -385,6 +400,8 @@ B.Action.Dig=function(mo,doaction)
 		if grounded
 			player.actionstate = state_rising
 			B.DrawSVSprite(player,5)
+			local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_UNKNOWN, false, 0)
+			hitbox.radius = 36*player.mo.scale
 		end
 		if player.cmd.buttons&BT_JUMP then
 			mo.momx = $ / 3

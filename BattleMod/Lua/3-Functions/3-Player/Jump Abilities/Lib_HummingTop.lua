@@ -413,53 +413,6 @@ function B.HummingTop_MainHook(player)
 		end
 	end
 end
-
---unskinny hop hop hop
---all night and day
-
-function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
-		mo[n1].hummingtop_marker = {
-			xyspeed = FixedHypot(mo[n1].momx, mo[n1].momy)
-		}
-	end
-end
-
-function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
-
-		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
-		mo[n1].hummingtop_marker = nil
-
-
-		local bump = (hurt == 0)
-		local hit = (hurt == 1)
-		local clash = (hurt == 3)
-
-		if not(clash) then
-			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
-				cancelHummingTop(plr[n1])
-				cancelDropDash(mo[n1])
-			end
-			--Thrust sonic away
-			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
-			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-			--Bump opponent away at our current speed (will probably adjust later)
-			if (plr[n2] and plr[n2].playerstate == PST_LIVE) or not(plr[n2]) then
-				P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/3)
-			end
-
-			plr[n1].glidetime = 2 --Commit time ends
-
-			collisiontype = (bump and 1) or 3
-
-			mo[n1].recurl_actionable = true
-			return
-		else
-			return
-		end
-	end
-end
 		
 		
 --Rebound Dash Bounce
@@ -686,7 +639,7 @@ B.Sonic_HTopLineCollide = function(mo, line)
 	end
 end--, MT_PLAYER)
 
-local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
+local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly)
 	--Wall type
 	local bouncy = (walltype == 2)
 	local hbouncy = (walltype == 3)
@@ -721,7 +674,7 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	end
 	
 	--Screenshake
-	if player == consoleplayer and (bigbounce or nocl) and not(dropdash)
+	if player == consoleplayer and (bigbounce or nocl) and not(dropdash or fxonly)
 		local shake = 12
 		local shaketics = 3
 		if player.powers[pw_super]
@@ -741,7 +694,7 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	player.pflags = $ & ~PF_JUMPED
 	
 	local weak = false
-	if not bigbounce and not nocl and not dropdash
+	if not bigbounce and not nocl and not dropdash then
 		--Weak bump sfx
 		S_StartSoundAtVolume(mo,sfx_s3k5d,155)
 		weak = true
@@ -777,7 +730,7 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	end
 	
 	--Do the horizontal bounce
-	if reflect == 1--wall
+	if reflect == 1 and not(fxonly)
 		VectorBounce(mo,vmom,vwallnorm,percent)
 		if side == 1
 			P_Thrust(mo, wallnormangle, wallth)
@@ -799,10 +752,13 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	if player.powers[pw_super]
 		bouncez = FixedMul($, SUPERFACTOR)
 	end
-	if mo.eflags & MFE_VERTICALFLIP
-		mo.momz = min($,-bouncez)
-	else
-		mo.momz = max($,bouncez)
+
+	if not(fxonly) then
+		if mo.eflags & MFE_VERTICALFLIP
+			mo.momz = min($,-bouncez)
+		else
+			mo.momz = max($,bouncez)
+		end
 	end
 	
 	--Wallbounce dust
@@ -860,18 +816,21 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect)
 	if not bigbounce
 		circle.fuse = 6
 	end
-	player.glidetime = ($>2 and 2) or 0
-	if not dropdash then
-		player.mo.recurl_actionable = true
-		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
-		player.exhaustmeter = max(0, $-exhaust_chunk)
-		if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
-			P_RemoveMobj(player.mo.hummingtop_arrow)
-			player.mo.hummingtop_arrow = nil
+
+	if not(fxonly) then
+		player.glidetime = ($>2 and 2) or 0
+		if not dropdash then
+			player.mo.recurl_actionable = true
+			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+			player.exhaustmeter = max(0, $-exhaust_chunk)
+			if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
+				P_RemoveMobj(player.mo.hummingtop_arrow)
+				player.mo.hummingtop_arrow = nil
+			end
 		end
+		cancelDropDash(mo)
 	end
 	S_StartSound(mo, sfx_bounc1)
-	cancelDropDash(mo)
 end
 
 B.Sonic_HTopMoveBlocked = function(mo)
@@ -884,7 +843,7 @@ B.Sonic_HTopMoveBlocked = function(mo)
 	local nocl = player.bounceline.flags & ML_NOCLIMB
 	
 	--Bustable FOFs are busted
-	if player.bustsector and player.bustrover and player.holdingjump
+	if player.bustsector and player.bustrover then
 		EV_CrumbleChain(player.bustsector, player.bustrover)
 		player.bustsector = nil
 		player.bustrover = nil
@@ -896,3 +855,58 @@ B.Sonic_HTopMoveBlocked = function(mo)
 	local wallnormangle = R_PointToAngle2(line.v1.x, line.v1.y, line.v2.x, line.v2.y) + ANGLE_90
 	DoWallBounce(mo,player,wallnormangle,nocl,player.bounceside,1)
 end--, MT_PLAYER)
+
+--unskinny hop hop hop
+--all night and day
+
+function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
+		mo[n1].hummingtop_marker = {
+			xyspeed = FixedHypot(mo[n1].momx, mo[n1].momy)
+		}
+	end
+end
+
+function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
+
+		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
+		mo[n1].hummingtop_marker = nil
+
+
+		local bump = (hurt == 0)
+		local hit = (hurt == 1)
+		local clash = (hurt == 3)
+
+		if not(clash) then
+			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
+				cancelHummingTop(plr[n1])
+				cancelDropDash(mo[n1])
+			end
+			--Thrust sonic away
+			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
+			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
+			--Bump opponent away at our current speed (will probably adjust later)
+			if (plr[n2] and plr[n2].playerstate == PST_LIVE) or not(plr[n2]) then
+				P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/3)
+			end
+
+			if def[n2] >= def[n1] then
+				DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
+			else
+				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
+			end
+
+			mo[n1].air_recoilanim_override = true
+
+			plr[n1].glidetime = 2 --Commit time ends
+
+			collisiontype = (bump and 1) or 3
+
+			mo[n1].recurl_actionable = true
+			return
+		else
+			return
+		end
+	end
+end

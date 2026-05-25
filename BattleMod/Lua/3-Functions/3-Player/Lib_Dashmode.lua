@@ -211,23 +211,21 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 		local launched_marked = player.mo.dashmode_launch
 		local spindashing = (player.pflags & PF_STARTDASH)
 		local charging = spindashing and not(dashing)
-		local dashmodestart = (B.SkinVars[player.mo.skin] and B.SkinVars[player.mo.skin].dashmodestart) or nil
+
+		local dashmode_limit = skins[player.mo.skin].normalspeed+(skins[player.mo.skin].normalspeed/3)
 		
-		if (dashmodestart and (dashmodestart > 0) and (player.dashmode < dashmodestart)) or (player.dashmode == 0) then
-			if not(player.gotflagdebuff) then
-				player.dashmode = dashmodestart or 0
-				if dashmodestart and player.normalspeed == (skins[player.mo.skin].normalspeed + dashmodestart*(FRACUNIT/5)) then
-					player.normalspeed = $-(dashmodestart*(FRACUNIT/5))
-				end
-			end
-		end
-		
+
 		if charging then
 			player.mo.dashmode_charging = true
 		end
 		
 		if dashing then --Dashing?
 			player.mo.dashmode_reached = true --Mark it
+
+			if (player.normalspeed+(FRACUNIT/5) >= dashmode_limit) then
+				player.normalspeed = dashmode_limit
+			end
+
 			if not(spindashing) then
 				player.mo.dashmode_launch = true
 			end
@@ -246,7 +244,7 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 		end
 		
 		if decreasing then --Dashmode is decreasing?
-			player.dashmode = dashmodestart or 0
+			player.dashmode = 0
 			player.mo.dashmode_reached = nil --Unmark
 			player.mo.dashmode_launch = nil
 			player.powers[pw_strong] = $ & ~(STR_METAL)

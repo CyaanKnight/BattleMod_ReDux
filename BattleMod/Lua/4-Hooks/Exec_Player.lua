@@ -409,7 +409,7 @@ addHook("MobjLineCollide", function(mo, line)
 end, MT_PLAYER)
 
 addHook("ShieldSpecial", function(player)
-	if player.mo and player.mo.valid and (player.mo.dropdash_prep) then
-		return textures
+	if player and player.mo and player.mo.valid and player.mo.dropdash_prep then
+		return true
 	end
 end)

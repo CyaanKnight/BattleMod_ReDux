@@ -356,12 +356,16 @@ end
 B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 	--Uncurl
 	if P_IsObjectOnGround(player.mo) then
-		player.panim = 0
-		player.mo.state = S_PLAY_SKID
+		if not(player.mo.recoilanim_override) then
+			player.panim = 0
+			player.mo.state = S_PLAY_SKID
+		end
 		player.pflags = $&~(PF_SPINNING|PF_STARTDASH|PF_SLIDING)
 	else
-		player.panim = PA_FALL
-		player.mo.state = S_PLAY_FALL
+		if not(player.mo.recoilanim_override) then
+			player.panim = PA_FALL
+			player.mo.state = S_PLAY_FALL
+		end
 		player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 		player.secondjump = 0
 	end
@@ -375,6 +379,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 	if force == true then
 		P_InstaThrust(player.mo,angle,thrust)
 	end
+	player.mo.air_recoilanim_override = nil
 end
 
 B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)

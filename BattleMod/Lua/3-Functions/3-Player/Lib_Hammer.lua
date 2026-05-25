@@ -210,6 +210,21 @@ B.HammerControl = function(player)
 
 	local mo = player.mo
 
+	// hitboxes
+	local frameIndex = (mo.frame & FF_FRAMEMASK)
+	if not player.battlehitbox and frameIndex == 2 and 
+	( mo.state == S_PLAY_TWINSPIN or mo.state == S_PLAY_MELEE or mo.state == S_AMY_PIKOTWIRL) then
+		local orbit = 0
+		local tics = TICRATE/5
+		local s_state = S_UNKNOWN
+		if mo.state == S_AMY_PIKOTWIRL then
+			orbit = 1
+			tics = 2
+			s_state = S_AMY_PIKOTWIRL
+		end
+		local hitbox = B.BattleHitboxSpawn(player, 25*player.mo.scale, 1*player.mo.scale, tics, s_state, true, orbit)
+	end
+		
 	--Hammer twirl airstall
 	if (mo.state == S_AMY_PIKOTWIRL) and not(player.gotflagdebuff) then
 		mo.momz = 0

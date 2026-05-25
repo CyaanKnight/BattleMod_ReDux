@@ -106,12 +106,18 @@ B.PlayerThinkFrame = function(player)
 		player.lasthoming = leveltime
 	end
 
+	local knuckle_busted = (pmo and pmo.valid and pmo.tracer and pmo.tracer.valid and pmo.tracer.player and pmo.tracer.player.kgrab and pmo.tracer.player.kgrab.valid and pmo.tracer.player.kgrab == pmo)
+
 	-- Aerial timers
 	if P_IsObjectOnGround(pmo) then
 		player.noshieldactive = 0
-		player.canstunbreak = (player.canstunbreak and player.canstunbreak<-1) and $ or 0
+		if not(knuckle_busted) then
+			player.canstunbreak = (player.canstunbreak and player.canstunbreak<-1) and $ or 0
+		end
 	else
-		player.canstunbreak = ($ and $>0) and $-1 or 0
+		if not(knuckle_busted) then
+			player.canstunbreak = ($ and $>0) and $-1 or 0
+		end
 		player.noshieldactive = ($ and $>0) and $-1 or 0
 	end
 

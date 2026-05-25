@@ -50,7 +50,7 @@ states[S_SLASH1] = {
 states[S_SLASH2] = {
 	sprite = SPR_SLSH,
 	frame = B,
-	tics = 20,
+	tics = 8,
 	nextstate = S_NULL
 }
 
@@ -64,6 +64,6 @@ states[S_SLASH3] = {
 states[S_SLASH4] = {
 	sprite = SPR_SLSH,
 	frame = D,
-	tics = 20,
+	tics = 8,
 	nextstate = S_NULL
 }
