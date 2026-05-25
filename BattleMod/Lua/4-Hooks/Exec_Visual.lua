@@ -193,7 +193,7 @@ B.BattleTagPointers = function(mo)
 	local color = SKINCOLOR_NONE
 	local player = (mo.tracer and mo.tracer.player) or nil
 
-	if not(B.IsValidPlayer(mo.tracer)) or not(mo.tracer) or (player.playerstate == PST_DEAD) or (player.ctfteam == 0) then
+	if not(B.IsValidPlayer(mo.tracer)) or not(mo.tracer) or (player.playerstate == PST_DEAD) or (G_GametypeHasTeams() and (player.ctfteam == 0)) then
 		if mo and mo.valid then
 			P_RemoveMobj(mo)
 		end
@@ -276,12 +276,12 @@ B.BattleTagPointers = function(mo)
 				color = homecolor
 			end
 		end
-	elseif B.TagGametype() then
+	elseif (gametype == GT_BATTLETAG) then
 		arrowscale = ARROW_TAGSCALE
 		if ((not(player.battletagIT) or target.player.battletagIT) or not(B.IsValidPlayer(target))) then
 			hide = true
 		end
-	elseif B.RubyGametype() then
+	elseif (gametype == GT_RUBYRUN) then
 		arrowscale = ARROW_CONSTANTSCALE
 		if mo.goalpointer then
 			if R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player and R.ID.target.player.gotcrystal then
@@ -308,7 +308,7 @@ B.BattleTagPointers = function(mo)
 				hide = true
 			end
 		end
-	elseif B.DiamondGametype() then
+	elseif (gametype == GT_DIAMOND) or (gametype == GT_TEAMDIAMOND) then
 		arrowscale = ARROW_CONSTANTSCALE
 
 		if mo.goalpointer then
@@ -360,42 +360,47 @@ B.BattleTagPointers = function(mo)
 				end
 			end
 		end
-	elseif B.CPGametype() then
+	elseif (gametype == GT_CP) then
 		arrowscale = ARROW_CONSTANTSCALE
 		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid and ((CP.Timer <= TICRATE*10) or (CP.Active == true)) then
 			target = CP.ID[CP.Num]
-
-			if G_GametypeHasTeams() then
-
-				if (CP.TeamCapAmt[1] > CP.TeamCapAmt[2]) then --Red Team is winning?
-					color = skincolor_redteam
-				elseif (CP.TeamCapAmt[2] > CP.TeamCapAmt[1]) then --Blue Team is winning?
-					color = skincolor_blueteam
-				else
-					color = SKINCOLOR_YELLOW --Tie?
-				end
-
+			if CP.LeadCapPlr then --Is there a player in the lead?
+				color = CP.LeadCapPlr.skincolor
 			else
-				if CP.LeadCapPlr then --Is there a player in the lead?
-					color = CP.LeadCapPlr.skincolor
-				else
-					color = SKINCOLOR_GOLD
-				end
+				color = SKINCOLOR_GOLD
 			end
 		else
 			hide = true
 		end
-	elseif B.SuddenDeath then
+	elseif (gametype == GT_TEAMCP) then
 		arrowscale = ARROW_CONSTANTSCALE
-		if B.ZoneObject and B.ZoneObject.valid then
-			target = B.ZoneObject
-			color = SKINCOLOR_COPPER --idk I couldn't think of a better color
+		if CP.ID and CP.Num and CP.ID[CP.Num] and CP.ID[CP.Num].valid and ((CP.Timer <= TICRATE*10) or (CP.Active == true)) then
+			target = CP.ID[CP.Num]
+
+			if (CP.TeamCapAmt[1] > CP.TeamCapAmt[2]) then --Red Team is winning?
+				color = skincolor_redteam
+			elseif (CP.TeamCapAmt[2] > CP.TeamCapAmt[1]) then --Blue Team is winning?
+				color = skincolor_blueteam
+			else
+				color = SKINCOLOR_YELLOW --Tie?
+			end
 		else
 			hide = true
 		end
+	elseif (gametype == GT_SURVIVAL) or (gametype == GT_TEAMSURVIVAL) then
+
+		if B.SuddenDeath then
+			arrowscale = ARROW_CONSTANTSCALE
+			if B.ZoneObject and B.ZoneObject.valid then
+				target = B.ZoneObject
+				color = SKINCOLOR_COPPER --idk I couldn't think of a better color
+			else
+				hide = true
+			end
+		end
 	end
 
-	if (type(target) == "userdata") and (userdataType(target) == "mobj_t") and not(target and target.valid) then
+	if (type(target) == "userdata") and (userdataType(target) == "mobj_t") and not(target.valid) then
 		delete = true
 	end
 
@@ -414,7 +419,7 @@ B.BattleTagPointers = function(mo)
 			P_RemoveMobj(mo)
 			return
 		else
-			mo.flags2 = $|MF2_DONTDRAW
+			--mo.flags2 = $|MF2_DONTDRAW
 		end
 	else
 		if not(B.TagGametype()) then
