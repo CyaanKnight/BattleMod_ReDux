@@ -877,6 +877,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local bump = (hurt == 0)
 		local hit = (hurt == 1)
 		local clash = (hurt == 3)
+		local fail  = (hurt == -1)
 
 		if not(clash) then
 			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
@@ -891,10 +892,12 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/3)
 			end
 
-			if def[n2] >= def[n1] then
-				DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
-			else
-				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
+			if not(fail) then
+				if hit then
+					DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
+				else
+					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
+				end
 			end
 
 			mo[n1].air_recoilanim_override = true
