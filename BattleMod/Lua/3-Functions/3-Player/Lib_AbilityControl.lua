@@ -438,9 +438,11 @@ B.invinciblespark = function(player)
 			B.teamSound(mo, player, sfx_nullba, sfx_huprsa, 255, false)
 			S_StartSoundAtVolume(mo, sfx_huprsa, 255/5, player)
 		end
-	elseif player.invbarrier and player.invbarrier.valid then
-		P_RemoveMobj(player.invbarrier)
-		mo.renderflags = $&~RF_FULLBRIGHT
+	else
+		if player.invbarrier and player.invbarrier.valid then
+			P_RemoveMobj(player.invbarrier)
+			mo.renderflags = $&~RF_FULLBRIGHT
+		end
 		if S_SoundPlaying(mo, sfx_huprsa) then
 			S_StopSound(mo, sfx_huprsa)
 		end
