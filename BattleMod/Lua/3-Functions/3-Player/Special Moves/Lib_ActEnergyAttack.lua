@@ -36,7 +36,7 @@ local skinname = "metalsonic" --For frame colorization
 
 //Charge time thresholds
 local threshold1 = 6
-local blast_threshold = 9
+local blast_threshold = 12
 local threshold2 = threshold1+26
 local state_charging = 1
 local state_energyblast = 2
@@ -60,6 +60,8 @@ local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
 local dashslice_buildup = TICRATE/4
+
+local charged_meteroverride = 35552
 
 local resetdashmode = function(p)
 	local myskin = (p.mo and p.mo.valid and p.mo.skin) or p.skin
@@ -109,8 +111,7 @@ local spawnslashes = function(player, mo)
 end
 
 
-local doBlast = function(mo, player) --abstraction
-	S_StartSound(mo,sfx_s3k54)
+local doBlast = function(mo, player, single) --abstraction
 	local set = blastcount1
 	local decay = 1
 	local vset = 2
@@ -122,6 +123,12 @@ local doBlast = function(mo, player) --abstraction
 		vwidth = vertwidth
 	end*/ --None of that thank you
 	local angle = mo.angle
+
+	if single then
+		set = 1
+		vset = 0
+	end
+
 	//Projectiles
 	for i = 1,set
 		if i > 1 and i&1 then angle = mo.angle-sideangle*(i>>1) end
@@ -135,6 +142,7 @@ local doBlast = function(mo, player) --abstraction
 					blast.colorized = true
 					blast.color = mo.color
 				end
+				blast.fuse = TICRATE*2
 				blast.scale = (mo.scale/2)
 				local speed = FixedMul(blast.info.speed,mo.scale)
 				local xyangle = R_PointToAngle2(0,0,blast.momx,blast.momy)
@@ -338,8 +346,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	mo.energyattack_chargebuffer = $-1
 	mo.ringsparkclock = $ or 0
 	--print(mo.energyattack_chargebuffer)
-	if mo.energyattack_chargemeter < FRACUNIT and player.actionstate == state_charging then
-		player.action2text = "Charge "..100-(100*mo.energyattack_chargemeter/FRACUNIT).."%"
+	if player.actionstate == state_charging then
+		if mo.energyattack_chargemeter >= charged_meteroverride then
+			player.action2text = "Charge "..100-(100*(mo.energyattack_chargemeter-charged_meteroverride)/FRACUNIT).."%"
+		else
+			player.action2text = "Charge 100%"
+		end
 	end
 	
 	if not(B.CanDoAction(player) or player.actionstate >= state_dashslicer) then
@@ -362,13 +374,14 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	local blasttrigger = (player.actionstate ~= state_energyblast) and not(sparktrigger) and ((blastready and doaction == 0) or (mo.energyattack_chargemeter <= 0 and doaction == 2))
 	local chargehold = (attackready and B.PlayerButtonPressed(player,player.battleconfig_special,true))
 	local slashtrigger = not(sparktrigger) and attackready and doaction == 2 and B.PlayerButtonPressed(player,bt_slashtrigger,false)
-	local charged = (mo.energyattack_chargemeter <= 0) 
 	local canceltrigger =
 		not(blasttrigger or sparktrigger or slashtrigger)
 		and player.actionstate == state_charging
 		and doaction == 2
 		and B.PlayerButtonPressed(player,player.battleconfig_guard,false)
 	local chargetrigger = (player.actionstate == 0 and doaction == 1)
+	local overcharged = (mo.energyattack_chargemeter <= 0)
+	local charged = (mo.energyattack_chargemeter <= charged_meteroverride) 
 	
 	//Intercepted while charging
 	if (player.actionstate == state_charging or player.actionstate == state_energyblast) and player.powers[pw_nocontrol] then
@@ -409,7 +422,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Charging Blast
 	if charging then
 		//Do aim sights
-		player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80" --Tell the player they can release or hold for a blast
+		--player.actiontext = "(HOLD) Triple Blast  ".."\x83"..(player.actionrings/2).." Each".."\x80" --Tell the player they can release or hold for a blast
 		B.DrawAimLine(player,mo.angle)
 		player.canguard = false
 		player.pflags = $|PF_JUMPSTASIS
@@ -443,6 +456,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 -- 				P_SpawnThokMobj(player)
 			end
 			if player.actiontime == threshold2 then
+			print(mo.energyattack_chargemeter)
 			S_StartSound(mo,sfx_s1c3)
 				for l = 0,8
 					P_SpawnParaloop(mo.x,mo.y,mo.z+mo.height/2,256*mo.scale,16,MT_NIGHTSPARKLE,mo.angle+45*l*ANG1,nil,1)
@@ -473,16 +487,19 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	//Release blast
+	//Release blast
 	if (blasttrigger) then
 		mo.state = $
-		doBlast(mo, player) --blast
+		 --blast
 		mo.energyattack_chargebuffer = blastbuffer --set buffer
 		if charged then
-			mo.energyattack_charged = true --make it known
-			B.PayRings(player,player.actionrings/2)
-			--mo.energyattack_chargemeter = FRACUNIT
-		else
+			doBlast(mo, player)
+			S_StartSound(mo, sfx_s3k54)
+		elseif overcharged then
 			stallOrFall(mo, player, cooldown_blast)
+		else
+			doBlast(mo, player, true)
+			S_StartSound(mo, sfx_s3k45)
 		end
 		player.actiontime = 0
 		player.actionstate = state_energyblast
@@ -505,47 +522,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 	//Charge release state
 	if player.actionstate == state_energyblast then
-		mo.energyattack_counter = $ or 0 --make counter if non-existent
-		if mo.energyattack_charged then
-			local val = (player.actionrings/2)
-			player.actiontext = "Energy Blast  ".."\x82"..val.."\x80"
-			player.action2text = "Blasts Left: "..2-mo.energyattack_counter
-			if (doaction == 2) then --if we're charged
-				--print("charged and holding down")
-				if mo.energyattack_counter < 2 then --if we have not blasted 3 times
-					B.DrawAimLine(player,mo.angle) --aim lines my beloved
-					--print("counter less than two")
-					chargestall(mo, player)
-					if (mo.energyattack_chargebuffer < 1) then --If the buffer has passed and we're still holding down the button
-						--print("buffer zero")
-						mo.energyattack_counter = $+1 --Increase blast count
-						doBlast(mo, player) --blast
-						B.PayRings(player,player.actionrings/2) --Charge
-						mo.energyattack_chargebuffer = blastbuffer --set buffer
-					else
-						if mo.energyattack_chargebuffer < blastbuffer/2 then --"My cat vomitting on the floor at 3am"
-							mo.state = S_PLAY_WALK
-							mo.frame = 0
-							mo.sprite = SPR_METL
-							mo.frame = _G["S"]
-						end
-					end
-					player.actionstate = state_energyblast --Blast
-				else
-					if player.rings < player.actionrings/2 then
-						stallOrFall(mo, player, cooldown_multiblast)
-					else
-						stallOrFall(mo, player, cooldown_blast)
-					end
-					--resetvars(mo)
-				end
-			else
-				stallOrFall(mo, player, cooldown_blast)
-				--resetvars(mo)
-			end
-		else
-			stallOrFall(mo, player, cooldown_blast)
-		end
+		stallOrFall(mo, player, cooldown_blast)
 	end
 	
 	--Ring Spark
