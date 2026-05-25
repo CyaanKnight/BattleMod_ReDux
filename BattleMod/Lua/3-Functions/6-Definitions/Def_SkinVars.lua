@@ -92,7 +92,6 @@ S["fang"] = {
 S["metalsonic"] = {
 	flags = SKINVARS_GUARD|SKINVARS_DASHMODENERF,
 	weight = 110,
-	dashmodestart = 25,
 	special = Act.EnergyAttack,
 	guard_frame = 2,
 	func_priority_ext = Act.EnergyAttack_Priority,
