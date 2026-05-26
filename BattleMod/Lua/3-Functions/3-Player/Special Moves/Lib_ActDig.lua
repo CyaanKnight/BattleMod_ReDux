@@ -133,7 +133,7 @@ B.Action.Dig=function(mo,doaction)
 			player.actiontextflags = 1
 
 		end
-		player.actiontext = "Rock Blast"
+		player.actiontext = "Knuckle Buster"
 		player.actionrings = 0 
 		if player.actionrings > player.rings then
 			player.actiontextflags = 3
