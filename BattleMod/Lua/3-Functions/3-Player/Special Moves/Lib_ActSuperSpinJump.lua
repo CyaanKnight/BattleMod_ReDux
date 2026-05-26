@@ -203,12 +203,23 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				end
 				
 				S_StartSound(mo,sfx_s3k5f)
+				local blastspeed = 4
+				local fuse = 10
 				
-				//Create damaging shockwave
+				//Create projectile blast
+				for n = 0, 23
+					local p = P_SPMAngle(mo,MT_GROUNDPOUND,mo.angle+n*ANG15,0)
+					if p and p.valid then
+						p.momz = mo.scale*P_MobjFlip(mo)*blastspeed/water
+						p.fuse = fuse
+					end
+				end
+
+				/*Create damaging shockwave
 				local old_speed = mobjinfo[MT_GP_SHOCKWAVE].speed
 				mobjinfo[MT_GP_SHOCKWAVE].speed = gp_distance / mobjinfo[MT_GP_SHOCKWAVE].painchance
 				A_Shockwave(mo, MT_GP_SHOCKWAVE, 16)
-				mobjinfo[MT_GP_SHOCKWAVE].speed = old_speed
+				mobjinfo[MT_GP_SHOCKWAVE].speed = old_speed*/
 					
 				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
 				B.ZLaunch(mo,reboundthrust*FRACUNIT,true)
