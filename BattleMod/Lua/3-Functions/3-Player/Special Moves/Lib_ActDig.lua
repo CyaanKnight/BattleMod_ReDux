@@ -277,7 +277,6 @@ B.Action.Dig=function(mo,doaction)
 		
 		if player.kgrab.valid and player.kgrab.player then
 			player.kgrab.tracer = mo
-			player.kgrab.player.powers[pw_carry] = CR_PLAYER
 
 			player.kgrab.player.canstunbreak = 1
 			player.kgrab.player.customstunbreakcost = kb_stunbreakcost

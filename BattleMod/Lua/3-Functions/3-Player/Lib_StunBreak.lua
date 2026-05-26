@@ -107,6 +107,8 @@ B.StunBreak = function(player, doguard)
 			P_StartQuake(12 * FRACUNIT, 4)
 		end
 
+		local knuckle_busted = (mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and mo.tracer.player.kgrab == mo)
+
 		//Troll tails players
 		if player.powers[pw_carry] == CR_PLAYER and player.mo.tracer and player.mo.tracer.player then
 			local tails = player.mo.tracer
@@ -114,6 +116,12 @@ B.StunBreak = function(player, doguard)
 			player.powers[pw_carry] = 0
 			P_SetObjectMomZ(tails, mo.scale*10)
 			B.DoPlayerTumble(tails.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
+		end
+		if knuckle_busted then
+			local knuckles = player.mo.tracer
+			player.mo.tracer = nil
+			P_SetObjectMomZ(knuckles, mo.scale*10)
+			B.DoPlayerTumble(knuckles.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
 		end
 	end
 end
