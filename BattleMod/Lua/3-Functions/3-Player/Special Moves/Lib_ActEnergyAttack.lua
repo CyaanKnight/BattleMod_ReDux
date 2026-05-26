@@ -138,13 +138,21 @@ local doBlast = function(mo, player, single) --abstraction
 		for n = 0, m
 			local blast = P_SPMAngle(mo,MT_ENERGYBLAST,angle,0)
 			if blast and blast.valid then
+				blast.tracer = mo
 				if G_GametypeHasTeams() then
 					blast.colorized = true
 					blast.color = mo.color
 				end
+
+				local blast_speed = blast.info.speed
+
+				if not(single) then
+					blast_speed = $*2
+				end
+
 				blast.fuse = TICRATE*2
 				blast.scale = (mo.scale/2)
-				local speed = FixedMul(blast.info.speed,mo.scale)
+				local speed = FixedMul(blast_speed,mo.scale)
 				local xyangle = R_PointToAngle2(0,0,blast.momx,blast.momy)
 				local zangle
 				if m == 0 then zangle = 0
@@ -456,7 +464,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 -- 				P_SpawnThokMobj(player)
 			end
 			if player.actiontime == threshold2 then
-			print(mo.energyattack_chargemeter)
+			--print(mo.energyattack_chargemeter)
 			S_StartSound(mo,sfx_s1c3)
 				for l = 0,8
 					P_SpawnParaloop(mo.x,mo.y,mo.z+mo.height/2,256*mo.scale,16,MT_NIGHTSPARKLE,mo.angle+45*l*ANG1,nil,1)

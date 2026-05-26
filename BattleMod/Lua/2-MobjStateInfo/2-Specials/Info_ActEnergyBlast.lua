@@ -11,7 +11,7 @@ mobjinfo[MT_ENERGYBLAST] = {
 	spawnstate = S_ENERGYBALL1,
 	spawnhealth = 1000,
 	reactiontime = 8,
-	speed = 30*FRACUNIT,
+	speed = 15*FRACUNIT,
 	radius = 8*FRACUNIT,
 	height = 48*FRACUNIT,
 	mass = 0,
@@ -30,3 +30,7 @@ mobjinfo[MT_ENERGYGATHER] = {
 	dispoffset = -1,
 	flags = MF_NOBLOCKMAP|MF_NOCLIP|MF_NOCLIPHEIGHT|MF_NOGRAVITY|MF_SCENERY
 }
+
+freeslot("sfx_nblst")
+
+sfxinfo[sfx_nblst].caption = "\x82".."ENERGY BLAST".."\x80"

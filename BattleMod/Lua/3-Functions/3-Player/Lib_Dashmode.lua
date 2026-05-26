@@ -219,11 +219,13 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 			player.mo.dashmode_charging = true
 		end
 		
-		if dashing then --Dashing?
+		if dashing then
 			player.mo.dashmode_reached = true --Mark it
 
 			if (player.normalspeed+(FRACUNIT/5) >= dashmode_limit) then
 				player.normalspeed = dashmode_limit
+				
+				P_SpawnGhostMobj(player.mo).colorized = true
 			end
 
 			if not(spindashing) then

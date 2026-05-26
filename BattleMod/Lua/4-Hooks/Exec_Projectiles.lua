@@ -344,6 +344,13 @@ addHook("MobjSpawn",function(mo)
 end,MT_ENERGYBLAST)
 addHook("MobjThinker",function(mo)
 	B.SafeRadiusIncrease(mo, 24*FRACUNIT)
+
+	if mo.tracer and mo.tracer.player then
+		if not(S_SoundPlaying(mo, sfx_nblst)) then
+			B.teamSound(mo, mo.tracer.player, sfx_nullba, sfx_nblst, 255, false)
+		end
+	end
+
 end,MT_ENERGYBLAST)
 
 addHook("MobjSpawn",function(mo)
