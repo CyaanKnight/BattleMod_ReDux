@@ -13,7 +13,7 @@ local pound_downaccel = FRACUNIT*4//4
 local jumpfriction = FRACUNIT*9/10
 local poundfriction = FRACUNIT
 local reboundthrust = 13
-local gp_distance = FRACUNIT*200
+local gp_distance = FRACUNIT*168
 
 B.Action.SuperSpinJump_Priority = function(player)
 	local mo = player.mo
@@ -204,22 +204,35 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				
 				S_StartSound(mo,sfx_s3k5f)
 				local blastspeed = 4
-				local fuse = 10
+				local fuse = 11
 				
-				//Create projectile blast
-				for n = 0, 23
-					local p = P_SPMAngle(mo,MT_GROUNDPOUND,mo.angle+n*ANG15,0)
-					if p and p.valid then
-						p.momz = mo.scale*P_MobjFlip(mo)*blastspeed/water
-						p.fuse = fuse
-					end
-				end
+				if B.PlayerButtonPressed(player, BT_SPIN, true) then
+					//Create projectile blast
 
-				/*Create damaging shockwave
-				local old_speed = mobjinfo[MT_GP_SHOCKWAVE].speed
-				mobjinfo[MT_GP_SHOCKWAVE].speed = gp_distance / mobjinfo[MT_GP_SHOCKWAVE].painchance
-				A_Shockwave(mo, MT_GP_SHOCKWAVE, 16)
-				mobjinfo[MT_GP_SHOCKWAVE].speed = old_speed*/
+					local step = 20
+
+					for n = 0, 360-step, step do
+						local angle = mo.angle+n*ANG1
+						local p = P_SPMAngle(mo,MT_GROUNDPOUND,angle,0)
+						if p and p.valid then
+							B.SafeRadiusIncrease(p, 48*FRACUNIT)
+							p.tics = fuse
+							p.spritexscale = FRACUNIT+(FRACUNIT/2)
+							p.spriteyscale = FRACUNIT+(FRACUNIT/2)
+							p.spriteyoffset = -FRACUNIT*19
+							p.momz = 0
+							p.z = ((P_MobjFlip(mo)==-1 and (mo.z+mo.height)) or mo.z)+(P_MobjFlip(mo)*(mo.scale))
+							p.fuse = fuse
+						end
+					end
+				else
+
+					//Create damaging shockwave
+					local old_speed = mobjinfo[MT_GP_SHOCKWAVE].speed
+					mobjinfo[MT_GP_SHOCKWAVE].speed = gp_distance / mobjinfo[MT_GP_SHOCKWAVE].painchance
+					A_Shockwave(mo, MT_GP_SHOCKWAVE, 16)
+					mobjinfo[MT_GP_SHOCKWAVE].speed = old_speed
+				end
 					
 				P_InstaThrust(mo,R_PointToAngle2(0,0,mo.momx,mo.momy),FixedHypot(mo.momx,mo.momy)/8)
 				B.ZLaunch(mo,reboundthrust*FRACUNIT,true)

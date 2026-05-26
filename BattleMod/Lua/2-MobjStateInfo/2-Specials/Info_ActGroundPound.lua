@@ -12,12 +12,12 @@ freeslot(
 //Sonic Ground Pound Projectile
 mobjinfo[MT_GROUNDPOUND] = {
 	spawnstate = S_SSPK2,
-	speed = 20*FRACUNIT,
+	speed = 15*FRACUNIT,
 	radius = 8*FRACUNIT,
-	height = 16*FRACUNIT,
+	height = 8*FRACUNIT,
 	mass = 0,
 	damage = 0,
-	flags = MF_MISSILE|MF_GRENADEBOUNCE|MF_BOUNCE
+	flags = MF_MISSILE|MF_NOBLOCKMAP|MF_NOGRAVITY|MF_PAPERCOLLISION
 }
 
 //Sonic Spin Wave Projectile
