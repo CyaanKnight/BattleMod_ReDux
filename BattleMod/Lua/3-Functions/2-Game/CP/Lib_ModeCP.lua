@@ -22,7 +22,7 @@ CP.LoseSFX = sfx_nxitem
 CP.SFXtic = 1
 
 CP.ThinkFrame = function(mo)
-	if not(B.CPGametype and CP.Mode) then return end
+	if not(B.CPGametype() and CP.Mode) then return end
 	if B.PreRoundWait() then return end
 	if not(G_GametypeHasTeams()) and (CP.LeadCapAmt > 0 and not(CP.LeadCapPlr != nil and CP.LeadCapPlr.valid and CP.LeadCapPlr.playerstate == PST_LIVE and CP.LeadCapPlr.mo and CP.LeadCapPlr.mo.valid)) then
 		CP.RefreshLeadCapPlr()
@@ -36,6 +36,7 @@ CP.ThinkFrame = function(mo)
 				player.mo.btagpointer = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_BTAG_POINTER)
 				if player.mo.btagpointer and player.mo.btagpointer.valid then
 					player.mo.btagpointer.tracer = player.mo
+					player.mo.btagpointer.target = CP.ID[CP.Num]
 				end
 			end
 		end

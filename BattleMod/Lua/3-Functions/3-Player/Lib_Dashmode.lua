@@ -250,6 +250,7 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 			player.mo.dashmode_reached = nil --Unmark
 			player.mo.dashmode_launch = nil
 			player.powers[pw_strong] = $ & ~(STR_METAL)
+			player.normalspeed = skins[player.mo.skin].normalspeed
 		end
 	end
 end

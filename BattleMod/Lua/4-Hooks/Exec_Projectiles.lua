@@ -78,6 +78,7 @@ local gpshockwavethinker = function(mo)
 	B.SafeRadiusIncrease(mo, 48*FRACUNIT)
 end
 addHook("MobjThinker", gpshockwavethinker, MT_GP_SHOCKWAVE)
+addHook("MobjThinker", function(mo) B.SafeRadiusIncrease(mo, 48*FRACUNIT) end, MT_GROUNDPOUND)
 
 --Tails Projectiles
 addHook("MobjThinker",function(mo)
