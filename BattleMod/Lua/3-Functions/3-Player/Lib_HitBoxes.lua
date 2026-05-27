@@ -120,7 +120,7 @@ B.BattleHitboxCollision = function(boxhit, mobj)
 			local PFunc = B.PriorityFunction
 			local func = plr.battle_sfunc
 
-			if not PFunc[func](plr.mo,mobj) then
+			if func and not PFunc[func](plr.mo,mobj) then
 			return end
 		end
 
