@@ -1,5 +1,5 @@
 '''
-# SRB2ModCompiler v7.2 by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v8.2 by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
@@ -29,23 +29,25 @@ def verbose(*args, **kwargs):
     if isVerbose:
         print(*args, **kwargs)
 
+vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
+RED = '\033[31m' if vscode else ''
+GREEN = '\033[32m' if vscode else ''
+BLUE = '\033[36m' if vscode else ''
+YELLOW = '\033[93m' if vscode else ''
+RESETCOLOR = '\033[0m' if vscode else ''
+BLACK = '\033[30m' if vscode else ''
+UNDERLINE = '\033[4m' if vscode else ''
+NOUNDERLINE = '\033[24m' if vscode else ''
+
 def main():
     global isVerbose
-    vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
-    RED = '\033[31m' if vscode else ''
-    GREEN = '\033[32m' if vscode else ''
-    BLUE = '\033[36m' if vscode else ''
-    RESETCOLOR = '\033[0m' if vscode else ''
-    BLACK = '\033[30m' if vscode else ''
-    UNDERLINE = '\033[4m' if vscode else ''
-    NOUNDERLINE = '\033[24m' if vscode else ''
 
     profile, name = get_active_profile()
-    status = GREEN+"ready" if profile["exe_path"] else RED+"not set"
+    status = GREEN+"ready" if profile["exe_path"] else (YELLOW+"optional" if os.name=="posix" else RED+"not set")
     
     print(BLUE, end="")
     print(f"Welcome to SRB2ModCompiler v2! Active profile '{GREEN}{name}{BLUE}' is {status}{BLUE}.")
-    print(f"Type '{GREEN}help{BLUE}' to see available commands.")
+    print(f"ENTER to begin, or type '{GREEN}help{BLUE}' to explore available commands.")
     
     while True:
         command = input(RESETCOLOR+"> ").lower().strip()
@@ -384,6 +386,8 @@ def main():
                 config["7z_path"] = path
                 save_config(config)
                 print(f"7-Zip path updated successfully!")
+        elif command == "enter":
+            print("dude.")
         else:
             print(f"Invalid command. Type '{GREEN}help{BLUE}' to see available commands.")
 
@@ -400,9 +404,6 @@ def find_mod_directory():
             if os.path.exists(new_mod_dir) and os.path.isdir(new_mod_dir):
                 return new_mod_dir
             else:
-                vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
-                YELLOW = '\033[93m' if vscode else ''
-                BLUE = '\033[36m' if vscode else ''
                 print(f"{YELLOW}Warning: Path in .SRB2C_MODPATH is invalid. Defaulting to the original directory.{BLUE}")
     
     return mod_dir
@@ -410,15 +411,12 @@ def find_mod_directory():
 def run(isGUI=None, multiCount=0, use_7zip=False):
     """
     I'm adding this comment because this function does a lot of things:
-    - Requires the enviroment variable ``SRB2C_LOC``, which points to the user's SRB2 executable (if not provided, will return a warning)
-    - Tries to read the ``.SRB2C_VERSIONINFO`` file (in the same directory as this script) and generate a file based on it.
-        - If the file is not found, this step will be skipped
-    - Tries to read the ``.SRB2C_ARGS`` file (first in mod, then in the same directory as this script) and store its contents as launch parameters.
-        - If the file is not found, it will default to ``-skipintro``
-    - It will zip the current directory in the ``SRB2C_DL`` enviroment variable
-        - If the variable is not found, the zip file will be stored in ``SRB2C_LOC``/DOWNLOAD/_srb2compiled
-    - After the zip file has been created/updated, it will then run the SRB2 executable in ``SRB2C_LOC``, with the ``-file`` parameter to run it
-    - Aditionally, this will print useful information such as runcount and datetime
+    - Requires the enviroment variable ``SRB2C_LOC``, which points to the user's SRB2 executable (or the SRB2 flatpak if available).
+    - Optionally reads the ``.SRB2C_VERSIONINFO`` file (in the same directory as this script) and generate a file based on it.
+    - Optionally reads the ``.SRB2C_ARGS`` file (first in mod, then in the same directory as this script). Defaults to ``-skipintro``
+    - Optionally zips the current directory in the ``SRB2C_DL`` enviroment variable. Otherwise, defaults to``SRB2C_LOC/DOWNLOAD/_srb2compiled``
+    - Runs the SRB2 executable in ``SRB2C_LOC``, with the ``-file`` parameter to run it
+    - Also prints information that may be useful such as runcount and datetime
     """
     import subprocess
     import datetime
@@ -430,12 +428,7 @@ def run(isGUI=None, multiCount=0, use_7zip=False):
     basedirname = os.path.basename(mod_dir)
     pk3name = "_"+basedirname+".pk3"
 
-    vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
-    BLUE = '\033[36m' if vscode else ''
-    YELLOW = '\033[93m' if vscode else ''
-    GREEN = '\033[32m' if vscode else ''
-    RESETCOLOR = '\033[0m' if vscode else ''
-
+    # Warn if the directory doesn't look like a mod
     if runcount == 0:
         current_dir_contents = os.listdir(mod_dir)
         COMMON_SRB2_PARTS = ['Lua', 'Sprites', 'Skins', 'Textures', 'Sounds', 'Graphics', 'SOC']
@@ -467,116 +460,184 @@ def run(isGUI=None, multiCount=0, use_7zip=False):
                 else:
                     print(BLUE, end="")
     
-    #srb2_loc = get_environment_variable("SRB2C_LOC")
-    #srb2_dl = get_environment_variable("SRB2C_DL") if get_environment_variable("SRB2C_DL") else os.path.join(os.path.dirname(srb2_loc), "DOWNLOAD", "_srb2compiled")
     srb2_loc = profile["exe_path"]
-    srb2_dl = profile["downloads_path"] or os.path.join(os.path.dirname(srb2_loc), "DOWNLOAD", "_srb2compiled")
-    if srb2_loc:
-        try:
-            create_versioninfo(datetime, subprocess)
-        except Exception as e:
-            if isGUI:
-                raise e
-            else:
-                print(f"Error creating .SRB2C_VERSIONINFO file: {e}")
+    srb2_dl = profile["downloads_path"]
 
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # NOW! *thunder*
-        gonnarun = True
-        try:
-            fileInModDir = True
-            args_file = os.path.join(mod_dir, ".SRB2C_ARGS")
-            if not os.path.exists(args_file):
-                fileInModDir = False
-                args_file = os.path.join(os.path.dirname(__file__), ".SRB2C_ARGS")
-
-            with open(args_file, "r") as file:
-                args_content = file.read()
-                extraargs = shlex.split(args_content)
-                if runcount == 0:
-                    if isVerbose:
-                        where = os.path.basename(os.path.dirname(mod_dir if fileInModDir else os.path.dirname(__file__)))
-                        verbose(f"[{now}] Found {GREEN}.SRB2C_ARGS{BLUE} file in {where}")
-        except FileNotFoundError:
+    # Check for Flatpak if no executable is set
+    if not srb2_loc:
+        flatpak_info = check_flatpak_availability()
+        if flatpak_info["available"]:
+            srb2_loc = "flatpak run org.srb2.SRB2"
+            srb2_dl = os.path.join(
+                os.path.expanduser("~/.var/app/org.srb2.SRB2"),
+                ".srb2", "addons", "_srb2compiled"
+            )
             if runcount == 0:
-                verbose(f"[{now}] {GREEN}.SRB2C_ARGS{BLUE} file not found, so we will be using the default parameter: {GREEN}-skipintro{BLUE}")
-            extraargs = ["-skipintro"]
-
-        if "-prefile" in extraargs:
-            prefile_index = extraargs.index("-prefile")
-            if prefile_index + 1 < len(extraargs):
-                prefile = extraargs[prefile_index + 1]
-                extraargs = extraargs[:prefile_index] + extraargs[prefile_index + 2:]
-                args = [srb2_loc, "-file", prefile, pk3name]
-            else:
-                print("Warning: -prefile parameter is present but no file specified. Ignoring -prefile.")
-                args = [srb2_loc, "-file", pk3name]
+                print(f"{GREEN}No executable set for profile, using Flatpak SRB2...{BLUE}")
         else:
-            args = [srb2_loc, "-file", pk3name]
-        args.extend(extraargs)
+            print(f"{RED}No executable set for profile '{GREEN}{profile_name}{RED}'. Please run '{GREEN}profile set{RED}' to set it.")
+            return
 
+    if not srb2_dl:
+        srb2_dl = os.path.join(
+            os.path.dirname(srb2_loc) if not srb2_loc.startswith("flatpak") else srb2_loc,
+            "DOWNLOAD", "_srb2compiled"
+        )
+
+    # Handle versioninfo
+    try:
+        create_versioninfo(datetime, subprocess)
+    except Exception as e:
+        if isGUI:
+            raise e
+        else:
+            print(f"Error creating .SRB2C_VERSIONINFO file: {e}")
+
+    # Handle args
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # NOW! *thunder*
+    gonnarun = True
+    try:
+        fileInModDir = True
+        args_file = os.path.join(mod_dir, ".SRB2C_ARGS")
+        if not os.path.exists(args_file):
+            fileInModDir = False
+            args_file = os.path.join(os.path.dirname(__file__), ".SRB2C_ARGS")
+
+        with open(args_file, "r") as file:
+            args_content = file.read()
+            extraargs = shlex.split(args_content)
+            if runcount == 0:
+                if isVerbose:
+                    where = os.path.basename(os.path.dirname(mod_dir if fileInModDir else os.path.dirname(__file__)))
+                    verbose(f"[{now}] Found {GREEN}.SRB2C_ARGS{BLUE} file in {where}")
+    except FileNotFoundError:
         if runcount == 0:
-            print(f"- Zipping '{GREEN}{basedirname}{BLUE}', please wait a moment...")
+            verbose(f"[{now}] {GREEN}.SRB2C_ARGS{BLUE} file not found, so we will be using the default parameter: {GREEN}-skipintro{BLUE}")
+        extraargs = ["-skipintro"]
 
-        if use_7zip:
-            config = load_config()
-            if not config["7z_path"]:
-                print(f"7-Zip path not set. Please run '{GREEN}7z set{BLUE}' first.")
-                return
-                
-            zip_path = os.path.join(srb2_dl, pk3name)
-            subprocess.run([
-                config["7z_path"],
-                "a", "-tzip",
-                "-mx=9",  # Maximum compression
-                zip_path,
-                os.path.join(mod_dir, "*"),
-                "-x!*.py", "-x!*.pyw", "-x!*.md", "-x!LICENSE",
-                "-x!*.ase", "-x!.git*", "-x!.*"
-            ])
+    prefiles = []
+    if "-prefile" in extraargs:
+        prefile_index = extraargs.index("-prefile")
+        if prefile_index + 1 < len(extraargs):
+            prefiles.append(extraargs[prefile_index + 1])
+            extraargs = extraargs[:prefile_index] + extraargs[prefile_index + 2:]
         else:
-            create_or_update_zip(mod_dir, srb2_dl, pk3name)
+            print("Warning: -prefile parameter is present but no file specified. Ignoring -prefile.")
 
+    args = [srb2_loc, "-file", pk3name]
+    args.extend(extraargs)
 
-        if os.path.exists(os.path.join(srb2_dl, pk3name)):
-            if runcount == 0:
-                specified = "specified" if get_environment_variable("SRB2C_DL") else "SRB2's DOWNLOAD/_srb2compiled"
-                print(f"- '{GREEN}"+pk3name+f"{BLUE}' (The contents of this script's directory) was created/updated in your {specified} directory")
-                print("- Running SRB2 with that mod. Happy testing!")
-            else:
-                print(f"[{now}] Running test #{runcount+1}...")
-        else:
-            RED = '\033[31m' if vscode else ''
-            BLUE = '\033[36m' if vscode else ''
-            print(f"{RED}ERROR:{BLUE} Pk3 not detected, maybe I don't have file writing permissions?")
-            gonnarun = False
-        if gonnarun:
-            if multiCount > 0:
-                # First launch dedicated server
-                server_args = args.copy()
-                server_args.extend(["-dedicated"])
-                subprocess.Popen(server_args, cwd=os.path.dirname(srb2_loc))
-                
-                # Launch client instances
-                for _ in range(multiCount):
-                    client_args = args.copy()
-                    if "-server" in client_args:
-                        client_args.pop(client_args.index("-server"))
-                    if "-warp" in client_args:
-                        warp_index = client_args.index("-warp")
-                        client_args.pop(warp_index)
-                        if warp_index + 1 < len(client_args):
-                            client_args.pop(warp_index + 1)
-                    client_args.extend(["+connect", "localhost"])
-                    subprocess.Popen(client_args, cwd=os.path.dirname(srb2_loc))
-            else:
-                # Normal single instance launch
-                subprocess.run(args, cwd=os.path.dirname(srb2_loc))
-            runcount = runcount + 1
+    # Zip the project into a pk3!
+    if runcount == 0:
+        print(f"- Zipping '{GREEN}{basedirname}{BLUE}', please wait a moment...")
+
+    if use_7zip:
+        config = load_config()
+        if not config["7z_path"]:
+            print(f"7-Zip path not set. Please run '{GREEN}7z set{BLUE}' first.")
+            return
+            
+        zip_path = os.path.join(srb2_dl, pk3name)
+        subprocess.run([
+            config["7z_path"],
+            "a", "-tzip",
+            "-mx=9",  # Maximum compression
+            zip_path,
+            os.path.join(mod_dir, "*"),
+            "-x!*.py", "-x!*.pyw", "-x!*.md", "-x!LICENSE",
+            "-x!*.ase", "-x!.git*", "-x!.*"
+        ])
     else:
-        GREEN = '\033[32m' if vscode else ''
-        RESETCOLOR = '\033[0m' if vscode else ''
-        RED = '\033[31m' if vscode else ''
-        print(f"{RED}No executable set for profile '{GREEN}{profile_name}{RED}'. Please run '{GREEN}profile set{RED}' to set it.")
+        create_or_update_zip(mod_dir, srb2_dl, pk3name)
+
+    if os.path.exists(os.path.join(srb2_dl, pk3name)):
+        if runcount == 0:
+            specified = "specified" if get_environment_variable("SRB2C_DL") else "SRB2's DOWNLOAD/_srb2compiled"
+            print(f"- '{GREEN}"+pk3name+f"{BLUE}' (The contents of this script's directory) was created/updated in your {specified} directory")
+            print("- Running SRB2 with that mod. Happy testing!")
+        else:
+            print(f"[{now}] Running test #{runcount+1}...")
+    else:
+        print(f"{RED}ERROR:{BLUE} Pk3 not detected, maybe I don't have file writing permissions?")
+        gonnarun = False
+    
+    # Finally, let's launch the game, with the mod
+    if gonnarun:
+        is_flatpak = srb2_loc.startswith("flatpak")
+        cwd = srb2_dl if is_flatpak else os.path.dirname(srb2_loc)
+
+        if multiCount > 0:
+            files = ["-file"]
+            files.extend(prefiles)
+            files.append(pk3name)
+
+            # First launch dedicated server
+            server_args = srb2_loc.split() + files + extraargs + ["-dedicated"]
+            subprocess.Popen(server_args, cwd=cwd)
+            
+            # Launch client instances
+            for _ in range(multiCount):
+                client_args = srb2_loc.split() + files + extraargs
+                if "-server" in client_args:
+                    client_args.pop(client_args.index("-server"))
+                if "-warp" in client_args:
+                    warp_index = client_args.index("-warp")
+                    client_args.pop(warp_index)
+                    if warp_index + 1 < len(client_args):
+                        client_args.pop(warp_index + 1)
+                client_args.extend(["+connect", "localhost"])
+                subprocess.Popen(client_args, cwd=cwd)
+        else:
+            # Normal single instance launch
+            files = ["-file"]
+            files.extend(prefiles)
+            files.append(pk3name)
+            args = srb2_loc.split() + files + extraargs
+            process = subprocess.Popen(args, cwd=cwd,
+                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       universal_newlines=True, bufsize=1, errors="replace")
+
+            for line in process.stdout:
+                line = line.strip()
+                if any(keyword in line for keyword in ['ERROR']):
+                    print(f"{RED}{line}{BLUE}")
+                elif any(keyword in line for keyword in ['WARNING']):
+                    if any(keyword in line for keyword in ['multicast']):
+                        pass
+                    else:
+                        print(f"{YELLOW}{line}{BLUE}")
+                        
+            process.wait()
+
+        runcount = runcount + 1
+
+def check_flatpak_availability():
+    """Check if SRB2 Flatpak is available on the system."""
+    import sys
+    import shutil
+    import subprocess
+
+    result = {
+        "available": False
+    }
+
+    if not sys.platform.startswith("linux"):
+        return result
+
+    if not shutil.which("flatpak"):
+        return result
+
+    try:
+        flatpak_check = subprocess.run(
+            ["flatpak", "list", "--app", "--columns=application"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        if "org.srb2.SRB2" in flatpak_check.stdout:
+            result["available"] = True
+    except Exception:
+        pass
+
+    return result
 
 def get_environment_variable(variable: str):
     import platform
@@ -712,7 +773,9 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str)
 
                 # Process the source directory
                 verbose("Processing source directory...")
-                for root, _, files in os.walk(source_path):
+                for root, dirs, files in os.walk(source_path):
+                    dirs.sort()
+                    files.sort()
                     for file in files:
                         source_file_path = os.path.join(root, file)
                         rel_path = os.path.relpath(source_file_path, source_path)
@@ -752,7 +815,9 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str)
         # If the destination zip file doesn't exist, create a new one
         with zipfile.ZipFile(zip_full_path, 'w', compression=compressionmethod) as new_zip:
             verbose("Processing source directory and adding files to the new zip...")
-            for root, _, files in os.walk(source_path):
+            for root, dirs, files in os.walk(source_path):
+                dirs.sort()
+                files.sort()
                 for file in files:
                     source_file_path = os.path.join(root, file)
                     rel_path = os.path.relpath(source_file_path, source_path)
@@ -765,10 +830,6 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str)
         verbose(f"New zip file '{zip_name}' created successfully!")
 
 def sanitized_exe_filepath(user_input):
-    vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
-    RED = '\033[31m' if vscode else ''
-    BLUE = '\033[36m' if vscode else ''
-
     path = os.path.normpath(user_input)
     real_path = os.path.realpath(path)
     is_executable = False
@@ -794,10 +855,6 @@ def sanitized_exe_filepath(user_input):
     return path
 
 def sanitized_directory_path(user_input):
-    vscode = 'TERM_PROGRAM' if 'TERM_PROGRAM' in os.environ.keys() and os.environ['TERM_PROGRAM'] == 'vscode' else ''
-    RED = '\033[31m' if vscode else ''
-    BLUE = '\033[36m' if vscode else ''
-
     path = os.path.normpath(user_input)
     real_path = os.path.realpath(path)
 
@@ -877,7 +934,7 @@ def organize_and_extract(file_info, zip_ref, base_folder, current_skin, current_
             current_super = False
             print(f"Organizing skin folder: {skin_dir}")
         else:
-            print(f"Did organize skin folder {skin_dir}: Might already be organized.")
+            print(f"Could not organize skin folder {skin_dir}: Might already be organized.")
 
     
     if current_skin and file_name.startswith(current_skin):
