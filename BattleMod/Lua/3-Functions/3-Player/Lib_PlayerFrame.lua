@@ -73,6 +73,10 @@ B.PlayerThinkFrame = function(player)
 		player.autobalancing = nil
 	end
 
+	if CV.RingLimit then
+		player.rings = min($, CV.RingLimit.value)
+	end
+
 	--gotta put this before the sanity checks...
 	if player.spentrings then
 		player.spentrings = max(0,$-1)

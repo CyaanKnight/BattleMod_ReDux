@@ -114,20 +114,21 @@ B.RingsHUD = function(v, player, cam)
 		ringpatchname = "HUD_RINGR"
 	elseif player.rings < actionrings then
 		ringpatchname = "HUD_RINGG"
-	/*elseif B.BankGametype() then
+	elseif CV.RingLimit then
 		patch2 = v.cachePatch("HUD_RINGG")
-		patch2percent = FU - FixedDiv(player.rings, C.BANK_RINGLIMIT)*/
+		patch2percent = FU - FixedDiv(player.rings, CV.RingLimit.value)
+		patch2percent = max(0, $)
 	end
 	local ringpatch = v.cachePatch(ringpatchname)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
 	if patch2 and patch2percent then
 		v.drawCropped(x*FU, y*FU, scale, scale, patch2, flags_hudtrans, nil, 0, 0, patch2.width*FU, patch2.height*patch2percent)
-	/*elseif B.BankGametype() and player.rings >= C.BANK_RINGLIMIT and leveltime > TICRATE and (leveltime % 5 == 0) then
+	elseif CV.RingLimit and player.rings >= CV.RingLimit.value and leveltime > TICRATE and (leveltime % 5 == 0) then
 		local r = function() return v.RandomFixed() - v.RandomFixed() end
 		local r1 = function() return (ringpatch.width/4)*r() end
 		local r2 = function() return (ringpatch.height/4)*r() end
 		local s = function() return (scale/3)+(FixedMul(scale/2, v.RandomFixed())) end
-		spawnSparkle(v, flags_hudtrans, x*FU, y*FU, r1(), r2(), s())*/
+		spawnSparkle(v, flags_hudtrans, x*FU, y*FU, r1(), r2(), s())
 	end
 
 	--Chaos Ring Radar
