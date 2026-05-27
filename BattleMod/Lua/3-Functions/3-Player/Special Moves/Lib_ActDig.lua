@@ -16,7 +16,7 @@ local kb_stunbreakcost = 30
 
 B.Action.Dig_Priority = function(player)
 	if player.actionstate == state_drilldive then
-		B.SetPriority(player,1,0,"fang_springdrop",2,1,"drill dive")
+		B.SetPriority(player,1,1,"fang_springdrop",2,1,"drill dive")
 	end
 	if player.actionstate == state_rising then
 		B.SetPriority(player,0,2,"tails_fly",0,2,"Knuckle Buster")
