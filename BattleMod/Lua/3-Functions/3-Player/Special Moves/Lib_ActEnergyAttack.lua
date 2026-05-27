@@ -582,6 +582,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringspark then
+	
+		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, state_ringspark, false, 0)	
+		hitbox.radius = 40*player.mo.scale
 
 		player.skidtime = 0
 		player.charflags = ($|SF_NOSKID)
