@@ -50,6 +50,8 @@ B.Action.Slide = function(mo,doaction)
 		-- thrust player forward
 		local speed = max(xythrust * mo.scale, FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) * 5 / 4)
 		B.PayRings(player)
+		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_FANG_SLIDE, false, 0)
+		hitbox.radius = 36*player.mo.scale
 
 		P_InstaThrust(mo, mo.angle, speed)
 		player.slidebouncex = mo.momx
