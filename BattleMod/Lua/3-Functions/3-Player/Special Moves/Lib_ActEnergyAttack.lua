@@ -843,7 +843,7 @@ B.Action.EnergyAttack_Priority = function(player)
 			MetalActionSuper(player)
 		else
 			player.actionsuper = true
-			B.SetPriority(player,2,3,nil,2,3,"ring spark field") --Hatin'
+			B.SetPriority(player,2,2,nil,2,2,"ring spark field") --Hatin'
 		end
 	end
 end
