@@ -52,6 +52,7 @@ B.ArmaCharge = function(player)
 	end
 	
 	if player.armachargeup >= 27 then
+		B.SetPriority(player,3,1,nil,3,1,"armageddon explosion")
 		player.armachargeup = nil
 		player.pflags = $ & ~PF_FULLSTASIS
 		player.pflags = $ & ~(PF_JUMPED|PF_THOKKED)
