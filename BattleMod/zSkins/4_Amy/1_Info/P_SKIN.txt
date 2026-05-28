@@ -1,4 +1,4 @@
 name = amy
-thokitem = MT_NULL
-revitem = MT_NULL
+thokitem = MT_LHRT
+revitem = MT_LHRT
 jumpfactor = 1.1
