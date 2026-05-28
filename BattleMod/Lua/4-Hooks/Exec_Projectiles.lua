@@ -298,6 +298,7 @@ addHook("MobjThinker",function(mo)
 		local ghost = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_GHOST)
 		ghost.fuse = TICRATE/4
 		ghost.state = mo.state
+		ghost.angle = mo.angle
 		ghost.sprite = mo.sprite
 		ghost.frame = mo.frame
 		ghost.frame = $|TR_TRANS50 

@@ -122,17 +122,14 @@ local function newGunslinger(player)
 		-- v10 EDIT: Now Fang automatically looks towards lockons
 		-- v10 EDIT 2: i gave fang autoaim if he holds lol
 
-		
-
-		local lockon = B.NewGunLook(player, player.mo.angle)
 
 		local targetangle = mo.angle
 
 		local sticky
 
-		if player.gunheld >= 12 then
+		local lockon = nil
 
-			
+		if player.gunheld >= 12 then
 
 			if (player.pflags & PF_ANALOGMODE) then
 
@@ -221,6 +218,8 @@ local function newGunslinger(player)
 				end
 				--B.DrawAimLine(player, player.mo.angle, directionchar.col)
 				--B.DrawAimLine(player, player.realangleturn<<16, cam.col)
+			else
+				lockon = B.NewGunLook(player, player.mo.angle)
 			end
 
 			
@@ -264,8 +263,14 @@ local function newGunslinger(player)
 
 				local reticle = mo._slinger_reticle
 
+				local move = P_MoveOrigin
+
+				if reticle.point.state == S_INVISIBLE then
+					move = P_SetOrigin
+				end
+
 				reticle.fuse = 2
-				P_MoveOrigin(reticle, lockon.x, lockon.y, lockon.z)
+				move(reticle, lockon.x, lockon.y, lockon.z)
 				reticle.target = lockon
 				reticle.color = ColorOpposite(mo.color)
 				reticle.pointcolor = mo.color
@@ -306,7 +311,7 @@ local function newGunslinger(player)
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
 			player.weapondelay = refiretime
-			player.shotangle = targetangle
+			player.shotangle = mo.angle
 			mo.momx = $ * 3/4
 			mo.momy = $ * 3/4
 			S_StartSoundAtVolume(mo,sfx_s1c4,150)
@@ -317,6 +322,7 @@ local function newGunslinger(player)
 			
 			if (lockon and lockon.valid)
 				mo.angle = R_PointToAngle2(mo.x,mo.y,lockon.x,lockon.y)
+				player.shotangle = mo.angle
 				bullet = P_SpawnPointMissile(
 					mo,
 					lockon.x, lockon.y, zpos(lockon, player.revitem),

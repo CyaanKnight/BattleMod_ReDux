@@ -122,7 +122,13 @@ local function _managePoint(reticle)
 		reticle.point.tics = -1
 	end
 
-	P_MoveOrigin(reticle.point, reticle.x, reticle.y, reticle.z)
+	local move = P_MoveOrigin
+
+	if reticle.point.state == S_INVISIBLE then
+		move = P_SetOrigin
+	end
+
+	move(reticle.point, reticle.x, reticle.y, reticle.z)
 	reticle.point.dispoffset = reticle.dispoffset+1 -- always display higher
 	reticle.point.scale = reticle.scale
 	reticle.point.spriteroll = (leveltime * 4) * ANG1
