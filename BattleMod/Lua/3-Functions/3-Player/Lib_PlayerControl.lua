@@ -327,7 +327,7 @@ B.RestoreColors = function(player)
 	end	
 end
 
-B.DrawAimLine = function(player,angle)
+B.DrawAimLine = function(player,angle,color)
 	if not(player.mo) then return end
 	if not(player.battleconfig_aimsight) then return end
 	if not(leveltime&1) then return end
@@ -343,8 +343,8 @@ B.DrawAimLine = function(player,angle)
 		local b = P_SpawnMobj(x,y,z,MT_CPBONUS)
 		if b and b.valid then
 			b.fuse = 1
-			b.color = B.Choose(SKINCOLOR_ORANGE,SKINCOLOR_YELLOW,SKINCOLOR_SILVER,SKINCOLOR_GREEN,SKINCOLOR_GREY,SKINCOLOR_FOREST,SKINCOLOR_PURPLE,SKINCOLOR_COBALT,SKINCOLOR_RED)
-			b.color = player.skincolor
+			b.color = color or B.Choose(SKINCOLOR_ORANGE,SKINCOLOR_YELLOW,SKINCOLOR_SILVER,SKINCOLOR_GREEN,SKINCOLOR_GREY,SKINCOLOR_FOREST,SKINCOLOR_PURPLE,SKINCOLOR_COBALT,SKINCOLOR_RED)
+			b.color = color or player.skincolor
 			--Only the user is supposed to see this
 			if not(player == displayplayer or player == secondarydisplayplayer) then 
 				b.flags2 = $|MF2_DONTDRAW 

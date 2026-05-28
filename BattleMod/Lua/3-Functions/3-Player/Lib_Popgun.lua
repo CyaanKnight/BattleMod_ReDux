@@ -5,7 +5,10 @@ local S = B.SkinVars
 
 local refiretime = 20
 
-B.NewGunLook = function(player)
+B.NewGunLook = function(player, player_angle, mo)
+	if player_angle == nil then
+		player_angle = player.mo.angle
+	end
 	local twod = (twodlevel or player.mo.flags2 & MF2_TWOD)
 	local ringdist, span
 	if not(twod)
@@ -48,10 +51,10 @@ B.NewGunLook = function(player)
 		//		I also unsigned the angle checks, which appears to correct failed OutOfBounds checks above the player.
 		local xyz_angle = abs(R_PointToAngle2(0, 0, dist, zdist))
 		local xy_angle = abs(R_PointToAngle2(
-				pmo.x + P_ReturnThrustX(pmo, pmo.angle, pmo.radius),
-				pmo.y + P_ReturnThrustY(pmo, pmo.angle, pmo.radius),
+				pmo.x + P_ReturnThrustX(pmo, player_angle, pmo.radius),
+				pmo.y + P_ReturnThrustY(pmo, player_angle, pmo.radius),
 				mo.x, mo.y
-			) - pmo.angle)
+			) - player_angle)
 			
 			
 		dist = P_AproxDistance(dist, zdist)
@@ -91,6 +94,9 @@ local function zpos(posmo, item)
 	return (posmo.z + (posmo.height - mobjinfo[item].height)/2)
 end
 
+local buffer = 1
+
+
 local function newGunslinger(player)
 	local mo = player.mo
 	local skin = S[mo.skin] or S[-1]
@@ -116,24 +122,137 @@ local function newGunslinger(player)
 		-- v10 EDIT: Now Fang automatically looks towards lockons
 		-- v10 EDIT 2: i gave fang autoaim if he holds lol
 
-		local lockon = nil
+		
+
+		local lockon = B.NewGunLook(player, player.mo.angle)
+
+		local targetangle = mo.angle
+
+		local sticky
 
 		if player.gunheld >= 12 then
-			lockon = B.NewGunLook(player)
+
+			
+
+			if (player.pflags & PF_ANALOGMODE) then
+
+				local prev_lock = mo._slinger_stick
+	
+				local directionchar_look = B.NewGunLook(player, player.mo.angle)
+
+				local cam_look = B.NewGunLook(player, player.realangleturn<<16)
+
+				local directionchar = {
+					col = SKINCOLOR_RED,
+					distance = directionchar_look and 
+							   directionchar_look.valid and 
+							   R_PointToDist2(mo.x, mo.y, directionchar_look.x, directionchar_look.y),
+
+					angle    = directionchar_look and 
+							   directionchar_look.valid and 
+							   R_PointToAngle2(mo.x, mo.y, directionchar_look.x, directionchar_look.y)
+				}
+
+				local cam = {
+					col = SKINCOLOR_RED,
+					distance = cam_look and 
+							   cam_look.valid and 
+							   R_PointToDist2(mo.x, mo.y, cam_look.x, cam_look.y),
+
+					angle    = cam_look and 
+							   cam_look.valid and 
+							   R_PointToAngle2(mo.x, mo.y, cam_look.x, cam_look.y)
+				}
+
+				local prev = {
+					distance = prev_lock and 
+							   prev_lock.valid and 
+							   R_PointToDist2(mo.x, mo.y, prev_lock.x, prev_lock.y),
+
+					angle 	 = prev_lock and 
+							   prev_lock.valid and 
+							   R_PointToAngle2(mo.x, mo.y, prev_lock.x, prev_lock.y),
+
+					col 	 = SKINCOLOR_SHAMROCK
+				}
+
+				local prev_check = B.NewGunLook(player, prev.angle)
+				if prev_lock and prev_lock.valid and (prev_check and prev_check.valid) then
+					
+					--B.DrawAimLine(player, prev.angle, SKINCOLOR_YELLOW)
+
+
+					if directionchar_look and directionchar_look.valid then
+						if (cam_look and cam_look.valid and (cam.distance < directionchar.distance)) then --Is our camera closer to a different object?
+							--Aim at it, but only if the buffer is over
+							if not(mo._slinger_buffer) then
+								lockon = cam_look
+								sticky = true
+								cam.col = SKINCOLOR_SHAMROCK
+							else
+								mo._slinger_buffer = $-1
+								lockon = prev_lock
+								cam.col = SKINCOLOR_RED
+							end
+						elseif (prev_lock == directionchar_look) then --New Object is the old one?
+							--Just aim to it, regardless of the buffer
+							lockon = prev_lock
+							--mo._slinger_buffer = buffer
+							directionchar.col = SKINCOLOR_SHAMROCK
+						else
+							if not(mo._slinger_buffer) then
+								lockon = directionchar_look
+								directionchar.col = SKINCOLOR_SHAMROCK
+								sticky = true
+							else
+								lockon = prev_lock
+								mo._slinger_buffer = $-1
+								directionchar.col = SKINCOLOR_RED
+							end
+						end
+					else
+						lockon = prev_lock
+						--mo._slinger_buffer = buffer
+					end
+				else --No locked object?
+					lockon = directionchar_look
+					directionchar.color = SKINCOLOR_SHAMROCK
+					sticky = true
+				end
+				--B.DrawAimLine(player, player.mo.angle, directionchar.col)
+				--B.DrawAimLine(player, player.realangleturn<<16, cam.col)
+			end
+
+			
+
+			
 
 			if (lockon and lockon.valid) then
-				player.drawangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
+
+				targetangle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
+
+				player.drawangle = targetangle
 				-- P_SpawnLockOn(player, lockon, mobjinfo[MT_LOCKON].spawnstate)
 
 				-- yknow, i COULD do this better, but nah, lets go the easiest (and stupidest) way.
 				if not mo._slinger_reticle
 				or mo._slinger_reticle.target ~= lockon then
 					if mo._slinger_reticle then
+						S_StopSoundByID(mo, sfx_cdfm42)
+						S_StopSoundByID(mo, sfx_cdfm40)
+						S_StopSoundByID(mo, sfx_cdfm13)
+						S_StopSoundByID(mo, sfx_fn_trg)
 						P_RemoveMobj(mo._slinger_reticle)
 					end
 					mo._slinger_reticle = P_SpawnMobjFromMobj(lockon, 0,0,0, MT_FANGRETICLE)
+					mo._slinger_reticle.state = S_INVISIBLE
 					mo._slinger_reticle.alpha = 0
 					mo._slinger_reticle.scale = lockon.destscale * 2
+
+					if sticky then
+						mo._slinger_buffer = buffer
+						mo._slinger_stick = lockon
+					end
 
 					for _, mobj in ipairs({mo, lockon}) do -- cheap i know
 						S_StartSoundAtVolume(mobj, sfx_cdfm42, 60)
@@ -145,14 +264,22 @@ local function newGunslinger(player)
 
 				local reticle = mo._slinger_reticle
 
-				P_MoveOrigin(reticle, lockon.x, lockon.y, lockon.z)
 				reticle.fuse = 2
+				P_MoveOrigin(reticle, lockon.x, lockon.y, lockon.z)
 				reticle.target = lockon
 				reticle.color = ColorOpposite(mo.color)
 				reticle.pointcolor = mo.color
-				mo._slinger_reticle.scale = ease.linear(FU/3, $, lockon.destscale)
+				reticle.scale = ease.linear(FU/3, $, lockon.destscale)
 				reticle.alpha = min(FU, $ + FU / 4)
+				if reticle.state ~= S_FANGRETICLE_CIRCLE then
+					reticle.state = S_FANGRETICLE_CIRCLE
+				end
+			else
+				mo._slinger_stick = nil
 			end
+		else
+			mo._slinger_stick = nil
+			mo._slinger_buffer = nil
 		end
 
 		if player.cmd.buttons & BT_SPIN and not(player.pflags&PF_BOUNCING) then
@@ -179,7 +306,7 @@ local function newGunslinger(player)
 			mo.state = S_PLAY_FIRE
 			player.panim = PA_ABILITY2
 			player.weapondelay = refiretime
-			player.shotangle = mo.angle
+			player.shotangle = targetangle
 			mo.momx = $ * 3/4
 			mo.momy = $ * 3/4
 			S_StartSoundAtVolume(mo,sfx_s1c4,150)
@@ -189,7 +316,7 @@ local function newGunslinger(player)
 			end
 			
 			if (lockon and lockon.valid)
-				mo.angle = R_PointToAngle2(mo.x, mo.y, lockon.x, lockon.y)
+				mo.angle = R_PointToAngle2(mo.x,mo.y,lockon.x,lockon.y)
 				bullet = P_SpawnPointMissile(
 					mo,
 					lockon.x, lockon.y, zpos(lockon, player.revitem),
@@ -225,7 +352,7 @@ local function newGunslinger(player)
 			    end
 			end
 			
-			player.drawangle = mo.angle
+			player.drawangle = targetangle
 			//Air function
 			if not(P_IsObjectOnGround(mo))
 			and not(player.pflags&PF_BOUNCING)
@@ -244,7 +371,7 @@ local function newGunslinger(player)
 				mo.state = S_FANG_BCESHOT
 				player.airgun = true
 			else
-				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*3)
+				P_Thrust(mo,targetangle+ANGLE_180,mo.scale*3)
 			end
 		end
 	else
@@ -266,10 +393,10 @@ local function newGunslinger(player)
 		//Do "skidding" effects
 		if player.weapondelay%3 == 1 then
 			S_StartSound(mo,sfx_s3k7e,player)
-			local r = mo.radius/FRACUNIT
+			local r = mo.radius/mo.scale
 			P_SpawnMobj(
-				P_RandomRange(-r,r)*FRACUNIT+mo.x,
-				P_RandomRange(-r,r)*FRACUNIT+mo.y,
+				P_RandomRange(-r,r)*mo.scale+mo.x,
+				P_RandomRange(-r,r)*mo.scale+mo.y,
 				mo.z,
 				MT_DUST
 			)
@@ -300,7 +427,7 @@ local function newGunslinger(player)
 	
     //Tailbounce gunning
 	if (player.pflags&PF_BOUNCING) and player.airgun == true and player.weapondelay
-	    if mo.state == S_PLAY_BOUNCE
+	    if mo.state == S_PLAY_BOUNCE then
 	        mo.state = S_FANG_BCESHOT_FINISH
 	    elseif mo.state == S_FANG_BCESHOT_FINISH then
 		    mo.tics = player.weapondelay
@@ -337,6 +464,7 @@ B.CustomGunslinger = function(player)
 	
 	if P_PlayerInPain(player)
 		player.airgun = false
+		player.gunheld = 0
 	return end
 
 	local skin = S[player.mo.skin] or S[-1]
@@ -349,6 +477,7 @@ B.CustomGunslinger = function(player)
 	or (player.actionstate and not sliding)
 	or (player.pflags&PF_SPINNING and not sliding)
 		player.airgun = false
+		player.gunheld = 0
 	return end
 	//Get inputs
 	if (player.gunheld == nil)

@@ -215,13 +215,27 @@ B.Action.Slide = function(mo,doaction)
 
 		if grounded then
 			player.actiontime = $-1
-			S_StartSound(mo,sfx_s3k7e)
 		else
 			player.lockjumpframe = max(2, $)
 		end
 
 		if leveltime%8 then
-			P_SpawnGhostMobj(mo)
+			S_StartSound(mo,sfx_s3k7e,player)
+			local r = mo.radius/mo.scale
+			P_SpawnMobj(
+				P_RandomRange(-r,r)*mo.scale+mo.x,
+				P_RandomRange(-r,r)*mo.scale+mo.y,
+				mo.z,
+				MT_DUST
+			)
+		end
+
+		if not(leveltime%3) then
+			local ghost = P_SpawnGhostMobj(mo)
+			if ghost and ghost.valid then
+				ghost.colorized = true
+				ghost.fuse = 10
+			end
 		end
 
 		if player.pflags & PF_JUMPED then

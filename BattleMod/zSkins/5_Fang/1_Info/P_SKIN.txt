@@ -1,3 +1,4 @@
 name = fang
 flags = SF_NOJUMPSPIN|SF_NOJUMPDAMAGE|SF_FASTEDGE
 jumpfactor = 1.05
+spinitem = 0

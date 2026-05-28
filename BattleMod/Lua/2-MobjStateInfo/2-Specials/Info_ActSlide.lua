@@ -117,18 +117,23 @@ local function _managePoint(reticle)
 	if not reticle.point
 	or not reticle.point.valid then
 		reticle.point = P_SpawnMobjFromMobj(reticle, 0,0,0, MT_THOK)
+		reticle.point.state = S_INVISIBLE
 		reticle.point.fuse = -1
 		reticle.point.tics = -1
-		reticle.point.state = S_FANGRETICLE_POINT
 	end
 
 	P_MoveOrigin(reticle.point, reticle.x, reticle.y, reticle.z)
 	reticle.point.dispoffset = reticle.dispoffset+1 -- always display higher
 	reticle.point.scale = reticle.scale
 	reticle.point.spriteroll = (leveltime * 4) * ANG1
-	reticle.point.frame = (reticle.frame & ~FF_FRAMEMASK)|(reticle.point.frame & FF_FRAMEMASK)
 	reticle.point.alpha = reticle.alpha
 	reticle.point.color = reticle.pointcolor
+	if reticle.point.state ~= S_FANGRETICLE_POINT then
+		reticle.point.state = S_FANGRETICLE_POINT
+	end
+	if reticle.point.state == S_FANGRETICLE_POINT then
+		reticle.point.frame = (reticle.frame & ~FF_FRAMEMASK)|(reticle.point.frame & FF_FRAMEMASK)
+	end
 end
 
 addHook("MobjSpawn", function(reticle)
