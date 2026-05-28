@@ -289,7 +289,7 @@ B.Action.Dig=function(mo,doaction)
 			end
         end
 		
-		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2
+		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2 or sludge
 			P_DamageMobj(player.kgrab,mo,mo)
 			S_StartSoundAtVolume(mo,sfx_s3k49, 200)
 			S_StartSound(player.kgrab,sfx_s3k5f)
@@ -481,7 +481,7 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 				plr[n1].actionstate = 20
 				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40/B.WaterFactor(mo[n1]),true)
 				mo[n2].flags = $|MF_NOCLIPTHING
-				mo[n1].flags = $|MF_NOCLIPTHING
+				--mo[n1].flags = $|MF_NOCLIPTHING
 				plr[n1].pflags = $|PF_THOKKED
 				return false
 			end
