@@ -224,8 +224,15 @@ local dash_resetter = function(player) --Makes dashmode start from the beginning
 
 			if (player.normalspeed+(FRACUNIT/5) >= dashmode_limit) then
 				player.normalspeed = dashmode_limit
-				
-				P_SpawnGhostMobj(player.mo).colorized = true
+
+				if not(leveltime%3) then
+					local ghost = P_SpawnGhostMobj(player.mo)
+					if ghost and ghost.valid then
+						ghost.colorized = true
+						ghost.fuse = 10
+						ghost.blendmode = AST_ADD
+					end
+				end
 			end
 
 			if not(spindashing) then
