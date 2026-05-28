@@ -104,6 +104,9 @@ B.Priority_Ability = function(player)
 		if gliding then
 			B.SetPriority(player,1,0,"knuckles_glide",2,1,"gliding fists")
 		end
+		if player.kgrab and player.kgrab.valid then
+			B.SetPriority(player,0,0,nil,0,0,"knuckle buster")
+		end
 //		if knuckles and grounded and player.rings >= 10 then
 //			B.SetPriority(player,0,0,"knuckles_glide",0,1,"tough guy stance")
 //		end

@@ -487,7 +487,7 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 					B.ResetPlayerProperties(plr[n1].kgrab.player,false,false)
 				end
 				plr[n1].actionstate = 20
-				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40,true)
+				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40/B.WaterFactor(mo[n1]),true)
 				mo[n2].flags = $|MF_NOCLIPTHING
 				mo[n1].flags = $|MF_NOCLIPTHING
 				plr[n1].pflags = $|PF_THOKKED
