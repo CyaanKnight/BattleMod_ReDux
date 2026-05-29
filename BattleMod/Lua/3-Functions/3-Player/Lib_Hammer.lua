@@ -211,6 +211,11 @@ B.HammerControl = function(player)
 	if player.melee_charge == nil player.melee_charge = 0 end
 
 	local mo = player.mo
+	if not(mo and mo.valid and B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
+		player.melee_state = 0
+		player.melee_charge = 0
+		return
+	end
 
 	// hitboxes
 	local frameIndex = (mo.frame & FF_FRAMEMASK)
@@ -248,12 +253,6 @@ B.HammerControl = function(player)
 			B.ApplyCooldown(player, piko_cooldown)
 			player.actionstate = 0
 		end
-	end
-
-	if not(mo and mo.valid and B.GetSkinVarsFlags(player)&SKINVARS_ROSY)
-		player.melee_state = 0
-		player.melee_charge = 0
-		return
 	end
 	
 	//Angle adjustment
@@ -334,6 +333,15 @@ B.HammerControl = function(player)
 			doGroundHearts(player)
 		end
 		player.melee_state = st_idle
+	end
+
+	//watch out!! charged attack!
+	if (player.melee_charge >= FRACUNIT) and player.melee_state == st_release and not(leveltime%3) then
+		local ghost = P_SpawnGhostMobj(mo)
+		if ghost and ghost.valid then
+			ghost.colorized = true
+			ghost.fuse = 10
+		end
 	end
 end
 

@@ -79,7 +79,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		mo.amy_spinanimtimer = nil
 	return end
 	player.actiontime = $+1
-	player.actionrings = 15
+	player.actionrings = 10
 	
 	//Action Info
 	if player.actionstate == piko_special
@@ -127,7 +127,11 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.melee_charge = 0
 			]]
 
-			player.melee_state = st_hold
+			B.hammerchargevfx(mo)
+			B.ZLaunch(mo, FRACUNIT*9, true)
+			P_Thrust(mo, player.drawangle, 4*mo.scale)
+			player.melee_state = st_release
+			mo.state = S_PLAY_MELEE
 			player.melee_charge = FRACUNIT
 		end
 	end
