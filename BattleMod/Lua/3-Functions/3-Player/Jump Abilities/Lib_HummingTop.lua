@@ -396,9 +396,11 @@ function B.HummingTop_MainHook(player)
 				if mo.hummingtop_overlay.state != S_HUMMINGTOP then
 					mo.hummingtop_overlay.state = S_HUMMINGTOP
 				end
-				mo.frame = 0
-				mo.sprite = SPR_PLAY
-				mo.sprite2 = SPR2_TRIK
+				if mo.state ~= S_SONIC_HUMMINGTOP then
+					mo.state = S_SONIC_HUMMINGTOP
+				end
+				local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, false, 0)	
+				hitbox.radius = 40*player.mo.scale
 				player.drawangle = mo.hummingtop_drawangle
 				mo.hummingtop_drawangle = $-ANGLE_45
 			end

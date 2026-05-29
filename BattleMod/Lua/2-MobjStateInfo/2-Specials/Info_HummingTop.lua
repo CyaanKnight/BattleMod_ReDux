@@ -13,6 +13,12 @@ sfxinfo[freeslot("sfx_htop")].caption = "Humming Top"
 
 spr2defaults[freeslot("SPR2_TRIK")] = SPR2_SKID
 
+states[freeslot("S_SONIC_HUMMINGTOP")] = {
+	sprite = SPR_PLAY,
+	frame = SPR2_TRIK|A,
+	tics = -1
+}
+
 B.Sonic_RECURLCOOLDOWN = 10
 
 spr2defaults[freeslot("SPR2_DRPD")] = SPR2_DASH
