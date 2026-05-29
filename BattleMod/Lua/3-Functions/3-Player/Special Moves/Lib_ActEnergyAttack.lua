@@ -561,8 +561,13 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		--mo.state = S_PLAY_WALK
 		player.charflags = ($|SF_NOSKID)
 		player.runspeed = 0
-		mo.frame = 0
-		B.DrawSVSprite(player, 1) --S_METALSONIC_RINGSPARK1
+
+		if mo.state ~= S_METALSONIC_RINGSPARK1 then
+			mo.state = S_METALSONIC_RINGSPARK1
+		end
+
+		--mo.frame = 0
+		--B.DrawSVSprite(player, 1) --S_METALSONIC_RINGSPARK1
 			
 		player.exhaustmeter = FRACUNIT
 
@@ -582,8 +587,12 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if player.actionstate == state_ringspark then
+
+		if mo.state ~= S_METALSONIC_RINGSPARK2 then
+			mo.state = S_METALSONIC_RINGSPARK2
+		end
 	
-		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, state_ringspark, false, 0)	
+		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_METALSONIC_RINGSPARK2, false, 0)	
 		hitbox.radius = 40*player.mo.scale
 
 		player.skidtime = 0
@@ -600,9 +609,9 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.canguard = false
 			end
 			player.runspeed = 0
-			mo.frame = 0
+			
 			--mo.sprite2 = SPR2_RUN_
-			B.DrawSVSprite(player, 1+(player.actiontime/2)%2)
+			--B.DrawSVSprite(player, 1+(player.actiontime/2)%2)
 
 			if not(mo.energyattack_sparkaura and mo.energyattack_sparkaura.valid) then
 				mo.energyattack_sparkaura = P_SpawnMobj(mo.x,mo.y,((mo.flags2 & MF2_OBJECTFLIP) and (mo.z+mo.height)) or mo.z, auraMobj) --Spawn One --Spawn One
