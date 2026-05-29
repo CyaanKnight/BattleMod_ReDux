@@ -128,6 +128,10 @@ function B.HummingTop_AbilitySpecial(player)
 		
 		--player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK
 		P_InstaThrust(player.mo, player.mo.hummingtop_angle, thrust)
+		if player.gotflagdebuff then
+			B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
+			B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
+		end
 		--P_SetObjectMomZ(player.mo, FixedMul(player.mo.scale, B.Console.HTop_ZThrust.value), false)
 		player.mo.momz = 0
 		S_StopSoundByID(player.mo, sfx_thok)
@@ -178,7 +182,7 @@ function B.HummingTop_AbilitySpecial(player)
 	end
 end
 
-local function cancelHummingTop(player, sound)
+local function cancelHummingTop(player, sound, flag)
 	if player.mo.hummingtop_state == state_spinning then
 		if sound then 
 			S_StartSound(player.mo, sfx_cdfm17)
@@ -199,6 +203,10 @@ local function cancelHummingTop(player, sound)
 	player.mo.hummingtop_drawangle = nil
 	player.glidetime = 0
 	player.pflags = $ & ~PF_STASIS
+	if flag then
+		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
+		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
+	end
 end
 
 local function cancelDropDash(mo)
@@ -236,11 +244,12 @@ function B.HummingTop_MainHook(player)
 		local dropdashable = (mo.dropdash_actionable~=nil)
 		local dropdashing = (mo.dropdash_prep == 100)
 		local inexhausted = (player.exhaustmeter > 0)
+		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
 	
 		local recurlable = (mo.recurl_actionable == true)
 		local spin = (player.pflags & PF_SPINDOWN)
 
-		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble
+		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
 
 		if grounded then
 			if dropdashing then
@@ -285,12 +294,12 @@ function B.HummingTop_MainHook(player)
 
 		if humming then
 			if cancel then
-				cancelHummingTop(player, true)
+				cancelHummingTop(player, true, flag)
 				cancelDropDash(mo)
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
 				player.exhaustmeter = max(1, $-exhaust_chunk)
-				cancelHummingTop(player, false)
+				cancelHummingTop(player, false, flag)
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 				S_StartSound(mo, sfx_zoom)
 				mo.state = S_PLAY_ROLL
@@ -881,7 +890,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 		if not(clash) then
 			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
-				cancelHummingTop(plr[n1])
+				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 				cancelDropDash(mo[n1])
 			end
 			--Thrust sonic away
