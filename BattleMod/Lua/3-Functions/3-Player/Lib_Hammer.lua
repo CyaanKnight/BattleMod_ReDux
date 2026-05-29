@@ -9,6 +9,7 @@ local sideangle = ANG30 - ANG10
 
 local piko_special = 11
 local piko_cooldown = TICRATE * 3/2
+local ALLOWCHARGEHAMMER = false
 
 local function heartcolor(msl, player, bluecolor, redcolor)
 	msl.colorized = true
@@ -157,6 +158,7 @@ B.hammerjump = function(player,power)
 	else
 --		P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,16,MT_LHRT,ANGLE_90,nil,0)
 		player.pflags = ($ | PF_JUMPED | PF_STARTJUMP ) &~(PF_THOKKED|PF_NOJUMPDAMAGE)
+		B.ApplyCooldown(player, piko_cooldown)
 	end
 	mo.state = power and S_PLAY_ROLL or S_PLAY_JUMP
 	player.panim = power and PA_ROLL or PA_JUMP
@@ -233,6 +235,9 @@ B.HammerControl = function(player)
 			if (player.powers[pw_strong] & STR_TWINSPIN)
 				player.powers[pw_strong] = $ & ~STR_TWINSPIN
 			end
+			if mo.state == S_PLAY_MELEE_LANDING then
+				doGroundHearts(player)
+			end
 			mo.melee_hammertwirl = nil
 		end
 	end
@@ -286,7 +291,7 @@ B.HammerControl = function(player)
 	end -- ~JoJo
 	
 	if player.melee_state == st_hold
-		if not(player.cmd.buttons&BT_SPIN)
+		if ALLOWCHARGEHAMMER == false or not(player.cmd.buttons&BT_SPIN)
 			S_StartSound(mo,sfx_s3k42)
 			if player.melee_charge >= FRACUNIT
 				B.ZLaunch(mo, FRACUNIT*4, true)
@@ -306,16 +311,25 @@ B.HammerControl = function(player)
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
 		local spin = player.melee_charge >= FRACUNIT
 		player.buttonhistory = $ | BT_JUMP | BT_SPIN
+
+		--[[
 		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
 			if not(player.gotflagdebuff) then
 				B.ApplyCooldown(player, piko_cooldown)
 				B.SpawnWave(player, 0, false)
 				player.actionstate = 0
 			end
-		elseif ((player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN) or spin) 
-		and not (player.actionstate or player.gotflagdebuff)
-		then
-			B.hammerjump(player, spin)
+		else
+		]]
+		
+		local inputs = (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
+		if (inputs or spin) and not (player.actionstate or player.gotflagdebuff) then
+			if spin and not inputs then
+				B.ApplyCooldown(player, piko_cooldown)
+				B.SpawnWave(player, 0, false)
+			else
+				B.hammerjump(player, spin)
+			end
 		else
 			doGroundHearts(player)
 		end
@@ -410,7 +424,7 @@ B.ChargeHammer = function(player)
 	end
 	
 	//Hold Charge
-	if (player.melee_charge < FRACUNIT) then
+	if (player.melee_charge < FRACUNIT) and ALLOWCHARGEHAMMER == true then
 		//Add Charge
 		local chargetime = 18
 		player.melee_charge = $+FRACUNIT/chargetime

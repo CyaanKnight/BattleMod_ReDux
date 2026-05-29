@@ -42,7 +42,7 @@ local function sparkle(mo)
 end
 
 local function spinhammer(mo, stnd)
-	local sprite = (stnd and SPR2_TWRL) or SPR2_ATWR
+	local sprite = (stnd and SPR2_TWRL) or SPR2_ATWZ
 	local numframes = skins[mo.skin].sprites[sprite].numframes-1
 	if not(stnd) then
 		mo.amy_spinanimtimer = ($!=nil and (($+1 <= numframes) and $+1)) or 0
@@ -80,15 +80,16 @@ B.Action.PikoTornado = function(mo,doaction)
 	return end
 	player.actiontime = $+1
 	player.actionrings = 15
+	
 	//Action Info
 	if player.actionstate == piko_special
 	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
-		--print(player.actiontime)
 		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1), player)
 	elseif player.melee_state == st_release
 		return
 	elseif P_IsObjectOnGround(mo)
-		player.actiontext = "Piko Tornado"
+		--player.actiontext = "Piko Tornado"
+		player.actiontext = "Piko Wave"
 	else
 		player.actiontext = "Tornado Jump"
 		if mo.tornadocollide and mo.tornadocollide == leveltime
@@ -96,29 +97,43 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.actiontext = colors[leveltime % 3] .. $
 		end
 	end
+
 	//Trigger
 	if player.actionstate == 0 and (doaction == 1) then
 		B.PayRings(player)
 		player.actiontime = 0
+
+		--[[
 		if player.melee_state == st_hold and player.melee_charge >= FRACUNIT then
 			player.actionstate = piko_special
 			player.cmd.buttons = $ &~ BT_SPIN
-		elseif not(P_IsObjectOnGround(mo)) then
+			player.melee_charge = 0
+		else
+		]]
+		if not(P_IsObjectOnGround(mo)) then
 			player.actionstate = air_special
 			player.pflags = $|PF_THOKKED
 			P_SetObjectMomZ(mo,FixedMul(player.jumpfactor,FRACUNIT*10/B.WaterFactor(mo)),0)
 			S_StartSound(mo,sfx_s3ka0)
-		else //Ground
+			player.melee_charge = 0
+		else
+			--[[
 			local hitbox = B.BattleHitboxSpawn(player, 20*player.mo.scale, 1*player.mo.scale, TICRATE, S_UNKNOWN, true, 1)
 			player.actionstate = ground_special
 			mo.amy_spinanimtimer = 0
 			B.ControlThrust(mo,mo.scale/4)
 			S_StartSound(mo,sfx_s3ka0)
 			player.melee_state = st_idle
+			player.melee_charge = 0
+			]]
+
+			player.melee_state = st_hold
+			player.melee_charge = FRACUNIT
 		end
-		player.melee_charge = 0
 	end
+
 	//Ground Special
+	--[[
 	if player.actionstate == ground_special then
 		B.analogkill(player, 2)
 		player.pflags = $|PF_JUMPSTASIS
@@ -178,6 +193,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.dustdevil = missile
 		end
 	end
+	
 	//End lag
 	if player.actionstate == ground_special+1
 		player.powers[pw_nocontrol] = max($,2)
@@ -189,6 +205,8 @@ B.Action.PikoTornado = function(mo,doaction)
 		mo.state = S_PLAY_WALK
 		return
 	end
+	]]
+	
 	//Air Special
 	if player.actionstate == air_special then
 		player.drawangle = mo.angle-ANGLE_45*(player.actiontime&7)
