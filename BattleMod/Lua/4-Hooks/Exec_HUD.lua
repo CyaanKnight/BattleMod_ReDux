@@ -21,7 +21,7 @@ hud.add(function(v,p,c)
 	B.ShieldHUD(v,p,c)
 	B.TeammateHUD(v,p,c)
 	B.TimerHUD(v,p,c)
-	B.StartRingsHUD(v,p,c)
+	--B.StartRingsHUD(v,p,c)
 
 	--Gamemode info
 	CP.HUD(v,p,c)
@@ -59,7 +59,7 @@ hud.add(function(v,p,c) --Ditto
 	R.FadeFunc(v,p,c)
 	
 	--Score screen
-	B.StatsHUD(v,p,c)
+	--B.StatsHUD(v,p,c)
 	F.RankingHUD(v,p,c)
 	B.TagRankHUD(v,p,c)
 	R.RubyRankHUD(v,p,c)

@@ -1,3 +1,4 @@
+--[[
 local B = CBW_Battle
 local CV = B.Console
 
@@ -84,3 +85,4 @@ B.StartRingsHUD = function(v, player)
     --v.drawString(x+8-spacing, y+4, "SR", srflags, "thin-center")
     v.drawString(x+8+spacing, y+4, displayrings, flags, "center")
 end
+]]
