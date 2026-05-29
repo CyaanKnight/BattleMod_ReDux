@@ -287,6 +287,12 @@ B.Action.Dig=function(mo,doaction)
 			if player.kgrab.state ~= S_PLAY_PAIN then
 				player.kgrab.state = S_PLAY_PAIN
 			end
+
+			player.kgrab.player.powers[pw_nocontrol] = max($, 2)
+			if player.kgrab.player.realbuttons & player.kgrab.player.battleconfig_guard then
+				player.kgrab.player.cmd.buttons = $|player.kgrab.player.battleconfig_guard
+			end
+
         end
 		
 		if P_IsObjectOnGround(mo) or player.actiontime > TICRATE*2 or sludge
