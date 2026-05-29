@@ -128,6 +128,7 @@ B.InitPlayer = function(player)
 		player.win = nil
 		player.loss = nil
 	end
+	player.melee_charge = 0
 end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)

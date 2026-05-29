@@ -8,7 +8,8 @@ local st_jump = 3
 local sideangle = ANG30 - ANG10
 
 local piko_special = 11
-local piko_cooldown = TICRATE * 3/2
+local piko_cooldown = TICRATE * 2
+local pikowave_duration = TICRATE
 local ALLOWCHARGEHAMMER = false
 
 local function heartcolor(msl, player, bluecolor, redcolor)
@@ -33,6 +34,7 @@ local function twin(player, twirl)
 	player.mo.melee_hammertwirl = true
 
 	//Extra projectiles
+	player.melee_charge = 0
 	if not(pflags&PF_NOJUMPDAMAGE)
 		local mo = player.mo
 		local speed = mo.scale * 20
@@ -131,7 +133,7 @@ B.SpawnWave = function(player,angle_offset,mute)
 			S_StartSound(wave,sfx_nbmper)
 		end
 		wave.color = SKINCOLOR_GOLD
-		wave.fuse = 18
+		wave.fuse = pikowave_duration
 		wave.scale = mo.scale
 	end
 end
@@ -168,11 +170,12 @@ local doGroundHearts = function(player)
 	local mo = player.mo
 	local speed = mo.scale * 8
 	local spread = FRACUNIT * 4
+	speed = $ + player.speed
 	if player.actionstate then
 		speed = $ + player.speed
-		spread = $ + (FRACUNIT * 2)
+		spread = $ + (FRACUNIT * 3/2)
 	end
-	local angle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
+	local angle = player.drawangle
 	local zangle = player.actionstate and ANG1*5 or 1
 	for n = -2,2 do
 		local xmom = FixedMul(n * spread, cos(angle+ANGLE_90))
@@ -193,6 +196,7 @@ local doGroundHearts = function(player)
 				msl.fuse = 30
 				msl.destscale = dest*3/2
 				msl.scalespeed = FRACUNIT/2
+				msl.blockable = 2
 			else
 				msl.fuse = 15
 				msl.destscale = dest
@@ -202,6 +206,7 @@ local doGroundHearts = function(player)
 			msl.cantouchteam = true
 		end
 	end
+	mo.cusval = 1
 end
 
 //Hammer ticframe control
@@ -272,6 +277,26 @@ B.HammerControl = function(player)
 		mo.state = S_PLAY_MELEE
 		mo.frame = 0
 	end 
+
+	--watch out!! charged attack!
+	local watchout1 = player.melee_state == st_release
+	local watchout2 = (mo.state == S_PLAY_ROLL and not (player.pflags & PF_NOJUMPDAMAGE)) and not (
+		(player.pflags & PF_SPINNING) or (player.pflags & PF_THOKKED) --dude this is so hacky
+	)
+	if (player.melee_charge >= FRACUNIT) and (watchout1 or watchout2) and not(leveltime%3) then
+		local ghost = P_SpawnGhostMobj(mo)
+		if ghost and ghost.valid then
+			ghost.colorized = true
+			ghost.fuse = 10
+		end
+		if watchout1 then
+			B.DrawAimLine(player, player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
+		end
+		if not P_IsObjectOnGround(mo) then
+			player.charflags = $ & ~SF_NOSKID
+		end
+	end
+
 	if not(P_IsObjectOnGround(mo))
 		if (mo.state != S_PLAY_MELEE and mo.state != S_PLAY_MELEE_FINISH)
 			player.melee_state = st_idle
@@ -334,15 +359,6 @@ B.HammerControl = function(player)
 		end
 		player.melee_state = st_idle
 	end
-
-	//watch out!! charged attack!
-	if (player.melee_charge >= FRACUNIT) and player.melee_state == st_release and not(leveltime%3) then
-		local ghost = P_SpawnGhostMobj(mo)
-		if ghost and ghost.valid then
-			ghost.colorized = true
-			ghost.fuse = 10
-		end
-	end
 end
 
 B.PostHammerControl = function(player)
@@ -357,6 +373,15 @@ B.PostHammerControl = function(player)
 		B.ApplyCooldown(player, piko_cooldown)
 		B.SpawnWave(player, 0, false)
 		player.actionstate = 0
+	elseif mo.state == S_PLAY_MELEE_LANDING then
+		-- nvm fix regular hearts too. rising platforms i swear 
+		if not (mo.cusval) then
+			doGroundHearts(player)
+			mo.momz = 0 --i tried to add mo.pmomz to the B.ZLaunch's, trust me i tried
+			mo.tics = $ + (TICRATE/5)
+		end
+	else 
+		mo.cusval = 0
 	end
 end
 
