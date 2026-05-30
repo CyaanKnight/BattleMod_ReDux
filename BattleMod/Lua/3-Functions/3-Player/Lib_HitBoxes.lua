@@ -105,8 +105,7 @@ B.BattleHitboxCollision = function(boxhit, mobj)
 
 	//player colision
 	if mobj.type == MT_PLAYER and mobj.player and mobj.health and mobj.pushtics <= 0 and
-	(CV_FindVar("friendlyfire").value or mobj.player.ctfteam != mobj.player.ctfteam or not (gametyperules & GTR_TEAMS) or
-	not (gametyperules & GTR_FRIENDLY)) then
+	not(B.MyTeam(mobj.player, plr)) then
 		
 		local attacker_speed = abs(FixedHypot(boxhit.target.momx, boxhit.target.momy))
 		
