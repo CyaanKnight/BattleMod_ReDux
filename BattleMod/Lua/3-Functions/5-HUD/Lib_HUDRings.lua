@@ -114,7 +114,7 @@ B.RingsHUD = function(v, player, cam)
 		ringpatchname = "HUD_RINGR"
 	elseif player.rings < actionrings then
 		ringpatchname = "HUD_RINGG"
-	elseif CV.RingLimit then
+	elseif CV.RingLimit and B.BattleGametype() then
 		patch2 = v.cachePatch("HUD_RINGG")
 		patch2percent = FU - FixedDiv(player.rings, CV.RingLimit.value)
 		patch2percent = max(0, $)
@@ -123,7 +123,7 @@ B.RingsHUD = function(v, player, cam)
 	v.drawScaled(x*FRACUNIT, y*FRACUNIT, scale, ringpatch, flags_hudtrans)
 	if patch2 and patch2percent then
 		v.drawCropped(x*FU, y*FU, scale, scale, patch2, flags_hudtrans, nil, 0, 0, patch2.width*FU, patch2.height*patch2percent)
-	elseif CV.RingLimit and player.rings >= CV.RingLimit.value and leveltime > TICRATE and (leveltime % 5 == 0) then
+	elseif CV.RingLimit and B.BattleGametype() and player.rings >= CV.RingLimit.value and leveltime > TICRATE and (leveltime % 5 == 0) then
 		local r = function() return v.RandomFixed() - v.RandomFixed() end
 		local r1 = function() return (ringpatch.width/4)*r() end
 		local r2 = function() return (ringpatch.height/4)*r() end

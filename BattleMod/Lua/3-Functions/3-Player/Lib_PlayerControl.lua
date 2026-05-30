@@ -128,6 +128,7 @@ B.InitPlayer = function(player)
 		player.win = nil
 		player.loss = nil
 	end
+	player.melee_charge = 0
 end
 
 B.ResetPlayerProperties = function(player,jumped,thokked)
@@ -695,22 +696,17 @@ B.DeathtimePenalty = function(player)
 	player.spectatortime = player.deadtimer -TICRATE*3
 end
 
-B.StartRingsPenalty = function(player, penalty, limit)
+B.StartRingsPenalty = function(player, killer)
 	if not(CV.RingPenalty.value and B.BattleGametype()) then
 		return --Gametype doesn't benefit from StartRings
 	end
-	if player.lastpenalty and player.lastpenalty == "Autobalanced" then
+	local autobalanced = player.lastpenalty and player.lastpenalty == "Autobalanced"
+	if (autobalanced or killer) then
 		player.lastpenalty = 0
 		return
 	end
-	player.ringpenalty = $ or 0
-	if player.ringpenalty >= (limit or CV.StartRings.value) then
-		return --Player is already maxed out on penalty
-	end
-	if B.Overtime then
-		penalty = $*2
-	end
-	player.ringpenalty = min(CV.StartRings.value, $+penalty)
+	player.ringpenalty = CV.StartRings.value - player.rings
+	player.ringpenalty = max(0, player.ringpenalty) --so you don't get extra rings for dying lol
 	player.lastpenalty = penalty
 end
 

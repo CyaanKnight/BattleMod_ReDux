@@ -958,9 +958,15 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		end
 
 		-- if we're here, at least one of the conditions met, so let's create a generic indicator! (if there isn't any)
+		local zfloatintensity = pmo.scale*6 --lets make things nore lively, why not?
+		local zfloat = FixedMul(zfloatintensity, sin(leveltime*(ANG1*2)))
+		local zoffset = (pmo.height * P_MobjFlip(pmo)) + zfloatintensity + zfloat
+		if (pmo.eflags&MFE_VERTICALFLIP) then -- not sure why this is necessary, but if it works it works
+			zoffset = $+(pmo.height/3)
+		end
 		if not(pmo.flag_indicator and pmo.flag_indicator.valid) then
 			pmo.flag_indicator = {}
-			local icon = P_SpawnMobjFromMobj(pmo,0,0,0,MT_GOTFLAG)
+			local icon = P_SpawnMobjFromMobj(pmo,pmo.x,pmo.y,pmo.z+zoffset,MT_GOTFLAG)
 			
 			icon.frame = FF_FULLBRIGHT
 			if (gametype == GT_BATTLECTF) then
@@ -990,12 +996,6 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		end
 
 		-- finally, update the indicator's position
-		local zfloatintensity = pmo.scale*6 --lets make things nore lively, why not?
-		local zfloat = FixedMul(zfloatintensity, sin(leveltime*(ANG1*2)))
-		local zoffset = (pmo.height * P_MobjFlip(pmo)) + zfloatintensity + zfloat
-		if (pmo.eflags&MFE_VERTICALFLIP) then -- not sure why this is necessary, but if it works it works
-			zoffset = $+(pmo.height/3)
-		end
 		pmo.flag_indicator.eflags = (pmo.eflags&MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
 		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 

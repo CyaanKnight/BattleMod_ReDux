@@ -260,7 +260,7 @@ addHook("MobjThinker", function(mo)
 	end
 	mo.momx = $ * mo.friction / 100
 	mo.momy = $ * mo.friction / 100
-	mo.momz = $ - (P_MobjFlip(mo) * mo.scale)
+	mo.momz = $ - (P_MobjFlip(mo) * mo.scale/2)
 end, MT_PIKOWAVEHEART)
 addHook("MobjThinker", B.PikoWaveThinker, MT_PIKOWAVE)
 

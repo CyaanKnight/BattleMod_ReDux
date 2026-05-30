@@ -79,7 +79,7 @@ CV.RequireRings = CV_RegisterVar{
 
 CV.RingLimit = CV_RegisterVar{
     name = "battle_ringlimit",
-    defaultvalue = 100,
+    defaultvalue = 50,
     flags = CV_NETVAR,
     PossibleValue = {MIN = 0, MAX = 9999}
 }

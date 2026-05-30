@@ -3,7 +3,8 @@ freeslot("MT_RINGSPARKAURA",
 		 "SPR_RSPA",
 		 "S_RINGSPARKAURA",
 		 "S_METALSONIC_RINGSPARK1",
-		 "S_METALSONIC_RINGSPARK2"
+		 "S_METALSONIC_RINGSPARK2",
+		 "S_METALSONIC_RINGSPARK3"
 )
 
 local ringteam = freeslot("sfx_rgspkt")
@@ -27,14 +28,21 @@ mobjinfo[MT_RINGSPARKAURA] = {
 states[S_RINGSPARKAURA] = {SPR_RSPA, A|FF_ANIMATE|FF_FULLBRIGHT, -1, nil, 1, 4, S_NULL}
 
 states[S_METALSONIC_RINGSPARK1] = {
-	sprite = SPR_RSPF,
-	frame = A
+	sprite = SPR_PLAY,
+	frame = SPR2_FLY_|A,
+	tics = -1
 }
 
 states[S_METALSONIC_RINGSPARK2] = {
-	sprite = SPR_RSPF,
-	frame = B|FF_FULLBRIGHT
+	sprite = SPR_PLAY,
+	frame = SPR2_FLY_|FF_ANIMATE|A,
+	tics = -1,
+	nextstate = S_PLAY_STND,
+	var1 = 1,
+	var2 = 2
 }
+
+
 
 --states[S_METALSONIC_RINGSPARK1] = {SPR_PLAY, SPR2_RSPF|A, 17, nil, nil, 1, S_METALSONIC_RINGSPARK2} --sfx_monton
 --states[S_METALSONIC_RINGSPARK2] = {SPR_PLAY, SPR2_RSPF|FF_ANIMATE|FF_FULLBRIGHT, 5*TICRATE, nil, nil, 1, S_METALSONIC_RINGSPARK3} --sfx_s3k40
