@@ -73,7 +73,7 @@ B.PlayerThinkFrame = function(player)
 		player.autobalancing = nil
 	end
 
-	if CV.RingLimit then
+	if CV.RingLimit and B.BattleGametype() then
 		player.rings = min($, CV.RingLimit.value)
 	end
 
