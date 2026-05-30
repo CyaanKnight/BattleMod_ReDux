@@ -331,6 +331,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 	if player.lives == 1 and B.BattleGametype() and G_GametypeUsesLives()
 		B.PrintGameFeed(player," ran out of lives!")
 		A.GameOvers = $+1
+		player._gameovered = true
 	end
 
 	--Death time and StartRings penalties

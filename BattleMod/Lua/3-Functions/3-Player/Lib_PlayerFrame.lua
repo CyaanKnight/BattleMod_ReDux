@@ -84,6 +84,15 @@ B.PlayerThinkFrame = function(player)
 	
 	--Sanity checks
 	if player.versusvars == nil then return end
+
+	--Stop Game Over fade out
+	if player._gameovered then
+		if (player.playerstate == PST_DEAD) then
+			S_StopFadingMusic(player)
+		end
+		player._gameovered = nil
+	end
+
 	if not(pmo and pmo.valid) or player.playerstate ~= PST_LIVE then return end
 	if maptol&(TOL_NIGHTS|TOL_XMAS) then return end
 	
