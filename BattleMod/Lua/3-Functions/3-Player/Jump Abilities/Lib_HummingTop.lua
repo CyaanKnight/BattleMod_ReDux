@@ -202,7 +202,11 @@ local function cancelHummingTop(player, sound, flag)
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
 	player.glidetime = 0
-	player.mo.state = S_PLAY_FALL
+	if P_IsObjectOnGround(player.mo) then
+		player.mo.state = S_PLAY_WALK
+	else
+		player.mo.state = S_PLAY_FALL
+	end
 	player.pflags = $ & ~PF_STASIS
 	if flag then
 		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
