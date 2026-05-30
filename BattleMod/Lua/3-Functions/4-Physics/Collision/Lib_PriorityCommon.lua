@@ -112,7 +112,7 @@ B.Priority_Ability = function(player)
 //		end
 		//Amy
 		if twinspin then 
-			B.SetPriority(player,1,0,"amy_twinspin",1,2,"aerial hammer strike")
+			B.SetPriority(player,1,1,"amy_twinspin",1,2,"aerial hammer strike")
 		elseif pikotwirl then
 			B.SetPriority(player,1,0,"amy_twirl",2,1,"piko twirl")
 		end
@@ -120,7 +120,7 @@ B.Priority_Ability = function(player)
 			if player.melee_state == 1//st_hold
 				B.SetPriority(player,0,0,nil,0,0,"hammer charge")
 			else
-				B.SetPriority(player,0,0,"amy_melee",1,2,"hammer strike")
+				B.SetPriority(player,1,0,"amy_melee",1,2,"hammer strike")
 			end
 		end
 		//Fang
