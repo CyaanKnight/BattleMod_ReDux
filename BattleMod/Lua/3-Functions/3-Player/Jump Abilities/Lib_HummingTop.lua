@@ -248,7 +248,7 @@ function B.HummingTop_MainHook(player)
 		local sprung = (mo.eflags & MFE_SPRUNG)
 		local exhaust = (player.exhaustmeter <= 0)
 		local tumble = player.tumble
-		local dropdashable = (mo.dropdash_actionable~=nil)
+		local dropdashable = (mo.dropdash_actionable~=nil) and not(humming)
 		local dropdashing = (mo.dropdash_prep == 100)
 		local inexhausted = (player.exhaustmeter > 0)
 		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
