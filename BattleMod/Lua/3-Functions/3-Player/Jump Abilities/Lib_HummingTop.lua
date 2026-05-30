@@ -202,6 +202,7 @@ local function cancelHummingTop(player, sound, flag)
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
 	player.glidetime = 0
+	player.mo.state = S_PLAY_FALL
 	player.pflags = $ & ~PF_STASIS
 	if flag then
 		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
@@ -247,7 +248,7 @@ function B.HummingTop_MainHook(player)
 		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
 	
 		local recurlable = (mo.recurl_actionable == true)
-		local spin = (player.pflags & PF_SPINDOWN)
+		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, true)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
 
@@ -354,7 +355,7 @@ function B.HummingTop_MainHook(player)
 					cancelDropDash(mo)
 				end
 			else
-				mo.state = $
+				mo.state = S_PLAY_JUMP
 				player.pflags = $ & ~PF_SHIELDABILITY
 				cancelDropDash(mo)
 			end
@@ -913,15 +914,18 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				else
 					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
 				end
+				mo[n1].recurl_actionable = true
 			end
 
 			mo[n1].air_recoilanim_override = true
 
 			plr[n1].glidetime = 2 --Commit time ends
 
+			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
+
 			collisiontype = (bump and 1) or 3
 
-			mo[n1].recurl_actionable = true
 			return
 		else
 			return
