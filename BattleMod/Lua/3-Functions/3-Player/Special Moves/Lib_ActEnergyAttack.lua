@@ -592,8 +592,10 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 			mo.state = S_METALSONIC_RINGSPARK2
 		end
 	
-		local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_METALSONIC_RINGSPARK2, false, 0)	
-		hitbox.radius = 40*player.mo.scale
+		if not(player.hitbox) then
+			local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_METALSONIC_RINGSPARK2, false, 0)	
+			hitbox.radius = 40*player.mo.scale
+		end
 
 		player.skidtime = 0
 		player.charflags = ($|SF_NOSKID)
