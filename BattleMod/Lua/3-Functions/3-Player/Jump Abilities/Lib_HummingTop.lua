@@ -401,8 +401,10 @@ function B.HummingTop_MainHook(player)
 				end
 				local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, false, 0)	
 				hitbox.radius = 40*player.mo.scale
-				player.drawangle = mo.hummingtop_drawangle
-				mo.hummingtop_drawangle = $-ANGLE_45
+				if mo.hummingtop_drawangle ~= nil then
+					player.drawangle = mo.hummingtop_drawangle
+					mo.hummingtop_drawangle = $-ANGLE_45
+				end
 			end
 			
 			if (player.glidetime > 2) and (player.glidetime <= (B.Console.HTop_Commit.value)+2) then
