@@ -249,6 +249,7 @@ function B.HummingTop_MainHook(player)
 	
 		local recurlable = (mo.recurl_actionable == true)
 		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, true)
+		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, true)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
 
@@ -310,7 +311,7 @@ function B.HummingTop_MainHook(player)
 		end
 
 		if dropdashable and not(cancel) then
-			if spin then
+			if spin_held then
 				if (mo.dropdash_prep or 0) < 100
 					mo.dropdash_prep = ($==nil and 100/10) or $+100/10
 					if mo.dropdash_prep >= 100
@@ -354,7 +355,7 @@ function B.HummingTop_MainHook(player)
 				if humming or sprung then
 					cancelDropDash(mo)
 				end
-			else
+			elseif spin
 				mo.state = S_PLAY_JUMP
 				player.pflags = $ & ~PF_SHIELDABILITY
 				cancelDropDash(mo)
