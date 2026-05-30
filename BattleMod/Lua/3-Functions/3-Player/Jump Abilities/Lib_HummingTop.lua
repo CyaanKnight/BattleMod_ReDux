@@ -401,7 +401,7 @@ function B.HummingTop_MainHook(player)
 					mo.state = S_SONIC_HUMMINGTOP
 				end
 				if not(player.hitbox) then
-					local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, false, 0)	
+					local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
 					hitbox.radius = 40*player.mo.scale
 				end
 				if mo.hummingtop_drawangle ~= nil then
