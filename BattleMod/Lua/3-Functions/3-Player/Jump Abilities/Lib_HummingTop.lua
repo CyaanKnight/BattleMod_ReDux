@@ -202,10 +202,12 @@ local function cancelHummingTop(player, sound, flag)
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
 	player.glidetime = 0
-	if P_IsObjectOnGround(player.mo) then
-		player.mo.state = S_PLAY_WALK
-	else
-		player.mo.state = S_PLAY_FALL
+	if player.mo.state == S_SONIC_HUMMINGTOP then
+		if P_IsObjectOnGround(player.mo) then
+			player.mo.state = S_PLAY_WALK
+		else
+			player.mo.state = S_PLAY_FALL
+		end
 	end
 	player.pflags = $ & ~PF_STASIS
 	if flag then
