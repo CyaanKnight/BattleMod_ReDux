@@ -415,6 +415,7 @@ B.RingsHUD = function(v, player, cam)
 		guardtext = $ + "\x85" + " 10"
 	end*/
 	patch = v.cachePatch("PARRYBT")
+	flags = $ | V_HUDTRANS
 	if (canguard or guardoverride) and not (minimal_hud) then
 		v.draw(x-5,y-1,patch,flags)
 		v.drawString(x+7,y,guardtext,flags,"thin")
