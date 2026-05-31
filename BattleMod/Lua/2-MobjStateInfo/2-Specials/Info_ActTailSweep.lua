@@ -1,5 +1,7 @@
 freeslot(
 	's_tails_swipe',
+	's_tails_spinswipe1',
+	's_tails_spinswipe2',
 	's_tails_pounce',
 	'spr_tswp',
 	'spr_pnce'
@@ -16,6 +18,37 @@ states[S_TAILS_POUNCE] = {
 	tics = 0,
 	nextstate = S_PLAY_FALL
 }
+
+-- it should at least look correct for the player
+function A_BMTailsAngle(actor)
+	if actor and actor.valid and actor.player then
+		local player = actor.player
+		local angle = actor.angle
+		if player.pflags & PF_ANALOGMODE then
+			angle = (player.cmd.angleturn<<16)
+		end
+		player.drawangle = angle+ANGLE_90
+		actor.state = S_PLAY_FALL
+	end
+end
+		
+
+states[S_TAILS_SPINSWIPE1] = {
+	sprite = SPR_TSWP,
+	frame = B|FF_ANIMATE,
+	tics = 14,
+	var1 = 6,
+	var2 = 2,
+	nextstate = S_TAILS_SPINSWIPE2
+}
+
+states[S_TAILS_SPINSWIPE2] = {
+	sprite = SPR_TSWP,
+	frame = H,
+	tics = 0,
+	action = A_BMTailsAngle
+}
+
 freeslot(
 	'mt_sonicboom',
 	'spr_guil',

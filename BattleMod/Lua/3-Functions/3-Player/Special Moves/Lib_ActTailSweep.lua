@@ -202,6 +202,10 @@ end
 B.Action.TailSwipe = function(mo,doaction)
 	local player = mo.player
 
+	if mo.state == S_TAILS_SPINSWIPE1 then
+		dodust(mo)
+	end
+
 	if (mo.eflags & MFE_SPRUNG)
 	and player.actionstate
 		uncolorize(mo)
@@ -454,6 +458,8 @@ B.Action.TailSwipe = function(mo,doaction)
 		--Set state
 		player.actionstate = state_sweep
 		player.actiontime = 0
+		mo.state = S_TAILS_SPINSWIPE1
+		player.spinswipe = true
 		player.pflags = $&~(PF_SPINNING|PF_JUMPED)
 
 		--Missile attack
@@ -598,25 +604,27 @@ B.Action.TailSwipe = function(mo,doaction)
 		-- NOTICE: code moved to Exec_Projectiles.lua
 
 		--Anim states
-		if player.actiontime < 6 then
-			--Fast Spin anim
-			player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
-			B.DrawSVSprite(player,1)
-			P_SetMobjStateNF(player.followmobj,S_NULL)
-			dodust(mo)
-		elseif player.actiontime < 12 then
-			--Medium Spin anim
-			player.drawangle = mo.angle-ANGLE_45*(player.actiontime-4)
-			B.DrawSVSprite(player,1)
-			P_SetMobjStateNF(player.followmobj,S_NULL)
-			dodust(mo)
-		else
-			--Teeter anim
-			player.drawangle = mo.angle-ANGLE_45/2*(player.actiontime-4)
-			mo.state = S_PLAY_EDGE
-			mo.frame = 0
-			mo.tics = 0
-			--player.pflags = $&~(PF_SPINNING)
+		if not(player.spinswipe) then
+			if player.actiontime < 6 then
+				--Fast Spin anim
+				player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
+				B.DrawSVSprite(player,1)
+				P_SetMobjStateNF(player.followmobj,S_NULL)
+				dodust(mo)
+			elseif player.actiontime < 12 then
+				--Medium Spin anim
+				player.drawangle = mo.angle-ANGLE_45*(player.actiontime-4)
+				B.DrawSVSprite(player,1)
+				P_SetMobjStateNF(player.followmobj,S_NULL)
+				dodust(mo)
+			else
+				--Teeter anim
+				player.drawangle = mo.angle-ANGLE_45/2*(player.actiontime-4)
+				mo.state = S_PLAY_EDGE
+				mo.frame = 0
+				mo.tics = 0
+				--player.pflags = $&~(PF_SPINNING)
+			end
 		end
 		
 		-- if we were interrupted mid swipe, we can actually reset our values
@@ -634,14 +642,19 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.pflags = $&~(PF_SPINNING)
 			player.drawangle = mo.angle
 			--mo.state = S_PLAY_WALK
-			mo.frame = 0
+			if not(spinswipe) then
+				mo.frame = 0
+			end
 			--mo.radius = radius
 			if P_IsObjectOnGround(mo) then
 				player.actionstate = 0
 				player.drawangle = mo.angle
-				mo.state = S_PLAY_WALK
-				mo.frame = 0
+				if not(spinswipe) then
+					mo.state = S_PLAY_WALK
+					mo.frame = 0
+				end
 			end
+			player.spinswipe = nil
 			player.actionstate = 0
 		end
 		
@@ -650,19 +663,27 @@ B.Action.TailSwipe = function(mo,doaction)
 			player.pflags = $&~(PF_THOKKED|PF_SPINNING)
 			--player.pflags = $&~PF_FULLSTASIS
 			player.drawangle = mo.angle
-			mo.frame = 0
+			if not(player.spinswipe) then
+				mo.frame = 0
+			end
+			
 			if P_IsObjectOnGround(mo) then
 				player.actionstate = 0
-				player.drawangle = mo.angle
-				mo.state = S_PLAY_WALK
-				mo.frame = 0
+				if not(player.spinswipe) then
+					player.drawangle = mo.angle
+					mo.state = S_PLAY_WALK
+					mo.frame = 0
+				end
 				player.pflags = $&~PF_JUMPED
 			else
-				mo.state = S_PLAY_SPRING
+				if not(player.spinswipe) then
+					mo.state = S_PLAY_SPRING
+				end
 				player.pflags = $|PF_JUMPED|PF_NOJUMPDAMAGE
 			end
 			player.actionstate = 0
 			player.laststate = 0
+			player.spinswipe = nil
 		end
 	else
 		player.charability2 = CA2_SPINDASH
