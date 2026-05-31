@@ -734,22 +734,21 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 
 	
 	--Wall type
-	if not(dropdash) then
-		if bouncy
-			S_StartSound(mo,sfx_s3k87)
-			bouncez = $ + 6*mo.scale
-			percent = $ + 6
-		end
-		if hbouncy
-			wallth = $ + 40*mo.scale
-			S_StartSound(mo,sfx_cdfm74)
-		end
-		if vbouncy
-			wallth = $ / 2
-			percent = $ / 4
-			bouncez = $ + 11*mo.scale
-			S_StartSound(mo,sfx_cdfm62)
-		end
+	
+	if bouncy
+		S_StartSound(mo,sfx_s3k87)
+		bouncez = $ + 6*mo.scale
+		percent = $ + 6
+	end
+	if hbouncy
+		wallth = $ + 40*mo.scale
+		S_StartSound(mo,sfx_cdfm74)
+	end
+	if vbouncy
+		wallth = $ / 2
+		percent = $ / 4
+		bouncez = $ + 11*mo.scale
+		S_StartSound(mo,sfx_cdfm62)
 	end
 	
 	--Do the horizontal bounce
@@ -785,46 +784,44 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 	end
 	
 	--Wallbounce dust
-	if not(dropdash) then
-		if nocl
-			local dustcount = 6
-			while dustcount > 0
-				dustcount = $ - 1
-				local dust = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 18, MT_SPINDUST)
-				dust.state = S_MINECARTSPARK
-				dust.momx = (mo.momx * 3) + (P_RandomRange(-20,20) * FRACUNIT)
-				dust.momy = (mo.momy * 3) + (P_RandomRange(-20,20) * FRACUNIT)
-				dust.momz = P_RandomRange(-3,3) * FRACUNIT
-				dust.scale = FRACUNIT * P_RandomRange(50,125) / 100
-				dust.destscale = 0
-				dust.angle = P_RandomRange(0,ANGLE_180)
-				dust.fuse = 10
-			end
-		else
-			local dustcount = 10
-			if not bigbounce
-				dustcount = 5
-			end
-			while dustcount > 0
-				dustcount = $ - 1
-				local dust = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 18, MT_SPINDUST)
-				dust.momx = (mo.momx * 2) + (P_RandomRange(-10,10) * FRACUNIT)
-				dust.momy = (mo.momy * 2) + (P_RandomRange(-10,10) * FRACUNIT)
-				dust.momz = P_RandomRange(-3,3) * FRACUNIT
-				dust.scale = FRACUNIT * P_RandomRange(50,125) / 100
-				dust.destscale = 0
-				dust.color = mo.color
-				dust.colorized = true
-			end
+	if nocl
+		local dustcount = 6
+		while dustcount > 0
+			dustcount = $ - 1
+			local dust = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 18, MT_SPINDUST)
+			dust.state = S_MINECARTSPARK
+			dust.momx = (mo.momx * 3) + (P_RandomRange(-20,20) * FRACUNIT)
+			dust.momy = (mo.momy * 3) + (P_RandomRange(-20,20) * FRACUNIT)
+			dust.momz = P_RandomRange(-3,3) * FRACUNIT
+			dust.scale = FRACUNIT * P_RandomRange(50,125) / 100
+			dust.destscale = 0
+			dust.angle = P_RandomRange(0,ANGLE_180)
+			dust.fuse = 10
 		end
-		
-		if bigbounce
-			--Wallbounce big puff of smoke
-			local boom = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
-			boom.state = S_XPLD3
-			boom.colorized = true
-			boom.color = mo.color
+	else
+		local dustcount = 10
+		if not bigbounce
+			dustcount = 5
 		end
+		while dustcount > 0
+			dustcount = $ - 1
+			local dust = P_SpawnMobjFromMobj(mo, 0, 0, mo.scale * 18, MT_SPINDUST)
+			dust.momx = (mo.momx * 2) + (P_RandomRange(-10,10) * FRACUNIT)
+			dust.momy = (mo.momy * 2) + (P_RandomRange(-10,10) * FRACUNIT)
+			dust.momz = P_RandomRange(-3,3) * FRACUNIT
+			dust.scale = FRACUNIT * P_RandomRange(50,125) / 100
+			dust.destscale = 0
+			dust.color = mo.color
+			dust.colorized = true
+		end
+	end
+	
+	if bigbounce
+		--Wallbounce big puff of smoke
+		local boom = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_SPINDUST)
+		boom.state = S_XPLD3
+		boom.colorized = true
+		boom.color = mo.color
 	end
 		
 	--Wallbounce circle effect
@@ -842,14 +839,12 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 
 	if not(fxonly) then
 		player.glidetime = ($>2 and 2) or 0
-		if not dropdash then
-			player.mo.recurl_actionable = true
-			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
-			player.exhaustmeter = max(0, $-exhaust_chunk)
-			if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
-				P_RemoveMobj(player.mo.hummingtop_arrow)
-				player.mo.hummingtop_arrow = nil
-			end
+		player.mo.recurl_actionable = true
+		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+		player.exhaustmeter = max(0, $-exhaust_chunk)
+		if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
+			P_RemoveMobj(player.mo.hummingtop_arrow)
+			player.mo.hummingtop_arrow = nil
 		end
 		cancelDropDash(mo)
 	end
