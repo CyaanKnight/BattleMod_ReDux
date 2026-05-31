@@ -243,10 +243,13 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		mo.spritexscale = max(FRACUNIT * 4/5, min($ + FRACUNIT/30, FRACUNIT))
 		mo.spriteyscale = max(FRACUNIT, min($ - FRACUNIT/30, FRACUNIT * 5/4))
 
+
+		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, true)
+		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, true)
 		
 		//Restore ability after end-rising
 		if mo.momz*P_MobjFlip(mo) < 0 then 
-			if (player.pflags & PF_SPINDOWN) then
+			if spin or spin_held then
 				S_StartSound(mo, sfx_drpdsh)
 				mo.dropdash_prep = 100
 				mo.dropdash_actionable = 0
