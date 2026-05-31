@@ -135,6 +135,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.melee_state = st_release
 			mo.state = S_PLAY_MELEE
 			player.melee_charge = FRACUNIT
+			player.actionstate = piko_special
 		end
 	end
 

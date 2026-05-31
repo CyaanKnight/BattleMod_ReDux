@@ -7,7 +7,8 @@ local st_jump = 3
 
 local sideangle = ANG30 - ANG10
 
-local piko_special = 11
+local air_special = 9
+local piko_special = 11 
 local piko_cooldown = TICRATE * 2
 local pikowave_duration = TICRATE
 local ALLOWCHARGEHAMMER = false
@@ -171,12 +172,12 @@ local doGroundHearts = function(player)
 	local speed = mo.scale * 8
 	local spread = FRACUNIT * 4
 	speed = $ + player.speed
-	if player.actionstate then
+	if player.actionstate == air_special then
 		speed = $ + player.speed
 		spread = $ + (FRACUNIT * 3/2)
 	end
 	local angle = player.drawangle
-	local zangle = player.actionstate and ANG1*5 or 1
+	local zangle = player.actionstate == air_special and ANG1*5 or 1
 	for n = -2,2 do
 		local xmom = FixedMul(n * spread, cos(angle+ANGLE_90))
 		local ymom = FixedMul(n * spread, sin(angle+ANGLE_90))
@@ -192,7 +193,7 @@ local doGroundHearts = function(player)
 			msl.color = heartcolor(msl, player)
 			local dest = msl.scale
 			msl.scale = 1
-			if player.actionstate then
+			if player.actionstate == air_special then
 				msl.fuse = 30
 				msl.destscale = dest*3/2
 				msl.scalespeed = FRACUNIT/2
@@ -347,7 +348,7 @@ B.HammerControl = function(player)
 		]]
 		
 		local inputs = (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
-		if (inputs or spin) and not (player.actionstate or player.gotflagdebuff) then
+		if (inputs or spin) and not (player.actionstate != piko_special or player.gotflagdebuff) then
 			if spin and not inputs then
 				B.ApplyCooldown(player, piko_cooldown)
 				B.SpawnWave(player, 0, false)
