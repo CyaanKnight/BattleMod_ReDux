@@ -249,7 +249,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		
 		//Restore ability after end-rising
 		if mo.momz*P_MobjFlip(mo) < 0 then 
-			if spin or spin_held then
+			if spin_held then
 				S_StartSound(mo, sfx_drpdsh)
 				mo.dropdash_prep = 100
 				mo.dropdash_actionable = 0

@@ -87,6 +87,47 @@ local function charParam(player)
 	return (player and player.mo and player.mo.valid and (player.charability == CA_JUMPTHOK) and (B.GetSkinVarsFlags(player) & SKINVARS_HUMMINGTOP))
 end
 
+local function cancelHummingTop(player, sound, flag)
+	if player.mo.hummingtop_state == state_spinning then
+		if sound then 
+			S_StartSound(player.mo, sfx_cdfm17)
+		end
+		player.mo.hummingtop_state = nil
+	end
+	
+	
+	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
+		P_RemoveMobj(player.mo.hummingtop_overlay)
+		player.mo.hummingtop_overlay = nil
+	end
+	if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
+		P_RemoveMobj(player.mo.hummingtop_arrow)
+		player.mo.hummingtop_arrow = nil
+	end
+	player.mo.hummingtop_angle = nil
+	player.mo.hummingtop_drawangle = nil
+	player.glidetime = 0
+	if player.mo.state == S_SONIC_HUMMINGTOP then
+		if P_IsObjectOnGround(player.mo) then
+			player.mo.state = S_PLAY_WALK
+		else
+			player.mo.state = S_PLAY_FALL
+		end
+	end
+	player.pflags = $ & ~PF_STASIS
+	if flag then
+		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
+		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
+	end
+end
+
+local function cancelDropDash(mo)
+	mo.dropdash_actionable = nil
+	mo.dropdash_prep = nil
+	mo.dropdash_momz = nil
+end
+
+
 function B.HummingTop_AbilitySpecial(player)
 	if charParam(player) then --If we're valid
 
@@ -128,6 +169,7 @@ function B.HummingTop_AbilitySpecial(player)
 		
 		--player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK
 		P_InstaThrust(player.mo, player.mo.hummingtop_angle, thrust)
+		cancelDropDash(player.mo)
 		if player.gotflagdebuff then
 			B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
 			B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
@@ -182,45 +224,6 @@ function B.HummingTop_AbilitySpecial(player)
 	end
 end
 
-local function cancelHummingTop(player, sound, flag)
-	if player.mo.hummingtop_state == state_spinning then
-		if sound then 
-			S_StartSound(player.mo, sfx_cdfm17)
-		end
-		player.mo.hummingtop_state = nil
-	end
-	
-	
-	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
-		P_RemoveMobj(player.mo.hummingtop_overlay)
-		player.mo.hummingtop_overlay = nil
-	end
-	if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
-		P_RemoveMobj(player.mo.hummingtop_arrow)
-		player.mo.hummingtop_arrow = nil
-	end
-	player.mo.hummingtop_angle = nil
-	player.mo.hummingtop_drawangle = nil
-	player.glidetime = 0
-	if player.mo.state == S_SONIC_HUMMINGTOP then
-		if P_IsObjectOnGround(player.mo) then
-			player.mo.state = S_PLAY_WALK
-		else
-			player.mo.state = S_PLAY_FALL
-		end
-	end
-	player.pflags = $ & ~PF_STASIS
-	if flag then
-		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
-		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
-	end
-end
-
-local function cancelDropDash(mo)
-	mo.dropdash_actionable = nil
-	mo.dropdash_prep = nil
-	mo.dropdash_momz = nil
-end
 
 local state_superspinjump = 1
 local state_groundpound_rise = 2
@@ -364,6 +367,8 @@ function B.HummingTop_MainHook(player)
 			elseif spin
 				mo.state = S_PLAY_JUMP
 				player.pflags = $ & ~PF_SHIELDABILITY
+				cancelDropDash(mo)
+			else
 				cancelDropDash(mo)
 			end
 		elseif cancel and dropdashing then
