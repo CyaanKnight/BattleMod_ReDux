@@ -161,6 +161,7 @@ B.hammerjump = function(player,power)
 	else
 --		P_SpawnParaloop(mo.x, mo.y, z, mo.scale<<6,16,MT_LHRT,ANGLE_90,nil,0)
 		player.pflags = ($ | PF_JUMPED | PF_STARTJUMP ) &~(PF_THOKKED|PF_NOJUMPDAMAGE)
+		player.actionstate = 0
 		B.ApplyCooldown(player, piko_cooldown)
 	end
 	mo.state = power and S_PLAY_ROLL or S_PLAY_JUMP
@@ -256,8 +257,8 @@ B.HammerControl = function(player)
 	--Piko Wave failsafe
 	if player.actionstate == piko_special then
 		if not(P_IsObjectOnGround(mo)) and (mo.state ~= S_PLAY_MELEE) and (mo.state ~= S_PLAY_MELEE_FINISH) and (mo.state ~= S_PLAY_MELEE_LANDING) then
-			B.ApplyCooldown(player, piko_cooldown)
 			player.actionstate = 0
+			B.ApplyCooldown(player, piko_cooldown)
 		end
 	end
 	
@@ -340,9 +341,9 @@ B.HammerControl = function(player)
 		--[[
 		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
 			if not(player.gotflagdebuff) then
+				player.actionstate = 0
 				B.ApplyCooldown(player, piko_cooldown)
 				B.SpawnWave(player, 0, false)
-				player.actionstate = 0
 			end
 		else
 		]]
@@ -350,6 +351,7 @@ B.HammerControl = function(player)
 		local inputs = (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
 		if (inputs or spin) and not (player.actionstate != piko_special or player.gotflagdebuff) then
 			if spin and not inputs then
+				player.actionstate = 0
 				B.ApplyCooldown(player, piko_cooldown)
 				B.SpawnWave(player, 0, false)
 			else
@@ -371,9 +373,9 @@ B.PostHammerControl = function(player)
 
 	-- fix piko wave while in a rising platform...
 	if player.actionstate == piko_special and mo.state == S_PLAY_MELEE_LANDING then
+		player.actionstate = 0
 		B.ApplyCooldown(player, piko_cooldown)
 		B.SpawnWave(player, 0, false)
-		player.actionstate = 0
 	elseif mo.state == S_PLAY_MELEE_LANDING then
 		-- nvm fix regular hearts too. rising platforms i swear 
 		if not (mo.cusval) then
