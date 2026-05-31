@@ -332,6 +332,7 @@ addHook("MobjDeath",function(target,inflictor,source,damagetype)
 		B.PrintGameFeed(player," ran out of lives!")
 		A.GameOvers = $+1
 		player._gameovered = true
+		S_StartSound(nil, sfx_s3k66, player)
 	end
 
 	--Death time and StartRings penalties
