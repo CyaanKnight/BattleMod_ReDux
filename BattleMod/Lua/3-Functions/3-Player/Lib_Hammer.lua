@@ -335,21 +335,10 @@ B.HammerControl = function(player)
 	end
 	
 	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
-		local spin = player.melee_charge >= FRACUNIT
 		player.buttonhistory = $ | BT_JUMP | BT_SPIN
-
-		--[[
-		if player.actionstate == piko_special and P_IsObjectOnGround(mo) then
-			if not(player.gotflagdebuff) then
-				player.actionstate = 0
-				B.ApplyCooldown(player, piko_cooldown)
-				B.SpawnWave(player, 0, false)
-			end
-		else
-		]]
-		
+		local spin = player.melee_charge >= FRACUNIT
 		local inputs = (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
-		if (inputs or spin) and not (player.actionstate != piko_special or player.gotflagdebuff) then
+		if (inputs or spin) and not (player.actionstate == air_special or player.actionstate == air_special+1 or player.gotflagdebuff) then
 			if spin and not inputs then
 				player.actionstate = 0
 				B.ApplyCooldown(player, piko_cooldown)
