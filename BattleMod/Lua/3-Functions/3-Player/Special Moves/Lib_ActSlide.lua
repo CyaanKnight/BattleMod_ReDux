@@ -1,6 +1,6 @@
 local B = CBW_Battle
 local S = B.SkinVars
-local cooldown = TICRATE * 3
+local cooldown = TICRATE + TICRATE/2
 local cooldown2 = TICRATE * 3/2
 local duration = 3 * TICRATE
 local xythrust = 26
@@ -196,18 +196,22 @@ B.Action.Slide = function(mo,doaction)
 	//Drop bombs
 	if player.actionstate == 1
 	and bouncing
-	and (mo.eflags & MFE_JUSTHITFLOOR)
+	and ((mo.eflags & MFE_JUSTHITFLOOR) or P_IsObjectOnGround(mo))
 		B.ApplyCooldown(player,cooldown)
 		player.nobombjump = true
-		local bomb = B.throwbomb(mo)
-		if bomb and bomb.valid then
-			bomb.momx = 0
-			bomb.momy = 0
-			P_SetObjectMomZ(bomb, mo.scale*10*P_MobjFlip(mo))
-			bomb.flags = $|MF_BOUNCE|MF_GRENADEBOUNCE
-			bomb.scale = mo.scale*5/4
-			bomb.bombtype = 0
-			bomb.fuse = 2*TICRATE
+		if mo._fbomb and mo._fbomb.valid then
+			mo._fbomb.fuse = 1
+			mo._fbomb = nil
+		end
+		mo._fbomb = B.throwbomb(mo)
+		if mo._fbomb and mo._fbomb.valid then
+			mo._fbomb.momx = 0
+			mo._fbomb.momy = 0
+			P_SetObjectMomZ(mo._fbomb, mo.scale*10*P_MobjFlip(mo))
+			mo._fbomb.flags = $|MF_BOUNCE|MF_GRENADEBOUNCE
+			mo._fbomb.scale = mo.scale*5/4
+			mo._fbomb.bombtype = 0
+			mo._fbomb.fuse = 4*TICRATE
 		end
 		player.actiontime = 0
 		player.actionstate = 0
@@ -381,14 +385,19 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		plr[n1].nobombjump = true
 		B.ApplyCooldown(plr[n1],cooldown)
 		S_StartSound(mo[n1], sfx_boingf)
-		local bomb = B.throwbomb(mo[n1])
-		if bomb and bomb.valid then
-			bomb.momx = 0
-			bomb.momy = 0
+		if mo._fbomb and mo._fbomb.valid then
+			mo._fbomb.fuse = 1
+			mo._fbomb = nil
+		end
+		mo._fbomb = B.throwbomb(mo[n1])
+		if mo._fbomb and mo._fbomb.valid then
+			mo._fbomb.momx = 0
+			mo._fbomb.momy = 0
 			P_SetObjectMomZ(bomb, mo[n1].scale*8*P_MobjFlip(mo[n1]))
-			bomb.flags = $ &~ (MF_GRENADEBOUNCE)
-			bomb.scale = mo[n1].scale*5/4
-			bomb.bombtype = 0
+			mo._fbomb.flags = $ &~ (MF_GRENADEBOUNCE)
+			mo._fbomb.scale = mo[n1].scale*5/4
+			mo._fbomb.bombtype = 0
+			mo._fbomb.fuse = 4*TICRATE
 		end
 	end
 

@@ -8,6 +8,7 @@ freeslot(
 	'spr_cbom',
 	's_colorbomb1',
 	's_colorbomb2',
+	'sfx_fgfb',
 
 	-- hi saxa here
 	'mt_fangreticle',
@@ -18,6 +19,7 @@ freeslot(
 )
 
 sfxinfo[sfx_fn_trg].caption = "Clocked back gun"
+sfxinfo[sfx_fgfb].caption = "\x82".."FANG BOMB".."\x80"
 
 states[S_FANG_SPRINGDROP] = {
 	sprite = SPR_PLAY,

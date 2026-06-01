@@ -19,11 +19,9 @@ B.throwbomb = function(mo)
 		bombfuse = 15
 	end
 	if bomb and bomb.valid then
-		if G_RingSlingerGametype() or B.BattleGametype() then
-			//Do skincolor
-			bomb.state = S_COLORBOMB1
-			bomb.color = player.skincolor
-		end
+		//Do skincolor
+		bomb.state = S_COLORBOMB1
+		bomb.color = player.skincolor
 		
 		//Do Physics
 		local water = B.WaterFactor(mo)
@@ -180,6 +178,23 @@ B.FBombThink=function(mo)
 			mo.flags = $|MF_BOUNCE
 		end
 	end
+
+	if mo.fuse <= TICRATE then
+		if mo.fuse == TICRATE then
+			S_StartSound(mo, sfx_fgfb)
+		end
+		if (leveltime/2)%2 then
+			local ghost = P_SpawnGhostMobj(mo)
+			if ghost and ghost.valid then
+				ghost.fuse = TICRATE/2
+				ghost.destscale = mo.scale*2
+				ghost.colorized = true
+				ghost.dispoffset = mo.dispoffset+1
+				ghost.blendmode = AST_ADD
+			end
+		end
+	end
+
 end
 
 B.FBombDetonate=function(mo)
@@ -203,10 +218,27 @@ B.PlayerBombDamage = function(pmo,mo,source)
 	end
 end
 
+local S = B.SkinVars
+
 B.BombCollide = function(bomb,mo)
-	if mo and mo.valid and mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR) and bomb.target != mo and bomb and bomb.valid and bomb.fuse > 1 
+	if mo and mo.valid and bomb and bomb.valid and bomb.fuse > 1 
 	and B.ZCollide(bomb,mo)
 		then
+		if mo.player and (B.MyTeam(mo.player, bomb.target.player) or mo.player == bomb.target.player) then
+			local skin = S[mo.skin] or S[-1]
+			local sliding = skin.special == B.Action.Slide
+			and mo.player.actionstate == 2
+			if sliding then
+				local angle = R_PointToAngle2(mo.x, mo.y, bomb.x, bomb.y)
+				local mospeed = FixedHypot(mo.momx, mo.momy)
+				local minspeed = mo.scale*10
+				P_InstaThrust(mo, angle+ANGLE_180, minspeed)
+				P_InstaThrust(bomb, angle, max(mospeed,minspeed))
+				S_StartSound(mo, sfx_s3k5d)
+			end
+		end
+		if bomb.target == mo then return end
+		if not(mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR)) then return end
 		bomb.fuse = 1
 		if mo.flags&MF_MONITOR 
 		and not(G_GametypeHasTeams() and bomb.target and bomb.target.player
@@ -215,6 +247,10 @@ B.BombCollide = function(bomb,mo)
 				or (mo.type == MT_RING_BLUEBOX and bomb.target.player.ctfteam == 1)
 			)
 		)
+
+		
+
+		
 		P_KillMobj(mo,bomb,bomb.target) end
 	end
 end
