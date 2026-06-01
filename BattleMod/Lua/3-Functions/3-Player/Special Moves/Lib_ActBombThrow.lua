@@ -231,7 +231,7 @@ B.BombCollide = function(bomb,mo)
 			if sliding then
 				local angle = R_PointToAngle2(mo.x, mo.y, bomb.x, bomb.y)
 				local mospeed = FixedHypot(mo.momx, mo.momy)
-				local minspeed = mo.scale*10
+				local minspeed = mo.scale*15
 				P_InstaThrust(mo, angle+ANGLE_180, minspeed)
 				P_InstaThrust(bomb, angle, max(mospeed,minspeed))
 				S_StartSound(mo, sfx_s3k5d)

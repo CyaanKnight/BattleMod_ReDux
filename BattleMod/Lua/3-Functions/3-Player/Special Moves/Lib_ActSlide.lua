@@ -200,7 +200,10 @@ B.Action.Slide = function(mo,doaction)
 		B.ApplyCooldown(player,cooldown)
 		player.nobombjump = true
 		if mo._fbomb and mo._fbomb.valid then
-			mo._fbomb.fuse = 1
+			mo._fbomb.fuse = min(1, $)
+			if (mo._fbomb.fuse <= 0) then
+				P_RemoveMobj(mo._fbomb)
+			end
 			mo._fbomb = nil
 		end
 		mo._fbomb = B.throwbomb(mo)
@@ -386,7 +389,10 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		B.ApplyCooldown(plr[n1],cooldown)
 		S_StartSound(mo[n1], sfx_boingf)
 		if mo._fbomb and mo._fbomb.valid then
-			mo._fbomb.fuse = 1
+			mo._fbomb.fuse = min(1, $)
+			if (mo._fbomb.fuse <= 0) then
+				P_RemoveMobj(mo._fbomb)
+			end
 			mo._fbomb = nil
 		end
 		mo._fbomb = B.throwbomb(mo[n1])
