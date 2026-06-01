@@ -145,7 +145,7 @@ B.hammerjump = function(player,power)
 		
 	if ((player.cmd.buttons & BT_SPIN) and not(player.cmd.buttons & BT_JUMP)) then
 		h = $*8
-		v = $*2/3
+		--v = $*2/3 --i just realized that not holding jump already makes the jump weaker, so this is unnecessary xd ~lu
 	end
 
 	local mo = player.mo
