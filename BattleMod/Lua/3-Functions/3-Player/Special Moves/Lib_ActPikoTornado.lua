@@ -127,6 +127,7 @@ B.Action.PikoTornado = function(mo,doaction)
 			player.melee_charge = 0
 			]]
 
+			player.drawangle = player.battleconfig_hammerstrafe and player.mo.angle or B.GetInputAngle(player)
 			player.jumpstasistimer = TICRATE/5
 			player.charflags = $|SF_NOSKID
 			B.hammerchargevfx(mo)
