@@ -116,7 +116,7 @@ local function newGunslinger(player)
 	and not (player.weapondelay)
 	and not (player.panim == PA_ABILITY2)
 	and not (player.airgun)
-	and (player.pflags&(PF_JUMPED|PF_BOUNCING) or onground or sliding) then
+	and (player.pflags&(PF_JUMPED|PF_BOUNCING) or ((mo._slinger_stick and mo._slinger_stick.valid) and not(player.pflags&PF_JUMPED)) or sliding) then
 		-- Same code as vanilla, but without the clause for speed.
 		-- You naturally lose your speed via friction.
 		-- v10 EDIT: Now Fang automatically looks towards lockons
