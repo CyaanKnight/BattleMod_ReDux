@@ -260,7 +260,7 @@ B.HammerControl = function(player)
 		
 	--Hammer twirl airstall
 	if (mo.state == S_AMY_PIKOTWIRL) and not(player.gotflagdebuff) then
-		mo.momz = 0
+		mo.momz = P_MobjFlip(mo)
 	elseif (mo.state ~= S_PLAY_TWINSPIN)
 		if mo.melee_hammertwirl then
 			if (player.powers[pw_strong] & STR_TWINSPIN)
@@ -352,8 +352,10 @@ B.HammerControl = function(player)
 			end
 		end
 	end
+
+	local floored = P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
 	
-	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and P_IsObjectOnGround(mo)
+	if player.melee_state != st_idle and mo.state != S_PLAY_MELEE and floored
 		player.buttonhistory = $ | BT_JUMP | BT_SPIN
 		local spin = player.melee_charge >= FRACUNIT
 		local inputs = (player.cmd.buttons & BT_JUMP) or (player.cmd.buttons & BT_SPIN)
