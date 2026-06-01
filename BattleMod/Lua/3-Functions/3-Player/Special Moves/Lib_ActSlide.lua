@@ -490,3 +490,33 @@ B.Fang_SlideJump = function(player)
 	P_Thrust(mo,mo.angle,5*mo.scale)
 	return true
 end
+
+local shotstates = {
+	[S_PLAY_FIRE] = true,
+	[S_PLAY_FIRE_FINISH] = true,
+	[S_FANG_AIRSHOT] = true,
+	[S_FANG_AIRSHOT_FINISH] = true,
+	[S_FANG_BCESHOT] = true,
+	[S_FANG_BCESHOT_FINISH] = true
+}
+
+local state_trans = {
+	[S_PLAY_FIRE] = S_FANG_AIRSHOT,
+	[S_PLAY_FIRE_FINISH] = S_FANG_AIRSHOT_FINISH
+}
+
+B.Fang_ShootJump = function(player)
+	
+	if player.mo and player.mo.valid and S[player.mo.skin] and B.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER then
+		if (P_IsObjectOnGround(player.mo) or (player.mo.eflags & MFE_JUSTHITFLOOR)) and shotstates[player.mo.state] then
+			if state_trans[player.mo.state] then
+				local state = state_trans[player.mo.state]
+				local frame = player.mo.frame
+				P_DoJump(player)
+				player.mo.state = state
+				player.mo.frame = frame
+				return true
+			end
+		end
+	end
+end

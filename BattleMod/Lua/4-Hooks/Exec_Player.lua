@@ -126,6 +126,7 @@ addHook("JumpSpecial",function(player)
 	if B.TwinSpinJump(player) then return true end
 	if B.RingSparkCheck(player) then return true end
 	if B.Fang_SlideJump(player) then return true end
+	if B.Fang_ShootJump(player) then return true end
 end)
 
 addHook("SpinSpecial",function(player)

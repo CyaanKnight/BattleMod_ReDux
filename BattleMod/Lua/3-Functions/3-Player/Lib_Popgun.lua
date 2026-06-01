@@ -489,6 +489,16 @@ local function newGunslinger(player)
     end
 end
 
+local ground_to_air = {
+	[S_PLAY_FIRE] = S_FANG_AIRSHOT,
+	[S_PLAY_FIRE_FINISH] = S_FANG_AIRSHOT_FINISH
+}
+
+local air_to_ground = {
+	[S_FANG_AIRSHOT] = S_PLAY_FIRE,
+	[S_FANG_AIRSHOT_FINISH] = S_PLAY_FIRE_FINISH
+}
+
 B.CustomGunslinger = function(player)
 	if not(player.mo) return end
 	if not(B.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER) return end
@@ -525,6 +535,21 @@ B.CustomGunslinger = function(player)
     if player.airgun and player.mo.state == S_PLAY_BOUNCE_LANDING then
         player.airgun = false
     end
+	
+	if P_IsObjectOnGround(player.mo) then
+		if air_to_ground[player.mo.state] then
+			local frame = player.mo.frame
+			player.mo.state = air_to_ground[$]
+			player.mo.frame = frame
+		end
+	else
+		if ground_to_air[player.mo.state] then
+			local frame = player.mo.frame
+			player.mo.state = ground_to_air[$]
+			player.mo.frame = frame
+		end
+	end
+
 	
 	//Do Gunslinger
 	newGunslinger(player)
