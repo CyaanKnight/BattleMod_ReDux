@@ -256,9 +256,17 @@ function B.HummingTop_MainHook(player)
 		local inexhausted = (player.exhaustmeter > 0)
 		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
 	
+
+		local recoil = (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)))
+		local stasis_check = true
+
+		if recoil then
+			stasis_check = false
+		end
+		
 		local recurlable = (mo.recurl_actionable == true)
-		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, true)
-		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, true)
+		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
+		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
 
@@ -313,6 +321,8 @@ function B.HummingTop_MainHook(player)
 				cancelHummingTop(player, false, flag)
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 				S_StartSound(mo, sfx_zoom)
+				mo.recoilthrust = nil
+				mo.recoilangle = nil
 				mo.state = S_PLAY_ROLL
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
@@ -885,7 +895,7 @@ end--, MT_PLAYER)
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
 		mo[n1].hummingtop_marker = {
-			xyspeed = FixedHypot(mo[n1].momx, mo[n1].momy)
+			xyspeed = {mo[n1].momx, mo[n1].momy}
 		}
 	end
 end
@@ -912,7 +922,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
 			--Bump opponent away at our current speed (will probably adjust later)
 			if (plr[n2] and plr[n2].playerstate == PST_LIVE) or not(plr[n2]) then
-				P_InstaThrust(mo[n2], angle[n2], sonic_xyspeed/3)
+				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			end
 
 			if not(fail) then
