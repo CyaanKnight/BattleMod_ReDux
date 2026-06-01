@@ -131,49 +131,50 @@ local function newGunslinger(player)
 
 		if player.gunheld >= 12 then
 
+			local prev_lock = mo._slinger_stick
+	
+			local directionchar_look = B.NewGunLook(player, player.mo.angle)
+
+			local cam_look = B.NewGunLook(player, player.realangleturn<<16)
+
+			local directionchar = {
+				col = SKINCOLOR_RED,
+				distance = directionchar_look and 
+							directionchar_look.valid and 
+							R_PointToDist2(mo.x, mo.y, directionchar_look.x, directionchar_look.y),
+
+				angle    = directionchar_look and 
+							directionchar_look.valid and 
+							R_PointToAngle2(mo.x, mo.y, directionchar_look.x, directionchar_look.y)
+			}
+
+			local cam = {
+				col = SKINCOLOR_RED,
+				distance = cam_look and 
+							cam_look.valid and 
+							R_PointToDist2(mo.x, mo.y, cam_look.x, cam_look.y),
+
+				angle    = cam_look and 
+							cam_look.valid and 
+							R_PointToAngle2(mo.x, mo.y, cam_look.x, cam_look.y)
+			}
+
+			local prev = {
+				distance = prev_lock and 
+							prev_lock.valid and 
+							R_PointToDist2(mo.x, mo.y, prev_lock.x, prev_lock.y),
+
+				angle 	 = prev_lock and 
+							prev_lock.valid and 
+							R_PointToAngle2(mo.x, mo.y, prev_lock.x, prev_lock.y),
+
+				col 	 = SKINCOLOR_SHAMROCK
+			}
+
+			local prev_check = prev.angle and B.NewGunLook(player, prev.angle)
+
 			if (player.pflags & PF_ANALOGMODE) then
 
-				local prev_lock = mo._slinger_stick
-	
-				local directionchar_look = B.NewGunLook(player, player.mo.angle)
-
-				local cam_look = B.NewGunLook(player, player.realangleturn<<16)
-
-				local directionchar = {
-					col = SKINCOLOR_RED,
-					distance = directionchar_look and 
-							   directionchar_look.valid and 
-							   R_PointToDist2(mo.x, mo.y, directionchar_look.x, directionchar_look.y),
-
-					angle    = directionchar_look and 
-							   directionchar_look.valid and 
-							   R_PointToAngle2(mo.x, mo.y, directionchar_look.x, directionchar_look.y)
-				}
-
-				local cam = {
-					col = SKINCOLOR_RED,
-					distance = cam_look and 
-							   cam_look.valid and 
-							   R_PointToDist2(mo.x, mo.y, cam_look.x, cam_look.y),
-
-					angle    = cam_look and 
-							   cam_look.valid and 
-							   R_PointToAngle2(mo.x, mo.y, cam_look.x, cam_look.y)
-				}
-
-				local prev = {
-					distance = prev_lock and 
-							   prev_lock.valid and 
-							   R_PointToDist2(mo.x, mo.y, prev_lock.x, prev_lock.y),
-
-					angle 	 = prev_lock and 
-							   prev_lock.valid and 
-							   R_PointToAngle2(mo.x, mo.y, prev_lock.x, prev_lock.y),
-
-					col 	 = SKINCOLOR_SHAMROCK
-				}
-
-				local prev_check = B.NewGunLook(player, prev.angle)
 				if prev_lock and prev_lock.valid and (prev_check and prev_check.valid) then
 					
 					--B.DrawAimLine(player, prev.angle, SKINCOLOR_YELLOW)
@@ -219,7 +220,37 @@ local function newGunslinger(player)
 				--B.DrawAimLine(player, player.mo.angle, directionchar.col)
 				--B.DrawAimLine(player, player.realangleturn<<16, cam.col)
 			else
-				lockon = B.NewGunLook(player, player.mo.angle)
+				--Non-Automatic mode aiming
+				local prev_check = B.NewGunLook(player, prev.angle)
+				if prev_lock and prev_lock.valid and (prev_check and prev_check.valid) then
+
+					--direction_char look *is* cam_look if we're not in automatic
+					if directionchar_look and directionchar_look.valid
+						if (prev_lock == directionchar_look) then --New Object is the old one?
+							--Just aim to it, regardless of the buffer
+							lockon = prev_lock
+							--mo._slinger_buffer = buffer
+							directionchar.col = SKINCOLOR_SHAMROCK
+						else
+							--Aim at it, but only if the buffer is over
+							if not(mo._slinger_buffer) then
+								lockon = directionchar_look
+								directionchar.col = SKINCOLOR_SHAMROCK
+								sticky = true
+							else
+								lockon = prev_lock
+								mo._slinger_buffer = $-1
+								directionchar.col = SKINCOLOR_RED
+							end
+						end
+					else
+						lockon = prev_lock
+					end
+				else --No locked object?
+					lockon = directionchar_look
+					directionchar.color = SKINCOLOR_SHAMROCK
+					sticky = true
+				end
 			end
 
 			
