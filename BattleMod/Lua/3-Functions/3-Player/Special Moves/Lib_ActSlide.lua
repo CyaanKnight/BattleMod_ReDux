@@ -7,7 +7,7 @@ local xythrust = 26
 local zthrust = 9
 local dropspeed = 20
 local nojumpwindow = 8
-local rollspeed = 40
+local rollspeed = 38
 local dodgeroll_time = 12
 local dodgeroll_endlag = 10
 local state_dodgeroll = 3
@@ -93,11 +93,21 @@ B.Action.Slide = function(mo,doaction)
 		end
 		player.lockaim = true
 		player.lockmove = true
-		if P_IsObjectOnGround(mo)
+		//Cancel dodgeroll and do slide on ground
+		if P_IsObjectOnGround(mo) then
+			player.actionstate = 2
+			player.actiontime = duration
+			player.lockjumpframe = nojumpwindow
+			P_InstaThrust(mo,mo.angle,rollspeed*mo.scale/water)
+			player.slidebouncex = mo.momx
+			player.slidebouncey = mo.momy
+			player.slidebouncez = abs(mo.momz)
+			player.pflags = ($|PF_SPINNING)&~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
 			mo.state = S_FANG_SLIDE
-		else
-			mo.state = S_PLAY_ROLL
+			S_StartSound(mo,sfx_zoom)
+			return
 		end
+	    mo.state = S_PLAY_ROLL
 		P_InstaThrust(mo,mo.angle,rollspeed*mo.scale/water)
 		P_SetObjectMomZ(mo,0,false)
 		P_SpawnGhostMobj(mo)
@@ -112,15 +122,26 @@ B.Action.Slide = function(mo,doaction)
 		end
 		player.actiontime = $+1
 		if player.actiontime > dodgeroll_time
-			mo.momx = $/2
-			mo.momy = $/2
-			B.ApplyCooldown(player,cooldown)
-			player.actionstate = state_fret
-			player.actiontime = 0
+			//mo.momx = $/2
+			//mo.momy = $/2
+			//player.actionstate = state_fret
 			if not(P_IsObjectOnGround(mo))
-				player.pflags = ($|PF_THOKKED)&~(PF_JUMPED|PF_SPINNING)
+			    B.ApplyCooldown(player,cooldown)
+				player.actionstate = 0
+				player.actiontime = 0
+			    mo.state = S_PLAY_FALL
+				player.pflags = ($|PF_JUMPED)&~(PF_THOKKED|PF_SPINNING)
 			else
-				S_StartSound(mo,sfx_skid)
+			    //Just in case
+				player.actionstate = 2
+				player.actiontime = duration
+				player.lockjumpframe = nojumpwindow
+				player.slidebouncex = mo.momx
+				player.slidebouncey = mo.momy
+				player.slidebouncez = abs(mo.momz)
+				player.pflags = ($|PF_SPINNING)&~(PF_THOKKED|PF_JUMPED|PF_BOUNCING)
+				mo.state = S_FANG_SLIDE
+				S_StartSound(mo,sfx_zoom)
 			end
 		end
 	end
@@ -205,7 +226,7 @@ B.Action.Slide = function(mo,doaction)
 	end
 
 	if sliding then
-	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) then
+	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) or (player.pflags&PF_SLIDING) then
 			player.actionstate = 0
 			player.actiontime = 0
 			B.ApplyCooldown(player, cooldown2)
@@ -312,14 +333,15 @@ end
 
 local function fanghop(player)
 	local mo = player.mo
-	B.ZLaunch(mo, 7 * mo.scale, false)
+	B.ZLaunch(mo, 8 * mo.scale, false)
+	B.ApplyCooldown(player, cooldown)
 	mo.state = S_PLAY_JUMP
 	mo.momx = $ * -1/6
 	mo.momy = $ * -1/6
 	player.actionstate = 0
 	player.actiontime = 0
 	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~PF_THOKKED
-	player.powers[pw_nocontrol] = 14
+	player.powers[pw_nocontrol] = 10
 end
 
 local function isSlide(player)
@@ -391,7 +413,6 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			end
 			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
 			B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
-			B.ApplyCooldown(plr[n1],cooldown)
 			return true
 		end
 
@@ -411,7 +432,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			plr[n1].lockjumpframe = 0
 		end
 		if plr[n2] then
-			B.DoPlayerTumble(plr[n2], 25, angle[n1], mo[n1].scale*3, true, true)
+			B.DoPlayerTumble(plr[n2], 28, angle[n1], mo[n1].scale*3, true, true)
 		end
 		P_InstaThrust(mo[n2], angle[n2], -mo[n1].scale * 5)
 		B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
