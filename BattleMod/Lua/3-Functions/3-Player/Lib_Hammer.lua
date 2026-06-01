@@ -36,16 +36,27 @@ local function twin(player, twirl)
 
 	//Extra projectiles
 	player.melee_charge = 0
-	if not(pflags&PF_NOJUMPDAMAGE)
+	local powerjump = not (pflags&PF_NOJUMPDAMAGE)
+	if true --not(pflags&PF_NOJUMPDAMAGE)
 		local mo = player.mo
-		local speed = mo.scale * 20
+		local speed = powerjump and (mo.scale * 40) or (mo.scale * 20)
 		if twirl then
 			for n = -2,2 do
 				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
 				if msl and msl.valid
 					msl.target = mo
 					msl.extravalue2 = FRACUNIT*95/100
-					msl.fuse = 15
+					if powerjump then
+						msl.fuse = 30
+						msl.scale = 1
+						msl.destscale = FRACUNIT*3/2
+						msl.scalespeed = FRACUNIT/2
+						msl.blockable = 2
+						msl.cusval = 1
+					else
+						msl.fuse = 15
+						msl.blockable = 1
+					end
 					msl.flags = $ | MF_NOGRAVITY
 					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
 					local zangle = 0
@@ -62,7 +73,17 @@ local function twin(player, twirl)
 				if msl and msl.valid
 					msl.target = mo
 					msl.extravalue2 = FRACUNIT*95/100
-					msl.fuse = 15
+					if powerjump then
+						msl.fuse = 30
+						msl.scale = 1
+						msl.destscale = FRACUNIT*3/2
+						msl.scalespeed = FRACUNIT/2
+						msl.blockable = 2
+						msl.cusval = 1
+					else
+						msl.fuse = 15
+						msl.blockable = 1
+					end
 					msl.flags = $ | MF_NOGRAVITY
 					local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
 					local zangle = n*ANG1*5
