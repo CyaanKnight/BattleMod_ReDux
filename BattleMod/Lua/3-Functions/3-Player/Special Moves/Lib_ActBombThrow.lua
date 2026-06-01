@@ -181,7 +181,7 @@ B.FBombThink=function(mo)
 
 	if mo.fuse <= TICRATE then
 		if mo.fuse == TICRATE then
-			S_StartSound(mo, sfx_fgfb)
+			S_StartSoundAtVolume(mo, sfx_fgfb, 80)
 		end
 		if (leveltime/2)%2 then
 			local ghost = P_SpawnGhostMobj(mo)
