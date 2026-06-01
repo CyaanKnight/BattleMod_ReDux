@@ -645,7 +645,7 @@ table.insert(hudobjs, {
 	rings = nil,
 	func = function(v, player, cam, obj)
 		local invctf_flag = ({F.BlueFlag, F.RedFlag})[player.ctfteam]
-		local bool = invctf_flag and ((gametype == GT_BATTLECTF) and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
+		local bool = invctf_flag and invctf_flag.valid and ((gametype == GT_BATTLECTF) and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
 		local animtimer = (invctf_flag and invctf_flag.hud_timer) or 1
 		if bool then
 			local mult = ((player.ctfteam == 2) and 1) or -1
