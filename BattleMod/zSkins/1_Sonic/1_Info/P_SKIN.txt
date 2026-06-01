@@ -1,5 +1,5 @@
 name = sonic
-actionspd = 45
+actionspd = 36
 ability = CA_JUMPTHOK
 
 DSTHOK = DSCDFM62

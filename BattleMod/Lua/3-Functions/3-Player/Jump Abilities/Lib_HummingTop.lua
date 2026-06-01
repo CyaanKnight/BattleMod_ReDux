@@ -92,8 +92,11 @@ local function cancelHummingTop(player, sound, flag)
 		if sound then 
 			S_StartSound(player.mo, sfx_cdfm17)
 		end
-		player.mo.hummingtop_state = nil
 	end
+
+	player.mo.hummingtop_state = nil
+
+	player.mo.hummingtop_notmissile = nil
 	
 	
 	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
@@ -106,6 +109,7 @@ local function cancelHummingTop(player, sound, flag)
 	end
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
+	player.mo.hummingtop_marker = nil
 	player.glidetime = 0
 	if player.mo.state == S_SONIC_HUMMINGTOP then
 		if P_IsObjectOnGround(player.mo) then
@@ -381,7 +385,7 @@ function B.HummingTop_MainHook(player)
 			else
 				cancelDropDash(mo)
 			end
-		elseif cancel and dropdashing then
+		elseif cancel then
 			cancelDropDash(mo)
 			if not(grounded) then
 				player.pflags = $|PF_THOKKED
@@ -401,6 +405,11 @@ function B.HummingTop_MainHook(player)
 
 		if mo.hummingtop_state == state_spinning then --Launching?
 			--Launch forwards and upwards, so Sonic can't just thok into the ground
+
+			if recoil and not(mo.hummingtop_notmissile) then
+				cancelHummingTop(player, false, flag)
+				return
+			end
 
 			if player.glidetime == 1 then
 				player.glidetime = (B.Console.HTop_Commit.value)+2
@@ -897,25 +906,32 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 		mo[n1].hummingtop_marker = {
 			xyspeed = {mo[n1].momx, mo[n1].momy}
 		}
+		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
+			mo[n1].hummingtop_marker.beyblade = true
+		end	
 	end
+	mo.hummingtop_notmissile = nil
 end
 
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
+		local beyblade = mo[n1].hummingtop_marker.beyblade
 		mo[n1].hummingtop_marker = nil
 
+		mo[n1].hummingtop_notmissile = true
 
 		local bump = (hurt == 0)
 		local hit = (hurt == 1)
 		local clash = (hurt == 3)
 		local fail  = (hurt == -1)
 
+
 		if not(clash) then
 			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
-				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 				cancelDropDash(mo[n1])
+				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 			end
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
@@ -925,23 +941,30 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			end
 
-			if not(fail) then
-				if hit then
-					DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
-				else
-					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
-				end
+			if hit then
+				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
 				mo[n1].recurl_actionable = true
+				mo[n1].air_recoilanim_override = true
+			else
+				if (plr[n2] and plr[n2].playerstate == PST_LIVE) and not(beyblade) then
+					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
+				else
+					mo[n1].recurl_actionable = true
+					mo[n1].air_recoilanim_override = true
+					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
+					if beyblade then
+						S_StartSound(mo[n1], sfx_tink)
+						S_StartSound(mo[n2], sfx_tink)
+					end
+				end
 			end
-
-			mo[n1].air_recoilanim_override = true
 
 			plr[n1].glidetime = 2 --Commit time ends
 
 			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
 			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
 
-			collisiontype = (bump and 1) or 3
+			--collisiontype = (bump and 1) or 3
 
 			return
 		else
