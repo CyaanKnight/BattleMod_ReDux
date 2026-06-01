@@ -97,6 +97,15 @@ end
 local buffer = 1
 
 
+local shotstates = {
+	[S_PLAY_FIRE] = true,
+	[S_PLAY_FIRE_FINISH] = true,
+	[S_FANG_AIRSHOT] = true,
+	[S_FANG_AIRSHOT_FINISH] = true,
+	[S_FANG_BCESHOT] = true,
+	[S_FANG_BCESHOT_FINISH] = true
+}
+
 local function newGunslinger(player)
 	local mo = player.mo
 	local skin = S[mo.skin] or S[-1]
@@ -470,19 +479,12 @@ local function newGunslinger(player)
 		    mo.tics = player.weapondelay
 		end
 	end
-	
-	//Drawangle locked during firing states
-	local shotstates = {
-        [S_PLAY_FIRE] = true,
-        [S_PLAY_FIRE_FINISH] = true,
-        [S_FANG_AIRSHOT] = true,
-        [S_FANG_AIRSHOT_FINISH] = true,
-        [S_FANG_BCESHOT] = true,
-        [S_FANG_BCESHOT_FINISH] = true
-    }
 	if player.shotangle then
         if player.weapondelay and shotstates[mo.state] then
             player.drawangle = player.shotangle
+			player.mo._shotstate = player.mo.state
+			player.mo._shotframe = player.mo.frame
+			player.mo._shottics = player.mo.tics
 	    else
             player.shotangle = nil
         end
@@ -499,6 +501,19 @@ local air_to_ground = {
 	[S_FANG_AIRSHOT_FINISH] = S_PLAY_FIRE_FINISH
 }
 
+
+B.Fang_ShootJump = function(player)
+	local jumped = (player.pflags & PF_JUMPED)
+	if jumped then
+		print(ground_to_air[player.mo.state])
+		if ground_to_air[player.mo.state] then
+			local frame = player.mo.frame
+			player.mo.state = ground_to_air[$]
+			player.mo.frame = frame
+		end
+	end
+end
+
 B.CustomGunslinger = function(player)
 	if not(player.mo) return end
 	if not(B.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER) return end
@@ -507,6 +522,18 @@ B.CustomGunslinger = function(player)
 	if player.charability2 == CA2_GUNSLINGER
 		player.charability2 = CA2_NONE 
 	end
+
+	if (player.pflags & PF_JUMPED) and (player.shotangle) then
+		if not(shotstates[player.mo.state]) then
+			player.mo.state = player.mo._shotstate
+			player.mo.frame = player.mo._shotframe
+			player.mo.tics = player.mo._shottics
+		end
+		player.mo._shottics = nil
+		player.mo._shotframe = nil
+		player.mo._shotstate = nil
+	end
+
 	//Player is damaged
 	
 	if P_PlayerInPain(player)
