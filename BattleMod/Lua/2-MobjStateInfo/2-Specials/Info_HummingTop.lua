@@ -10,6 +10,7 @@ states[freeslot("S_HUMMINGTOP")] = {
 }
 
 sfxinfo[freeslot("sfx_htop")].caption = "Humming Top"
+sfxinfo[freeslot("sfx_htok")].caption = "Humming Top Clash"
 
 spr2defaults[freeslot("SPR2_TRIK")] = SPR2_SKID
 

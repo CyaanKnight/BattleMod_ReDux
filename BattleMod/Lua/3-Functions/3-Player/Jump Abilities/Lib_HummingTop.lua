@@ -123,6 +123,7 @@ local function cancelHummingTop(player, sound, flag)
 		B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
 		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
 	end
+	player.mo.hummingtop_beyblade_pick = nil
 end
 
 local function cancelDropDash(mo)
@@ -196,6 +197,7 @@ function B.HummingTop_AbilitySpecial(player)
 			end
 			player.mo.hummingtop_overlay = nil
 		end
+
 		player.mo.hummingtop_overlay = P_SpawnMobj(player.mo.x, player.mo.y, getMiddle(player.mo, mobjinfo[MT_DUST].height), MT_DUST)
 		player.mo.hummingtop_overlay.state = S_INVISIBLE
 		player.mo.hummingtop_overlay.sprite = SPR_NULL
@@ -261,7 +263,7 @@ function B.HummingTop_MainHook(player)
 		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
 	
 
-		local recoil = (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)))
+		local recoil = (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)) and true) or false
 		local stasis_check = true
 
 		if recoil then
@@ -271,9 +273,14 @@ function B.HummingTop_MainHook(player)
 		local recurlable = (mo.recurl_actionable == true)
 		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
 		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
+		local jump = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
 		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
+
+
+
+
 
 		if grounded then
 			if dropdashing and not(dropdash_cancel) then
@@ -322,8 +329,11 @@ function B.HummingTop_MainHook(player)
 				cancelDropDash(mo)
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
-				player.exhaustmeter = max(1, $-exhaust_chunk)
+				if not(mo.hummingtop_beyblade)
+					player.exhaustmeter = max(1, $-exhaust_chunk)
+				end
 				cancelHummingTop(player, false, flag)
+				player.powers[pw_nocontrol] = 0
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 				S_StartSound(mo, sfx_zoom)
 				mo.recoilthrust = nil
@@ -953,13 +963,34 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 					mo[n1].hummingtop_hit = nil
 				else
+					
 					mo[n1].hummingtop_hit = true
 					mo[n1].recurl_actionable = true
 					mo[n1].air_recoilanim_override = true
 					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
 					if beyblade then
 						S_StartSound(mo[n1], sfx_tink)
-						S_StartSound(mo[n2], sfx_tink)
+						S_StartSound(mo[n1], sfx_htok)
+						mo[n1].hummingtop_beyblade = true
+
+						S_StartSoundAtVolume(mo[n1],sfx_s3k9b,70)
+
+
+						if not(mo[n1].hummingtop_beyblade_pick) then
+							local picks = {n1, n2}
+							local pick = picks[P_RandomRange(1,#picks)]
+							local vfx = P_SpawnMobjFromMobj(mo[pick], 0, 0, mo[pick].height/2, MT_SPINDUST)
+							if vfx.valid
+								vfx.scale = mo[pick].scale/2
+								vfx.destscale = vfx.scale * 2
+								vfx.colorized = true
+								vfx.color = plr[pick].skincolor
+								vfx.blendmode = AST_ADD
+								vfx.state = S_BCEBOOM
+							end
+							mo[n1].hummingtop_beyblade_pick = true
+							mo[n2].hummingtop_beyblade_pick = true
+						end
 					end
 				end
 			end
@@ -967,7 +998,9 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			plr[n1].glidetime = 2 --Commit time ends
 
 			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
-			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
+			if not(beyblade) then
+				plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
+			end
 
 			--collisiontype = (bump and 1) or 3
 
