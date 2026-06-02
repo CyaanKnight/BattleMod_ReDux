@@ -480,7 +480,7 @@ B.Fang_SlideJump = function(player)
 
 	local skin = S[mo.skin]
 
-	if skin.special ~= B.Action.Slide then return end
+	if skin and skin.special and skin.special ~= B.Action.Slide then return end
 	if player.actionstate ~= 2 then return end
 	if not P_IsObjectOnGround(mo) then return end
 

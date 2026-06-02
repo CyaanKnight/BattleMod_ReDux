@@ -15,13 +15,13 @@ B.ActionHUD=function(v, player, cam)
 	local flags = V_HUDTRANS|V_SNAPTOTOP|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
 	
-	if player.actionallowed ~= true and not player.gotflag then
+	if (player.actionallowed ~= true or player.tumble) and not player.gotflagdebuff then
+		local yoffset = hudinfo[HUD_RINGS].y+14
 		if B.StunBreakAllowed(player) then
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
 			local cost = player.stunbreakcosttext
 			local textcolor = "\x86"
-			local yoffset = hudinfo[HUD_RINGS].y+14
 			if cost != nil and player.rings >= cost then
 				if leveltime % 3 == 0 then
 					textcolor = ""
@@ -35,8 +35,11 @@ B.ActionHUD=function(v, player, cam)
 				cost = ""
 			end
 			text = "\x82" .. cost .. textcolor .. " " .. $
-			v.draw(xoffset,yoffset,patch,flags)
+			v.draw(xoffset+1,yoffset-1,patch,flags)
 			v.drawString(xoffset+10,yoffset,text,flags,align)
+		elseif player.tumble then
+			local patch = v.cachePatch("PRAYBT")
+			v.draw(xoffset+1,yoffset+10-1,patch,flags)
 		end
 		return
 	end
@@ -58,10 +61,9 @@ B.ActionHUD=function(v, player, cam)
 			text = "\x82"+$
 		end
 		local patch = v.cachePatch("TOSSFLAG")
-		v.draw(xoffset,yoffset,patch,flags)
+		v.draw(xoffset,yoffset-1,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
-	return end --Don't draw anything more if we're holding an item
-	if text and not(player.actioncooldown and leveltime&1) then 
+	elseif text and not(player.actioncooldown and leveltime&1) then 
 		if player.actioncooldown or player.actionallowed ~= true then
 			textflags = TF_GRAY
 			text = "Cooldown "..G_TicsToSeconds(player.actioncooldown).."."..G_TicsToCentiseconds(player.actioncooldown)
@@ -92,7 +94,7 @@ B.ActionHUD=function(v, player, cam)
 		end
 		--Draw
 		local patch = v.cachePatch("THRWRING")
-		v.draw(xoffset,yoffset,patch,flags)
+		v.draw(xoffset,yoffset-1,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
 	--Action 2 text
@@ -123,7 +125,7 @@ B.ActionHUD=function(v, player, cam)
 		end
 		--Draw
 		local patch = v.cachePatch("TOSSFLAG")
-		v.draw(xoffset,yoffset,patch,flags)
+		v.draw(xoffset,yoffset-1,patch,flags, v.getColormap(TC_RAINBOW, SKINCOLOR_WHITE))
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	end
 	
@@ -175,6 +177,6 @@ B.ActionHUD=function(v, player, cam)
 		return
 	end
 	text = textcolor .. " " .. $
-	v.draw(xoffset,yoffset,patch,flags)
+	v.draw(xoffset+1,yoffset-1,patch,flags)
 	v.drawString(xoffset+10,yoffset,text,flags,align)
 end
