@@ -929,15 +929,11 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 		local bump = (hurt == 0)
 		local hit = (hurt == 1)
-		local clash = (hurt == 3)
+		local clash = (hurt == 2)
 		local fail  = (hurt == -1)
 
 
 		if not(clash) then
-			if plr[n1].exhaustmeter == 1 then --Is this the result of a final recurl?
-				cancelDropDash(mo[n1])
-				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
-			end
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
@@ -954,7 +950,9 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			else
 				if (plr[n2] and plr[n2].playerstate == PST_LIVE) and not(beyblade) then
 					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
+					mo[n1].hummingtop_hit = nil
 				else
+					mo[n1].hummingtop_hit = true
 					mo[n1].recurl_actionable = true
 					mo[n1].air_recoilanim_override = true
 					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
