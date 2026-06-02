@@ -96,7 +96,7 @@ local function cancelHummingTop(player, sound, flag)
 
 	player.mo.hummingtop_state = nil
 
-	player.mo.hummingtop_notmissile = nil
+	player.mo.hummingtop_hit = nil
 	
 	
 	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
@@ -406,7 +406,7 @@ function B.HummingTop_MainHook(player)
 		if mo.hummingtop_state == state_spinning then --Launching?
 			--Launch forwards and upwards, so Sonic can't just thok into the ground
 
-			if recoil and not(mo.hummingtop_notmissile) then
+			if recoil and not(mo.hummingtop_hit) then
 				cancelHummingTop(player, false, flag)
 				return
 			end
@@ -903,14 +903,20 @@ end--, MT_PLAYER)
 
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
-		mo[n1].hummingtop_marker = {
-			xyspeed = {mo[n1].momx, mo[n1].momy}
-		}
+
+		if not(mo[n1].hummingtop_marker) then
+			mo[n1].hummingtop_marker = {}
+		end
+
+		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
+
 		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
+			if not(mo[n1].hummingtop_marker) then
+				mo[n1].hummingtop_marker = {}
+			end
 			mo[n1].hummingtop_marker.beyblade = true
 		end	
 	end
-	mo.hummingtop_notmissile = nil
 end
 
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
@@ -920,7 +926,6 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local beyblade = mo[n1].hummingtop_marker.beyblade
 		mo[n1].hummingtop_marker = nil
 
-		mo[n1].hummingtop_notmissile = true
 
 		local bump = (hurt == 0)
 		local hit = (hurt == 1)
@@ -945,6 +950,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
+				mo[n1].hummingtop_hit = true
 			else
 				if (plr[n2] and plr[n2].playerstate == PST_LIVE) and not(beyblade) then
 					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
@@ -966,9 +972,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 			--collisiontype = (bump and 1) or 3
 
-			return
-		else
-			return
 		end
+		return
 	end
 end
