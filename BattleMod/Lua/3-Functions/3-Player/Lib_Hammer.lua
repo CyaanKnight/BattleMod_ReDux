@@ -39,9 +39,16 @@ local function twin(player, twirl)
 	local powerjump = not (pflags&PF_NOJUMPDAMAGE)
 	if true --not(pflags&PF_NOJUMPDAMAGE)
 		local mo = player.mo
-		local speed = powerjump and (mo.scale * 40) or (mo.scale * 20)
+		local speed = mo.scale * 20
+		local lefthearts = -1
+		local righthearts = 1
+		if powerjump then
+			lefthearts = -2
+			righthearts = 2
+			speed = $*2
+		end
 		if twirl then
-			for n = -2,2 do
+			for n = lefthearts, righthearts do
 				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
 				if msl and msl.valid
 					msl.target = mo
@@ -68,7 +75,7 @@ local function twin(player, twirl)
 				end
 			end
 		else
-			for n = -2,2 do
+			for n = lefthearts, righthearts do
 				local msl = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_LHRT)
 				if msl and msl.valid
 					msl.target = mo
@@ -95,7 +102,11 @@ local function twin(player, twirl)
 				end
 			end
 		end
-		S_StartSound(mo, sfx_hoop1)
+		if powerjump then
+			S_StartSound(mo, sfx_hoop2)
+		else
+			S_StartSound(mo, sfx_hoop1)
+		end
 	end
 
 	//Angle adjustment
