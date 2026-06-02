@@ -245,10 +245,13 @@ B.BombCollide = function(bomb,mo)
 			if sliding or dodgerolling then
 				local angle = R_PointToAngle2(mo.x, mo.y, bomb.x, bomb.y)
 				local mospeed = FixedHypot(mo.momx, mo.momy)
-				local minspeed = mo.scale*15
-				local player_minspeed = mo.scale*7
-				P_InstaThrust(mo, angle+ANGLE_180, player_minspeed)
-				P_InstaThrust(bomb, angle, max(mospeed,minspeed))
+				
+				local bomb_minspeed = (mo.scale * 26)
+				local player_bump = (mo.scale * 7)
+				
+
+				P_InstaThrust(mo, angle+ANGLE_180, player_bump)
+				P_InstaThrust(bomb, angle, (sliding and max(bomb_minspeed, mospeed)) or min(bomb_minspeed, mospeed))
 				S_StartSound(mo, sfx_s3k5d)
 				if dodgerolling then
 					fanghop(mo.player)
