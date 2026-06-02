@@ -273,9 +273,10 @@ function B.HummingTop_MainHook(player)
 		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
+		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
 
 		if grounded then
-			if dropdashing then
+			if dropdashing and not(dropdash_cancel) then
 				mo.state = S_PLAY_ROLL
 				player.pflags = $|PF_SPINNING
 				S_StartSound(mo, sfx_zoom, player)
