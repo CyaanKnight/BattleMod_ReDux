@@ -279,6 +279,17 @@ function B.HummingTop_MainHook(player)
 		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
 
 
+		if flag or tumble or airdodge or carry or knux_grabbed then
+			if humming then
+				cancelHummingTop(player, false, player.gotflagdebuff)
+				cancelDropDash(player.mo)
+			end
+			if dropdashing then
+				cancelDropDash(player.mo)
+			end
+			return
+		end
+
 
 		if grounded or ledge then
 			if dropdashing and not(dropdash_cancel) then
@@ -325,6 +336,7 @@ function B.HummingTop_MainHook(player)
 			if cancel then
 				cancelHummingTop(player, true, flag)
 				cancelDropDash(mo)
+				return
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
 				if not(mo.hummingtop_beyblade)
@@ -914,6 +926,8 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
+		mo[n1].hummingtop_hit = nil
+
 		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
 			if not(mo[n1].hummingtop_marker) then
 				mo[n1].hummingtop_marker = {}
@@ -923,13 +937,19 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 	end
 end
 
+function B.Sonic_Collide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if mo[n1].hummingtop_marker then
+		mo[n1].hummingtop_marker.hurt = hurt
+	end
+end
+
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
+		hurt = mo[n1].hummingtop_marker.hurt
 		mo[n1].hummingtop_marker = nil
-		mo[n1].hummingtop_hit = nil
 
 
 		local bump = (hurt == 0)
@@ -994,6 +1014,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			end
 
 			--collisiontype = (bump and 1) or 3
+			mo[n1].hummingtop_marker = nil
 
 		end
 		return
