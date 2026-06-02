@@ -140,7 +140,8 @@ B.RingsHUD = function(v, player, cam)
 	end*/
 
 	--Actions
-	if B.StunBreakAllowed(player) then
+	local stunbreakallowed = B.StunBreakAllowed(player)
+	if stunbreakallowed then
 		local text = minimal_hud and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
 		local noshake = false
@@ -372,7 +373,7 @@ B.RingsHUD = function(v, player, cam)
 	--GUARD
 	local mo = player.mo
 	if not(mo and mo.valid) then return end
-	if player.tumble then return end
+	if player.tumble or stunbreakallowed then return end
 	local guardoverride = tonumber(player.canguard) and tonumber(player.canguard) > 1 and not player.deadtimer
 
 	x = $+20
