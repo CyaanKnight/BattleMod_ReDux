@@ -282,7 +282,7 @@ function B.HummingTop_MainHook(player)
 
 
 
-		if grounded then
+		if grounded or ledge then
 			if dropdashing and not(dropdash_cancel) then
 				mo.state = S_PLAY_ROLL
 				player.pflags = $|PF_SPINNING
@@ -398,7 +398,7 @@ function B.HummingTop_MainHook(player)
 			end
 		elseif cancel then
 			cancelDropDash(mo)
-			if not(grounded) then
+			if not(grounded or ledge) then
 				player.pflags = $|PF_THOKKED
 			end
 		end
