@@ -220,21 +220,39 @@ end
 
 local S = B.SkinVars
 
+local function fanghop(player)
+	local mo = player.mo
+	B.ZLaunch(mo, 8 * mo.scale, false)
+	B.ApplyCooldown(player, cooldown)
+	mo.state = S_PLAY_FALL
+	--mo.momx = $ * -1/6
+	--mo.momy = $ * -1/6
+	player.actionstate = 0
+	player.actiontime = 0
+	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~PF_THOKKED
+	player.powers[pw_nocontrol] = 10
+end
+
 B.BombCollide = function(bomb,mo)
 	if mo and mo.valid and bomb and bomb.valid and bomb.fuse > 1 
 	and B.ZCollide(bomb,mo)
 		then
 		if mo.player and (B.MyTeam(mo.player, bomb.target.player) or mo.player == bomb.target.player) then
 			local skin = S[mo.skin] or S[-1]
-			local sliding = skin.special == B.Action.Slide
-			and mo.player.actionstate == 2
-			if sliding then
+			local sliding = skin.special == B.Action.Slide and mo.player.actionstate == 2
+			local dodgerolling = skin.special == B.Action.Slide and mo.player.actionstate == 3
+
+			if sliding or dodgerolling then
 				local angle = R_PointToAngle2(mo.x, mo.y, bomb.x, bomb.y)
 				local mospeed = FixedHypot(mo.momx, mo.momy)
 				local minspeed = mo.scale*15
-				P_InstaThrust(mo, angle+ANGLE_180, minspeed)
+				local player_minspeed = mo.scale*7
+				P_InstaThrust(mo, angle+ANGLE_180, player_minspeed)
 				P_InstaThrust(bomb, angle, max(mospeed,minspeed))
 				S_StartSound(mo, sfx_s3k5d)
+				if dodgerolling then
+					fanghop(mo.player)
+				end
 			end
 		end
 		if bomb.target == mo then return end
