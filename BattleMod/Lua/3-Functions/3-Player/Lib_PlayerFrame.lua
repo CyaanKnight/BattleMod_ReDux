@@ -119,7 +119,7 @@ B.PlayerThinkFrame = function(player)
 		player.lasthoming = leveltime
 	end
 
-	local knuckle_busted = (pmo and pmo.valid and pmo.tracer and pmo.tracer.valid and pmo.tracer.player and pmo.tracer.player.kgrab and pmo.tracer.player.kgrab.valid and pmo.tracer.player.kgrab == pmo)
+	local knuckle_busted = (pmo and pmo.valid and pmo.kgrabbed and pmo.kgrabbed.valid and pmo.kgrabbed.actionstate)
 
 	-- Aerial timers
 	if P_IsObjectOnGround(pmo) then
@@ -137,6 +137,7 @@ B.PlayerThinkFrame = function(player)
 	--Knuckle buster failsafe
 	if pmo._knucklebuster_noclip and not(knuckle_busted) then
 		pmo.flags = $ & ~MF_NOCLIPTHING
+		pmo.kgrabbed = nil
 		pmo._knucklebuster_noclip = nil
 	end
 

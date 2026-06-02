@@ -250,6 +250,7 @@ B.Action.Dig=function(mo,doaction)
 	if player.kgrab and player.kgrab.valid and not player.actionstate then
 		player.kgrab.flags = $&~MF_NOCLIPTHING
 		player.mo.flags = $&~MF_NOCLIPTHING
+		player.kgrab.kgrabbed = nil
 		player.kgrab = nil
 	end
 	
@@ -487,7 +488,7 @@ B.Knuckles_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle
 				plr[n1].actionstate = 20
 				P_SetObjectMomZ(mo[n1],-mo[n1].scale*40/B.WaterFactor(mo[n1]),true)
 				mo[n2].flags = $|MF_NOCLIPTHING
-				mo[n2]._knucklebuster_noclip = true
+				mo[n2].kgrabbed = mo[n1]
 				--mo[n1].flags = $|MF_NOCLIPTHING
 				plr[n1].pflags = $|PF_THOKKED
 				return false
