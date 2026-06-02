@@ -399,7 +399,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		if mo._fbomb and mo._fbomb.valid then
 			mo._fbomb.momx = 0
 			mo._fbomb.momy = 0
-			P_SetObjectMomZ(bomb, mo[n1].scale*8*P_MobjFlip(mo[n1]))
+			P_SetObjectMomZ(mo._fbomb, mo[n1].scale*8*P_MobjFlip(mo[n1]))
 			mo._fbomb.flags = $ &~ (MF_GRENADEBOUNCE)
 			mo._fbomb.scale = mo[n1].scale*5/4
 			mo._fbomb.bombtype = 0
