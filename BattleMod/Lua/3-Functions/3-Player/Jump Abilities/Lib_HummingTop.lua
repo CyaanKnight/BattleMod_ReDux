@@ -95,8 +95,6 @@ local function cancelHummingTop(player, sound, flag)
 	end
 
 	player.mo.hummingtop_state = nil
-
-	player.mo.hummingtop_hit = nil
 	
 	
 	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
@@ -151,7 +149,7 @@ function B.HummingTop_AbilitySpecial(player)
 			S_StartSound(player.mo, sfx_pudpud)
 			return true
 		end
-		
+
 		player.pflags = $|(PF_THOKKED) --We've officially thokked
 		
 		player.mo.hummingtop_angle = player.mo.angle
@@ -269,16 +267,16 @@ function B.HummingTop_MainHook(player)
 		if recoil then
 			stasis_check = false
 		end
+
+		
 		
 		local recurlable = (mo.recurl_actionable == true)
 		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
 		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
 		local jump = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
 
-		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed
+		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit))
 		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
-
-
 
 
 
@@ -416,11 +414,6 @@ function B.HummingTop_MainHook(player)
 
 		if mo.hummingtop_state == state_spinning then --Launching?
 			--Launch forwards and upwards, so Sonic can't just thok into the ground
-
-			if recoil and not(mo.hummingtop_hit) then
-				cancelHummingTop(player, false, flag)
-				return
-			end
 
 			if player.glidetime == 1 then
 				player.glidetime = (B.Console.HTop_Commit.value)+2
@@ -936,6 +929,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
 		mo[n1].hummingtop_marker = nil
+		mo[n1].hummingtop_hit = nil
 
 
 		local bump = (hurt == 0)
@@ -948,22 +942,19 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-			--Bump opponent away at our current speed (will probably adjust later)
-			if (plr[n2] and plr[n2].playerstate == PST_LIVE) or not(plr[n2]) then
-				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
-			end
-
 			if hit then
 				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
 				mo[n1].hummingtop_hit = true
-			else
-				if (plr[n2] and plr[n2].playerstate == PST_LIVE) and not(beyblade) then
+				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+			elseif bump then
+				if (plr[n2]) and not(beyblade) then
 					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 					mo[n1].hummingtop_hit = nil
+					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 				else
-					
+					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 					mo[n1].hummingtop_hit = true
 					mo[n1].recurl_actionable = true
 					mo[n1].air_recoilanim_override = true
