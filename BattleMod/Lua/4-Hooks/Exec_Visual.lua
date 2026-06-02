@@ -462,6 +462,7 @@ B.BattleTagPointers = function(mo)
 		P_RemoveMobj(mo)
 		return
 	end
+	if not (target and target.valid) then return end
 	local rx = target.x
 	local ry = target.y
 	local rz = target.z
