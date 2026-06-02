@@ -134,6 +134,12 @@ B.PlayerThinkFrame = function(player)
 		player.noshieldactive = ($ and $>0) and $-1 or 0
 	end
 
+	--Knuckle buster failsafe
+	if pmo._knucklebuster_noclip and not(knuckle_busted) then
+		pmo.flags = $ & ~MF_NOCLIPTHING
+		pmo._knucklebuster_noclip = nil
+	end
+
 	--Shield Stock usage
 	B.ShieldStock(player)
 	B.ShieldMax(player) --Regulate shield capacity
