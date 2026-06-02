@@ -14,12 +14,6 @@ local st_release = 2
 local st_jump = 3
 
 B.Action.PikoTornado_Priority = function(player)
-	local pikowavereq = (player.actionstate == piko_special or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT))
-
-	if not(pikowavereq) and player.textflash_flashing then
-		player.actiontext = B.TextFlash(player.actiontext, true, player)
-	end
-
 	if player.actionstate == ground_special then
 		B.SetPriority(player,1,2,"tails_fly",1,0,"piko spin")
 	end
@@ -82,19 +76,24 @@ B.Action.PikoTornado = function(mo,doaction)
 	player.actionrings = 10
 	
 	//Action Info
-	if player.actionstate == piko_special
-	or (player.melee_state == st_hold and player.melee_charge >= FRACUNIT)
-		player.actiontext = B.TextFlash("Piko Wave", (doaction == 1), player)
-	elseif player.melee_state == st_release
-		return
-	elseif P_IsObjectOnGround(mo)
+	if P_IsObjectOnGround(mo)
 		--player.actiontext = "Piko Tornado"
-		player.actiontext = "Piko Wave"
+		player.actiontext = "Piko Slam"
 	else
-		player.actiontext = "Tornado Jump"
-		if mo.tornadocollide and mo.tornadocollide == leveltime
-			local colors = {[0]="\x81", [1]="\x89", [2]="\x8E"} --magenta, purple, rosy
-			player.actiontext = colors[leveltime % 3] .. $
+		if player.actionstate == piko_special then
+			if player.cmd.buttons & BT_JUMP then
+				player.actiontext = "Piko Jump"
+			elseif player.cmd.buttons & BT_SPIN then
+				player.actiontext = "Piko Dash"
+			else
+				player.actiontext = "Piko Wave"
+			end
+		else
+			player.actiontext = "Tornado Jump"
+			if mo.tornadocollide and mo.tornadocollide == leveltime
+				local colors = {[0]="\x81", [1]="\x89", [2]="\x8E"} --magenta, purple, rosy
+				player.actiontext = colors[leveltime % 3] .. $
+			end
 		end
 	end
 
