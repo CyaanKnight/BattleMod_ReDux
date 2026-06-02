@@ -525,9 +525,17 @@ B.CustomGunslinger = function(player)
 
 	if (player.pflags & PF_JUMPED) and (player.shotangle) then
 		if not(shotstates[player.mo.state]) then
-			player.mo.state = player.mo._shotstate
-			player.mo.frame = player.mo._shotframe
-			player.mo.tics = player.mo._shottics
+			if player.mo._shotstate~= nil then
+				player.mo.state = player.mo._shotstate
+			end
+
+			if player.mo._shotframe ~= nil then
+				player.mo.frame = player.mo._shotframe
+			end
+
+			if player.mo._shotframe ~= nil then
+				player.mo.tics = player.mo._shottics
+			end
 		end
 		player.mo._shottics = nil
 		player.mo._shotframe = nil
