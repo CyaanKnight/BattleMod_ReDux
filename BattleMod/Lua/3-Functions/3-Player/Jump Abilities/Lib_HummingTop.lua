@@ -281,7 +281,7 @@ function B.HummingTop_MainHook(player)
 				player.pflags = $|PF_SPINNING
 				S_StartSound(mo, sfx_zoom, player)
 				local speed = abs(mo.dropdash_momz/2)+FixedHypot(player.rmomx,player.rmomy)
-				local actionspd = player.actionspd
+				local actionspd = player.actionspd+((player.actionspd/2)-3*FRACUNIT)
 				if player.powers[pw_super] then
 					actionspd = $*3/2
 				end
