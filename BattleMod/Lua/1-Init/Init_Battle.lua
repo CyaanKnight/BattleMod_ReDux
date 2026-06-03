@@ -34,6 +34,8 @@ B.HUDMain = true
 B.HUDAlt = true
 B.Timeout = 0
 B.HUDRoulette = {}
+B.RedTeam_Info = {}
+B.BlueTeam_Info = {}
 
 B.GametypeIDtoIdentifier = {}
 

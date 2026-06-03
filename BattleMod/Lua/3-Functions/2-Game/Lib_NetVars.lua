@@ -75,6 +75,8 @@ function B.NetVars.Sync(network)
 	F.BlueFlag_oldScore = network($)
 	
 	//Game state
+	B.RedTeam_Info 	= network($)
+	B.BlueTeam_Info = network($)
 	B.RedScore		= network($)
 	B.BlueScore		= network($)
 	B.Pinch 		= network($)

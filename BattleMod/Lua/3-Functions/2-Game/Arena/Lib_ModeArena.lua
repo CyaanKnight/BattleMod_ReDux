@@ -802,3 +802,58 @@ B.SurvivalViewpoints = function(player, nextviewedplayer, forced)
 		end
 	end
 end
+
+
+local default_red = {
+	flagsprite = SPR_KNUCKLESFLAG,
+	skincolor = SKINCOLOR_RED,
+	flagcolor = SKINCOLOR_RED,
+	ringcolor = SKINCOLOR_RED,
+	monitorcolor = SKINCOLOR_RED
+}
+
+local default_blue = {
+	flagsprite = SPR_SONICFLAG,
+	skincolor = SKINCOLOR_BLUE,
+	flagcolor = SKINCOLOR_BLUE,
+	ringcolor = SKINCOLOR_BLUE,
+	monitorcolor = SKINCOLOR_BLUE
+}
+
+local vars_enum = {
+	"flagsprite", 
+	"skincolor",
+	"flagcolor",
+	"ringcolor",
+	"monitorcolor"
+}
+
+local check = "_icon"
+
+B.GetTeamInfo = function(mapnum, clear)
+
+	local header = mapheaderinfo[mapnum]
+
+	for k, team_name in ipairs({"Red", "Blue"}) do
+
+		local default = ((k==1) and default_red) or default_blue
+
+		for i = 1, #vars_enum do
+			local field_name = vars_enum[i]
+			local hfield_name = team_name:lower().."team_"..field_name:lower()
+
+			local header_val = header[hfield_name]
+
+			if header_val and pcall(do return _G[header_val:upper()] end) then --Constant?
+				B[team_name.."Team_Info"][field_name:lower()] = _G[header_val:upper()]
+			else
+				if (field_name == "flagcolor") or (field_name == "ringcolor") or (field_name == "monitorcolor")
+					B[team_name.."Team_Info"][field_name:lower()] = nil
+				else
+					B[team_name.."Team_Info"][field_name:lower()] = default[field_name:lower()]
+				end
+			end
+		end
+	end
+end
+				

@@ -34,13 +34,13 @@ B.TeammateHUD = function(v, player)
 		if p.ctfteam == 1 then
 			rednum = $ + 1
 			num = rednum
-			teamcol = SKINCOLOR_RED
+			teamcol = skincolor_redteam
 		else
 			xmult = -1
 			doflip = V_FLIP
 			bluenum = $ + 1
 			num = bluenum
-			teamcol = SKINCOLOR_BLUE
+			teamcol = skincolor_blueteam
 		end
 		local offset = (basesep + num * sep) * xmult
 		local yoffset = 0

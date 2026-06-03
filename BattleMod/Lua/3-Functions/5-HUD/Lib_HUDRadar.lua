@@ -141,7 +141,7 @@ B.RadarHUD = function(v, player, cam)
 			else*/
 				patch = v.cachePatch("RAD_FLAG")
 			--end
-			color = (ringin and leveltime%11<5) and SKINCOLOR_GOLDENROD or SKINCOLOR_RED
+			color = (ringin and leveltime%11<5) and SKINCOLOR_GOLDENROD or (B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor)
 			center = true
 		end
 		--Blue Flag / Bank
@@ -166,7 +166,7 @@ B.RadarHUD = function(v, player, cam)
 			else*/
 				patch = v.cachePatch("RAD_FLAG")
 			--end
-			color = (ringin and leveltime%11<5) and SKINCOLOR_SUPERGOLD2 or SKINCOLOR_BLUE
+			color = (ringin and leveltime%11<5) and SKINCOLOR_SUPERGOLD2 or (B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor)
 			center = true
 		end
 		--Ruby

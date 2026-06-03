@@ -217,7 +217,7 @@ F.FlagIntangible = function(mo)
 		local ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_GHOST)
 		if ghost and ghost.valid then
 			ghost.sprite = mo.sprite
-			ghost.frame = (mo.frame & FF_TRANSMASK)|FF_TRANS50
+			ghost.frame = mo.frame|FF_TRANS50
 			ghost.scale = mo.scale
 			ghost.fuse = 8+(TICRATE/10)
 			ghost.renderflags = $|RF_FULLBRIGHT
@@ -529,10 +529,43 @@ B.DoFirework = function(mo)
 		fw.speed = mo.scale
 		fw.state = S_EFIREWORK0
 		fw.skin = mo.skin
-		fw.color = mo.color
+		fw.color = (pcall(do return mo.player.skincolor end) and mo.player.skincolor) or mo.color
 		fw.scale = mo.scale
 		fw.destscale = mo.scale*2
 	end
+end
+
+B.RedTeam_Info = {
+	flagsprite = SPR_KNUCKLESFLAG,
+	skincolor = SKINCOLOR_RED,
+	flagcolor = SKINCOLOR_RED,
+	ringcolor = SKINCOLOR_RED,
+	monitorcolor = SKINCOLOR_RED
+}
+
+B.BlueTeam_Info = {
+	flagsprite = SPR_SONICFLAG,
+	skincolor = SKINCOLOR_BLUE,
+	flagcolor = SKINCOLOR_BLUE,
+	ringcolor = SKINCOLOR_BLUE,
+	monitorcolor = SKINCOLOR_BLUE
+}
+
+F.FlagSkin = function(mo)
+	local red = ((mo.type == MT_REDFLAG) and true) or false
+	local blue = ((mo.type == MT_BLUEFLAG) and true) or false
+
+	local info = (red and B.RedTeam_Info) or B.BlueTeam_Info
+
+	mo.frame = 0
+
+	if red then
+		mo.frame = 1
+	else
+		mo.frame = 0
+	end
+	mo.sprite = info.flagsprite
+	mo.color = info.flagcolor or info.skincolor
 end
 
 
@@ -927,6 +960,7 @@ F.FlagMobjThinker = function(mo)
 	if gametype ~= GT_BATTLECTF then return end
 
 	if mo then
+		F.FlagSkin(mo)
 		if mo.jostletimer then
 			mo.jostletimer = $ - 1
 		end
@@ -957,6 +991,14 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			continue
 		end
 
+
+		
+
+		local blue = ((p.ctfteam == 1) and true) or false
+		local red = not(blue)
+
+		local info = (red and B.RedTeam_Info) or B.BlueTeam_Info
+
 		-- if we're here, at least one of the conditions met, so let's create a generic indicator! (if there isn't any)
 		local zfloatintensity = pmo.scale*6 --lets make things nore lively, why not?
 		local zfloat = FixedMul(zfloatintensity, sin(leveltime*(ANG1*2)))
@@ -966,19 +1008,21 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		end
 		if not(pmo.flag_indicator and pmo.flag_indicator.valid) then
 			pmo.flag_indicator = {}
-			local icon = P_SpawnMobjFromMobj(pmo,pmo.x,pmo.y,pmo.z+zoffset,MT_GOTFLAG)
+			local icon = P_SpawnMobjFromMobj(pmo,0,0,zoffset,MT_CGOTFLAG)
 			
-			icon.frame = FF_FULLBRIGHT
-			if (gametype == GT_BATTLECTF) then
-				icon.flags2 = $|MF2_DONTDRAW
-			end
 			icon.fuse = 0
 			icon.tics = 2
 			icon.colorized = false
+
+			icon.color = (red and skincolor_redteam) or skincolor_blueteam
 			
 			-- then, update it based on which condition was met
 			if conditions[1] then -- flag
-				icon.frame = $|(p.ctfteam == 1 and 2 or 1) 
+				if not(icon.flag) then
+					icon.flag = P_SpawnMobjFromMobj(icon,0,0,0,MT_DUST)
+					icon.flag.fuse = -1
+					icon.flag.state = S_INVISIBLE
+				end
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown
 				icon.sprite = SPR_CRWN
@@ -998,12 +1042,29 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 		-- finally, update the indicator's position
 		pmo.flag_indicator.eflags = (pmo.eflags&MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
 		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
+		if pmo.flag_indicator.flag and pmo.flag_indicator.flag.valid then
+			local icon = pmo.flag_indicator
+			if icon.flag and icon.flag.valid then
+				icon.flag.renderflags = $|RF_ABSOLUTEOFFSETS
+				icon.flag.spritexoffset = 23*FRACUNIT
+				icon.flag.spriteyoffset = 48*FRACUNIT
+				icon.flag.fuse = 2
+				icon.flag.frame = 0
+				icon.flag.sprite = info.flagsprite
+				icon.flag.frame = ((blue and 2) or 3)
+				icon.flag.color = info.flagcolor or info.skincolor
+				icon.flag.scale = icon.scale
+			end
+			P_MoveOrigin(pmo.flag_indicator.flag, pmo.x,pmo.y,pmo.z+zoffset)
+		end
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
 		if (consoleplayer and p == consoleplayer) and not(splitscreen) then
 			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
-			pmo.flag_indicator.flags2 = $ & ~MF2_DONTDRAW
+			if pmo.flag_indicator.flag and pmo.flag_indicator.flag.valid then
+				pmo.flag_indicator.flag.frame = $ | FF_TRANS30
+			end
 		end
 	end
 end

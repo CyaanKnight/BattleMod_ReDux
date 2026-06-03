@@ -4,6 +4,35 @@ sfxinfo[freeslot('sfx_flgwht')].caption = "\x82".."ENEMY FLAG LOST".."\x80"
 freeslot('MT_CREDFLAG', 'MT_CBLUEFLAG')
 freeslot('S_CREDFLAG', 'S_CBLUEFLAG')
 
+freeslot(
+        "SPR_SONICFLAG",
+        "SPR_KNUCKLESFLAG",
+        "SPR_TAILSFLAG",
+        "SPR_AMYFLAG",
+        "SPR_FANGFLAG",
+        "SPR_EGGFLAG",
+        "SPR_CGOTFLAG"
+)
+
+--We gotta make our own
+mobjinfo[MT_GOTFLAG].spawnstate = S_NULL
+
+states[freeslot("S_CGOTFLAG")] = {
+        sprite = SPR_CGOTFLAG,
+        frame = FF_FULLBRIGHT|A,
+        tics = -1,
+        nextstate = S_NULL
+}
+
+mobjinfo[freeslot("MT_CGOTFLAG")] = {
+        spawnstate = S_CGOTFLAG,
+        radius = 64*FRACUNIT,
+        height = 32*FRACUNIT,
+        flags = MF_NOBLOCKMAP|MF_NOCLIP|MF_NOGRAVITY|MF_SCENERY,
+        dispoffset = mobjinfo[MT_GOTFLAG].dispoffset
+}
+
+
 --State definitions
 states[S_CREDFLAG] = {SPR_RFLG, FF_FULLBRIGHT|A, -1, nil, 0, 0, nil}
 states[S_CBLUEFLAG] = {SPR_BFLG, FF_FULLBRIGHT|A, -1, nil, 0, 0, nil}

@@ -24,6 +24,8 @@ addHook("MobjThinker",F.FlagMobjThinker,REALFLAG_R)
 addHook("MobjThinker",F.FlagMobjThinker, REALFLAG_B)
 addHook("TouchSpecial", F.TouchFlag, REALFLAG_R)
 addHook("TouchSpecial", F.TouchFlag, REALFLAG_B)
+addHook("MobjSpawn", F.FlagSkin, REALFLAG_R)
+addHook("MobjSpawn", F.FlagSkin, REALFLAG_B)
 addHook("ThinkFrame",F.TrackPlayers)
 
 addHook("MobjThinker",B.Arena.RingLoss, MT_FLINGRING)

@@ -37,6 +37,12 @@ addHook("MapChange",function(map)
 	B.ResetSparring()
 	F.RedFlag = nil
 	F.BlueFlag = nil
+	B.GetTeamInfo(map, true)
+	B.GetTeamInfo(map)
+	skincolor_redteam = B.RedTeam_Info.skincolor
+	skincolor_blueteam = B.BlueTeam_Info.skincolor
+	skincolor_redring = B.RedTeam_Info.ringcolor or B.RedTeam_Info.skincolor
+	skincolor_bluering = B.BlueTeam_Info.ringcolor or B.BlueTeam_Info.skincolor
 	--F.RedScore = 0
     --F.BlueScore = 0
 	--F.RedFlagPos = {x=0,y=0,z=0} -- Reset flag coords!

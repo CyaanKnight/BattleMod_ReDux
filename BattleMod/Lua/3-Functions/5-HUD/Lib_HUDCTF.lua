@@ -13,6 +13,26 @@ local function scoreboard_detection_hacks()
 end
 hud.add(scoreboard_detection_hacks, "scores")
 
+local mapToEsc = {
+	[0] = "\x80",
+	[V_MAGENTAMAP] = "\x81",
+	[V_YELLOWMAP] = "\x82",
+	[V_GREENMAP] = "\x83",
+	[V_BLUEMAP] = "\x84",
+	[V_REDMAP] = "\x85",
+	[V_GRAYMAP] = "\x86",
+	[V_ORANGEMAP] = "\x87",
+	[V_SKYMAP] = "\x88",
+	[V_PURPLEMAP] = "\x89",
+	[V_AQUAMAP] = "\x8A",
+	[V_PERIDOTMAP] = "\x8B",
+	[V_AZUREMAP] = "\x8C",
+	[V_BROWNMAP] = "\x8D",
+	[V_ROSYMAP] = "\x8E",
+	[V_INVERTMAP] ="\x8F"
+}
+
+
 local update_pos = function(player)
 	if (not player) or B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
 		SEP = 36
@@ -149,25 +169,52 @@ local function shouldDisplay(flag)
 	local despawning = flag.fuse < TICRATE and not(flag.floorvfx and #flag.floorvfx)
 	return flag.fuse > 1 and not despawning
 end
+
+--Bruh
+local flashes = {
+	[V_MAGENTAMAP] = V_ROSYMAP,
+	[V_YELLOWMAP] = V_ORANGEMAP,
+	[V_GREENMAP] = V_PERIDOTMAP,
+	[V_BLUEMAP] = V_AZUREMAP,
+	[V_REDMAP] = V_ORANGEMAP,
+	[V_GRAYMAP] = nil,
+	[V_ORANGEMAP] = V_REDMAP,
+	[V_SKYMAP] = V_AQUAMAP,
+	[V_PURPLEMAP] = V_MAGENTAMAP,
+	[V_AQUAMAP] = V_SKYMAP,
+	[V_PERIDOTMAP] = V_GREEMAP,
+	[V_AZUREMAP] = V_BLUEMAP,
+	[V_BROWNMAP] = nil,
+	[V_ROSYMAP] = V_MAGENTAMAP,
+	[V_INVERTMAP] = V_GRAYMAP
+} 
+
 local function drawFlagfromP(v)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 
+	local bcol = v.getColormap(TC_DEFAULT, B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor)
+	local rcol = v.getColormap(TC_DEFAULT, B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor)
+
+	local bflagico = v.getSpritePatch(B.BlueTeam_Info.flagsprite, 2)
+	local rflagico = v.getSpritePatch(B.RedTeam_Info.flagsprite, 3)
+
+	local held = v.cachePatch("NONICON3")
 	-- Thanks, "scores" -- I can't fucking use the player from the parameters
 	for player in players.iterate do
 
+		
+
 		-- If blue flag isn't at base
 		if (player.gotflag & GF_BLUEFLAG) then
-			local bheld = v.cachePatch("NONICON")
-			local BNON_X = BASEVIDWIDTH/2 - SEP - (bheld.width / 2)
+			local BNON_X = BASEVIDWIDTH/2 - SEP - (held.width / 2)
 			local BNON_Y = YPOS
-			v.drawScaled(BNON_X*FRACUNIT, (BNON_Y+yoff)*FRACUNIT, FRACUNIT, bheld, patch_flags)
+			v.drawScaled(BNON_X*FRACUNIT, (BNON_Y+yoff)*FRACUNIT, FRACUNIT, held, patch_flags, rcol)
 		end
 		-- If red flag isn't at base
-		if (player.gotflag & GF_REDFLAG) then
-			local rheld = v.cachePatch("NONICON2")   
-			local RNON_X = BASEVIDWIDTH/2 + SEP - (rheld.width / 2)
+		if (player.gotflag & GF_REDFLAG) then 
+			local RNON_X = BASEVIDWIDTH/2 + SEP - (held.width / 2)
 			local RNON_Y = YPOS
-			v.drawScaled(RNON_X*FRACUNIT, (RNON_Y+yoff)*FRACUNIT, FRACUNIT, rheld, patch_flags)
+			v.drawScaled(RNON_X*FRACUNIT, (RNON_Y+yoff)*FRACUNIT, FRACUNIT, held, patch_flags, bcol)
 		end
 
 
@@ -214,11 +261,14 @@ local function drawFlagfromP(v)
 	local bscore = bluescore
 	local rscore = redscore
 
+	local red_textmap = (pcall(do return skincolors[B.RedTeam_Info.skincolor].chatcolor end) and skincolors[B.RedTeam_Info.skincolor].chatcolor) or nil
+	local blue_textmap = (pcall(do return skincolors[B.BlueTeam_Info.skincolor].chatcolor end) and skincolors[B.BlueTeam_Info.skincolor].chatcolor) or nil
+
 	-- Blue flag score (drawn here so it's always shown on top of the flag icons)
 	local BFLG_SCR_X = BASEVIDWIDTH/2 - SEP - getdigits(bscore)*2
 	local BFLG_SCR_Y = YPOS + 15
 	if (B.MatchPoint and B.IsTeamNearLimit(bscore)) or (B.Pinch and bscore > rscore) then
-		bpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_BLUEMAP or V_AZUREMAP)
+		bpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and blue_textmap or (flashes[blue_textmap] or 0))
 		BFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 		BFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 	end
@@ -227,7 +277,7 @@ local function drawFlagfromP(v)
 	local RFLG_SCR_X = BASEVIDWIDTH/2 + SEP + getdigits(rscore)*2
 	local RFLG_SCR_Y = YPOS + 15
 	if (B.MatchPoint and B.IsTeamNearLimit(rscore)) or (B.Pinch and rscore > bscore) then
-		rpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and V_REDMAP or V_ORANGEMAP)
+		rpatch_flags = $ | ((leveltime/matchpoint_flash & 1) and red_textmap or (flashes[red_textmap] or 0))
 		RFLG_SCR_X = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 		RFLG_SCR_Y = $ + v.RandomRange(-matchpoint_shake,matchpoint_shake)
 	end
@@ -242,19 +292,22 @@ local function cctf_hud(v, p, cam)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 
 	-- Blue flag
-	local bflag = v.cachePatch("BFLAGICO")
+	local bflag = v.getSpritePatch(B.BlueTeam_Info.flagsprite, 2)
 	local BFLG_POS_X = (BASEVIDWIDTH/2) - SEP - (bflag.width/4)
 	local BFLG_POS_Y = YPOS + 4
 
 	-- Red flag
-	local rflag = v.cachePatch("RFLAGICO")
+	local rflag = v.getSpritePatch(B.RedTeam_Info.flagsprite, 3)
 	local RFLG_POS_X = (BASEVIDWIDTH/2) + SEP - (bflag.width/4)
 	local RFLG_POS_Y = YPOS + 4
 
 	-- Unique icons (TODO: Possibly add an icon parameter to the gamemodes themselves?)
 	local bcol, rcol
 	local bpatch_flags, rpatch_flags = patch_flags, patch_flags
-	if gametype != GT_BATTLECTF then
+	if gametype == GT_BATTLECTF then
+		bcol = v.getColormap(TC_DEFAULT, B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor)
+		rcol = v.getColormap(TC_DEFAULT, B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor)
+	else
 		bcol = v.getColormap(TC_RAINBOW, SKINCOLOR_BLUE)
 		rcol = v.getColormap(TC_RAINBOW, SKINCOLOR_RED)
 	end
@@ -321,12 +374,16 @@ F.RankingHUD = function(v)
 -- TODO: RE-code all of the ranking that shows up when you press tab
 
 	-- Draws flag icon next to flag holder when showing rankings
-	local bflagico = v.cachePatch("BFLAGICO")
-	local rflagico = v.cachePatch("RFLAGICO")   
+	local bflagico = v.getSpritePatch(B.BlueTeam_Info.flagsprite, 2)
+	local rflagico = v.getSpritePatch(B.RedTeam_Info.flagsprite, 3)
+
+	local bcol = v.getColormap(TC_DEFAULT, B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor)
+	local rcol = v.getColormap(TC_DEFAULT, B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor)
 
 	local redplayers = 0
 	local blueplayers = 0
 	local x, y = 0--40, 32
+	
 
 	local players_sorted = {}
 	for p in players.iterate do
@@ -380,9 +437,9 @@ F.RankingHUD = function(v)
 		local fy = cond and y-4 or y
 
 		if p.gotflag & GF_REDFLAG then -- holds red flag
-			v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, rflagico)
+			v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, rflagico, 0, rcol)
 		elseif p.gotflag & GF_BLUEFLAG then --holds blue flag
-			v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, bflagico)
+			v.drawScaled(fx*FRACUNIT, fy*FRACUNIT, iconscale, bflagico, 0, bcol)
 		end
 	end
 
@@ -426,8 +483,8 @@ F.CapHUD = function(v)
 		end
 		local name = F.GameState.CaptureHUDName
 		local team = F.GameState.CaptureHUDTeam
-		local red = "\x85"
-		local blue = "\x84"
+		local red = mapToEsc[B.RedTeam_Info.skincolor]
+		local blue = mapToEsc[B.BlueTeam_Info.skincolor]
 		local magenta = "\x81"
 		local orange = "\x87"
 		local flagtext
