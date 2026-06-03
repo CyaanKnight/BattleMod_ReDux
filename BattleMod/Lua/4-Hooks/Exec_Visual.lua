@@ -12,6 +12,17 @@ addHook("MobjThinker", B.StunBreakVFXThinker, MT_STUNBREAK)
 addHook("MobjThinker",function(mo) B.EnergyGather(mo,mo.target,mo.extravalue1,mo.extravalue2) end,MT_ENERGYGATHER)
 addHook("MobjThinker", B.TargetDummyThinker, MT_TARGETDUMMY)
 
+local function monitorColor(mo)
+	if mo.type == MT_RING_REDBOX then
+		mo.color = B.RedTeam_Info.monitorcolor or B.RedTeam_Info.skincolor
+	elseif mo.type == MT_RING_BLUEBOX then
+		mo.color = B.BlueTeam_Info.monitorcolor or B.BlueTeam_Info.skincolor
+	end
+end
+
+addHook("MobjSpawn", monitorColor, MT_RING_REDBOX)
+addHook("MobjSpawn", monitorColor, MT_RING_BLUEBOX)
+
 //Shields (yeah, this is pretty messy...)
 local colorsh = function(mo, redcol, bluecol)
 	B.OverlayHide(mo,mo.target)
