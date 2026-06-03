@@ -1020,8 +1020,10 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			if conditions[1] then -- flag
 				if not(icon.flag) then
 					icon.flag = P_SpawnMobjFromMobj(icon,0,0,0,MT_DUST)
+					icon.flag.frame = 0
 					icon.flag.fuse = -1
 					icon.flag.state = S_INVISIBLE
+					icon.flag.frame = 0
 				end
 				-- TODO: mobjinfo stuff for flags so we don't have to keep comparing ctfteam to fixed numbers
 			elseif conditions[2] then -- crown

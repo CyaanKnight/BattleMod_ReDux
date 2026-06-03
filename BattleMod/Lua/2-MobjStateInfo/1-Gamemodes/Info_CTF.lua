@@ -15,8 +15,6 @@ freeslot(
 )
 
 --We gotta make our own
-mobjinfo[MT_GOTFLAG].spawnstate = S_NULL
-
 states[freeslot("S_CGOTFLAG")] = {
         sprite = SPR_CGOTFLAG,
         frame = FF_FULLBRIGHT|A,
