@@ -343,11 +343,8 @@ function B.HummingTop_MainHook(player)
 					player.exhaustmeter = max(1, $-exhaust_chunk)
 				end
 				cancelHummingTop(player, false, flag)
-				player.powers[pw_nocontrol] = 0
 				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 				S_StartSound(mo, sfx_zoom)
-				mo.recoilthrust = nil
-				mo.recoilangle = nil
 				mo.state = S_PLAY_ROLL
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
@@ -937,18 +934,11 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 	end
 end
 
-function B.Sonic_Collide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if mo[n1].hummingtop_marker then
-		mo[n1].hummingtop_marker.hurt = hurt
-	end
-end
-
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
-		hurt = mo[n1].hummingtop_marker.hurt
 		mo[n1].hummingtop_marker = nil
 
 
@@ -967,11 +957,16 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
 				mo[n1].hummingtop_hit = true
+				mo[n1].recoilthrust = nil
+				mo[n1].recoilangle = nil
+				plr[n1].powers[pw_nocontrol] = min($, 1)
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			elseif bump then
 				if (plr[n2]) and not(beyblade) then
 					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 					mo[n1].hummingtop_hit = nil
+					mo[n1].recurl_actionable = nil
+					mo[n1].air_recoilanim_override = nil
 					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 				else
 					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
