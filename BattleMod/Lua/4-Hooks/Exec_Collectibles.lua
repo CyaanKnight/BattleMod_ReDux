@@ -22,8 +22,8 @@ addHook("MobjThinker",F.FlagIntangible,REALFLAG_R)
 addHook("MobjThinker",F.FlagIntangible, REALFLAG_B)
 addHook("MobjThinker",F.FlagMobjThinker,REALFLAG_R)
 addHook("MobjThinker",F.FlagMobjThinker, REALFLAG_B)
-addHook("TouchSpecial", F.FlagTouchSpecial, REALFLAG_R)
-addHook("TouchSpecial", F.FlagTouchSpecial, REALFLAG_B)
+addHook("TouchSpecial", F.TouchFlag, REALFLAG_R)
+addHook("TouchSpecial", F.TouchFlag, REALFLAG_B)
 addHook("MobjSpawn", function(mo)
 	--The flag is spawned before score is updated, which is our only way of hooking onto flag capture for right now
 	--This will disable cecho when the flag spawns
