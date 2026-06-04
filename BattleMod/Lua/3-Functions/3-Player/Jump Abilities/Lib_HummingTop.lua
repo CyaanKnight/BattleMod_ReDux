@@ -88,12 +88,6 @@ local function charParam(player)
 end
 
 local function cancelHummingTop(player, sound, flag)
-	if player.mo.hummingtop_state == state_spinning then
-		if sound then 
-			S_StartSound(player.mo, sfx_cdfm17)
-		end
-	end
-
 	player.mo.hummingtop_state = nil
 	
 	
@@ -122,6 +116,7 @@ local function cancelHummingTop(player, sound, flag)
 		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
 	end
 	player.mo.hummingtop_beyblade_pick = nil
+	
 end
 
 local function cancelDropDash(mo)
@@ -149,6 +144,10 @@ function B.HummingTop_AbilitySpecial(player)
 			S_StartSound(player.mo, sfx_pudpud)
 			return true
 		end
+
+		print("recurl_actionable = "+tostring(player.mo.recurl_actionable))
+		print("air_recoilanim_override = "+tostring(player.mo.air_recoilanim_override))
+		print("hummingtop_hit = "+tostring(player.mo.hummingtop_hit))
 
 		player.pflags = $|(PF_THOKKED) --We've officially thokked
 		
@@ -348,6 +347,7 @@ function B.HummingTop_MainHook(player)
 				mo.state = S_PLAY_ROLL
 				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
+				mo.hummingtop_hit = nil
 			end
 		end
 
@@ -923,8 +923,6 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
-		mo[n1].hummingtop_hit = nil
-
 		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
 			if not(mo[n1].hummingtop_marker) then
 				mo[n1].hummingtop_marker = {}
@@ -959,7 +957,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].hummingtop_hit = true
 				mo[n1].recoilthrust = nil
 				mo[n1].recoilangle = nil
-				plr[n1].powers[pw_nocontrol] = min($, 1)
+				plr[n1].powers[pw_nocontrol] = 0
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			elseif bump then
 				if (plr[n2]) and not(beyblade) then
