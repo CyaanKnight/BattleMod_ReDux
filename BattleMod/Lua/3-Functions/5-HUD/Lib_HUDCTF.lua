@@ -292,12 +292,12 @@ local function cctf_hud(v, p, cam)
 	local patch_flags = V_HUDTRANS|V_PERPLAYER|V_SNAPTOTOP
 
 	-- Blue flag
-	local bflag = v.getSpritePatch(B.BlueTeam_Info.flagsprite, 2)
+	local bflag = v.getSpritePatch(B.BlueTeam_Info.flagsprite or SPR_SONICFLAG, 2)
 	local BFLG_POS_X = (BASEVIDWIDTH/2) - SEP - (bflag.width/4)
 	local BFLG_POS_Y = YPOS + 4
 
 	-- Red flag
-	local rflag = v.getSpritePatch(B.RedTeam_Info.flagsprite, 3)
+	local rflag = v.getSpritePatch(B.RedTeam_Info.flagsprite or SPR_KNUCKLESFLAG, 3)
 	local RFLG_POS_X = (BASEVIDWIDTH/2) + SEP - (bflag.width/4)
 	local RFLG_POS_Y = YPOS + 4
 
@@ -472,6 +472,9 @@ F.CapHUD = function(v)
 	if (gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()) then
 		return
 	end
+
+	local rcol = B.RedTeam_Info.skincolor
+	local bcol = B.BlueTeam_Info.skincolor
 	
 	--An attempt to look exactly like the hardcode cecho
 	if not(F.GameState.CaptureHUDTimer) then --... Except for the text easing in.
@@ -483,8 +486,12 @@ F.CapHUD = function(v)
 		end
 		local name = F.GameState.CaptureHUDName
 		local team = F.GameState.CaptureHUDTeam
-		local red = mapToEsc[B.RedTeam_Info.skincolor]
-		local blue = mapToEsc[B.BlueTeam_Info.skincolor]
+		local red = (pcall(do return skincolors[rcol].chatcolor end) and mapToEsc[skincolors[rcol].chatcolor]) or mapToEsc[V_REDMAP]
+		local blue = (pcall(do return skincolors[bcol].chatcolor end) and mapToEsc[skincolors[bcol].chatcolor]) or mapToEsc[V_BLUEMAP]
+
+		local redname = B.RedTeam_Info.flagname or (pcall(do return R_GetNameByColor(rcol) end) and R_GetNameByColor(rcol):upper().." FLAG")
+		local bluename = B.BlueTeam_Info.flagname or (pcall(do return R_GetNameByColor(bcol) end) and R_GetNameByColor(bcol):upper().." FLAG")
+
 		local magenta = "\x81"
 		local orange = "\x87"
 		local flagtext
@@ -492,10 +499,10 @@ F.CapHUD = function(v)
 		if G_GametypeHasTeams() then
 			if (team == 1) then
 				name = red + $
-				flagtext = blue+"BLUE FLAG"
+				flagtext = blue+bluename
 			else
 				name = blue + $
-				flagtext = red+"RED FLAG"
+				flagtext = red+redname
 			end
 		else
 			chatcolor = team --for diamond
@@ -525,10 +532,14 @@ F.DelayCapNotice = function(v, p, cam)
 	local x = 160
 	local y = 66
 
+
+	local rcol = B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor
+	local bcol = B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor
+
 	local color = F.DC_ColorSwitch and "\x85" or "\x80"
 	local flagIcon = v.cachePatch("FLAGBT")
-	local bluFlag = v.getColormap("sonic", SKINCOLOR_BLUE)
-	local redFlag = v.getColormap("knuckles", SKINCOLOR_RED)
+	local bluFlag = v.getColormap(0, bcol)
+	local redFlag = v.getColormap(0, rcol)
 
 	local text1 = color+"Overtime!"
 	local text2 = color+"Delay Capture Enabled!"
@@ -558,19 +569,25 @@ F.DelayCapBar = function(v) --, p, cam)
 		local dist = 25
 		local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_PERPLAYER
 
+		local rcol = B.RedTeam_Info.flagcolor or B.RedTeam_Info.skincolor
+		local bcol = B.BlueTeam_Info.flagcolor or B.BlueTeam_Info.skincolor
+		local red = (pcall(do return skincolors[rcol].chatcolor end) and skincolors[rcol].chatcolor) or V_REDMAP
+		local blue = (pcall(do return skincolors[bcol].chatcolor end) and skincolors[bcol].chatcolor) or V_BLUEMAP
+
+
 		if slowcaps[1] then -- Red team is capturing
 			if slowcaps[2] then y = $-dist/2 end
 
 			local width = 1+((slowcaps[1])/10)
 			v.drawFill(x - width, y, width * 2, 4, flags | (72+slowcaps[1] % 8))
-			v.drawString(x,y - 8, "DELAYED CAPTURE", flags|V_REDMAP, "thin-center")
+			v.drawString(x,y - 8, "DELAYED CAPTURE", flags|red, "thin-center")
 		end
 
 		if slowcaps[2] then -- Blue team is capturing
 			if slowcaps[1] then y = $+dist end
 			local width = 1+ ((slowcaps[2])/10)
 			v.drawFill(x-width, y, width * 2, 4, flags | (72 + slowcaps[2] % 8))
-			v.drawString(x, y - 8, "DELAYED CAPTURE", flags|V_BLUEMAP, "thin-center")
+			v.drawString(x, y - 8, "DELAYED CAPTURE", flags|blue, "thin-center")
 		end
 	end
 end

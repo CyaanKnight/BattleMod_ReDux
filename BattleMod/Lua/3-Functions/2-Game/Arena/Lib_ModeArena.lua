@@ -825,7 +825,8 @@ local vars_enum = {
 	"skincolor",
 	"flagcolor",
 	"ringcolor",
-	"monitorcolor"
+	"monitorcolor",
+	"flagname"
 }
 
 local check = "_icon"
@@ -844,10 +845,10 @@ B.GetTeamInfo = function(mapnum, clear)
 
 			local header_val = header[hfield_name]
 
-			if header_val and pcall(do return _G[header_val:upper()] end) then --Constant?
-				B[team_name.."Team_Info"][field_name:lower()] = _G[header_val:upper()]
+			if header_val and (pcall(do return _G[header_val:upper()] end) or field_name == "flagname") then --Constant?
+				B[team_name.."Team_Info"][field_name:lower()] = ((field_name == "flagname") and header_val:upper()) or _G[header_val:upper()]
 			else
-				if (field_name == "flagcolor") or (field_name == "ringcolor") or (field_name == "monitorcolor")
+				if (field_name == "flagcolor") or (field_name == "ringcolor") or (field_name == "monitorcolor") then
 					B[team_name.."Team_Info"][field_name:lower()] = nil
 				else
 					B[team_name.."Team_Info"][field_name:lower()] = default[field_name:lower()]

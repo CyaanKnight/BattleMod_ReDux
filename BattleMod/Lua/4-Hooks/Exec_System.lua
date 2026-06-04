@@ -98,6 +98,7 @@ addHook("ThinkFrame",function()
 		F.UpdateCaps(player)
 		B.HummingTop_MainHook(player)
 	end
+	F.CustomCaptureSFX()
 	B.TitleTicker()
 	B.Autobalance()
 	
@@ -120,7 +121,6 @@ end)
 
 addHook("PostThinkFrame", do
 	A.UpdateGame()
-	F.CustomCaptureSFX()
 end)
 
 addHook("IntermissionThinker",B.Intermission)

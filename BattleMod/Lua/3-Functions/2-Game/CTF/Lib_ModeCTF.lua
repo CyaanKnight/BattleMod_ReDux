@@ -221,7 +221,7 @@ F.FlagIntangible = function(mo)
 			ghost.scale = mo.scale
 			ghost.fuse = 8+(TICRATE/10)
 			ghost.renderflags = $|RF_FULLBRIGHT
-			ghost.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
+			ghost.color = mo.color
 			ghost.colorized = true
 			ghost.flags2 = $|MF2_OBJECTFLIP
 			if not(flipped or (lasttouched and lasttouched.valid and (lasttouched.flags2 & MF2_OBJECTFLIP))) then
@@ -299,7 +299,7 @@ F.FlagIntangible = function(mo)
 			mo.floorvfx = {}
 		end
 
-		local color = ((tossblink > (TICRATE/4)) and ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]) or SKINCOLOR_GOLD
+		local color = (((tossblink > (TICRATE/4))) and mo.color) or (pcall(do return ColorOpposite(mo.color) end) and ColorOpposite(mo.color)) or SKINCOLOR_GOLD
 		local blendmode = ((tossblink > (TICRATE/4)) and AST_TRANSLUCENT) or AST_ADD
 
 		if #mo.floorvfx < 6 then
@@ -564,7 +564,7 @@ F.FlagSkin = function(mo)
 	else
 		mo.frame = 0
 	end
-	mo.sprite = info.flagsprite
+	mo.sprite = info.flagsprite or ((red and SPR_KNUCKLESFLAG) or SPR_SONICFLAG)
 	mo.color = info.flagcolor or info.skincolor
 end
 
@@ -747,6 +747,25 @@ F.FlagPreThinker = function()
 	end
 end
 
+local textmapToEsc = {
+	[0] = "\x80",
+	[V_MAGENTAMAP] = "\x81",
+	[V_YELLOWMAP] = "\x82",
+	[V_GREENMAP] = "\x83",
+	[V_BLUEMAP] = "\x84",
+	[V_REDMAP] = "\x85",
+	[V_GRAYMAP] = "\x86",
+	[V_ORANGEMAP] = "\x87",
+	[V_SKYMAP] = "\x88",
+	[V_PURPLEMAP] = "\x89",
+	[V_AQUAMAP] = "\x8A",
+	[V_PERIDOTMAP] = "\x8B",
+	[V_AZUREMAP] = "\x8C",
+	[V_BROWNMAP] = "\x8D",
+	[V_ROSYMAP] = "\x8E",
+	[V_INVERTMAP] ="\x8F"
+}
+
 -- Dictates what happens when you touch the flag
 F.FlagTouchSpecial = function(special, toucher)
 	-- Ensure that the gametype is custom ctf first!
@@ -757,7 +776,7 @@ F.FlagTouchSpecial = function(special, toucher)
 		local p = toucher.player
 		local pteam = p.ctfteam
 
-		if special.type == MT_CREDFLAG or special.type == MT_CBLUEFLAG then
+		if special.type == MT_REDFLAG or special.type == MT_BLUEFLAG then
 			-- Under these conditions, do NOT interact with the flag.
 			if      p.powers[pw_flashing] or
 				P_PlayerInPain(p) or
@@ -766,14 +785,26 @@ F.FlagTouchSpecial = function(special, toucher)
 			then return true end
 		end
 
-		local fcolor_r = "\x85"
-		local fcolor_b = "\x84"
-		local pcolor = p.ctfteam == 1 and fcolor_r or fcolor_b
+		
+
+		local binfo = B.BlueTeam_Info
+		local rinfo = B.RedTeam_Info
+
+		local bcolor = binfo.skincolor
+		local rcolor = rinfo.skincolor
+
+		local bcolor_chat = (pcall(do return skincolors[bcolor].chatcolor end) and textmapToEsc[skincolors[bcolor].chatcolor]) or textmapToEsc[V_BLUEMAP]
+		local rcolor_chat = (pcall(do return skincolors[rcolor].chatcolor end) and textmapToEsc[skincolors[rcolor].chatcolor]) or textmapToEsc[V_REDMAP]
+
+		local bname = binfo.flagname and binfo.flagname:upper() or ((pcall(do return R_GetNameByColor(bcolor) end)) and R_GetNameByColor(bcolor):upper().." FLAG") or "BLUE FLAG"
+		local rname = rinfo.flagname and rinfo.flagname:upper() or ((pcall(do return R_GetNameByColor(rcolor) end)) and R_GetNameByColor(rcolor):upper().." FLAG") or "RED FLAG"
+
+		local pcolor = p.ctfteam == 1 and rcolor_chat or bcolor_chat
 
 		-- If object is valid and player doesn't have tossdelay
 		if special.valid and not p.tossdelay then
 			-- Only interact with if you're on blu
-			if special.type == MT_CREDFLAG then 
+			if special.type == MT_REDFLAG then 
 				if pteam == 2  then -- Opposite team of flag, so grab it
 					p.gotflag = GF_REDFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
@@ -781,24 +812,24 @@ F.FlagTouchSpecial = function(special, toucher)
 					else
 						S_StartSound(p.mo, sfx_lvpass)
 					end
-					print(pcolor+p.name+"\128 picked up the "+fcolor_r+"Red flag!")
+					print(pcolor+p.name+"\x80 picked up the "+rcolor_chat+rname+"\x80"+"!")
 					special.wasgrabbed = true
 					if special and special.valid then
 						P_KillMobj(special)
 						F.RedFlag = p.mo
-						return
 					end
+					return true
 				elseif pteam == 1 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
 					P_RemoveMobj(special)
 					local sfx_fr = p.ctfteam == 1 and sfx_hoop1 or sfx_hoop3
 					S_StartSound(nil, sfx_fr)
-					print(pcolor+p.name+"\128 returned the "+fcolor_r+"Red flag\128 to base.")
+					print(pcolor+p.name+"\x80 returned the "+rcolor_chat+rname+"\x80 to base.")
 					P_AddPlayerScore(p, RET_SCORE)
-					return
+					return true
 				end
 			-- Only interact with if you're on red
-			elseif special.type == MT_CBLUEFLAG then
+			elseif special.type == MT_BLUEFLAG then
 				if pteam == 1 then -- Opposite team of flag, so grab it
 					p.gotflag = GF_BLUEFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
@@ -806,29 +837,29 @@ F.FlagTouchSpecial = function(special, toucher)
 					else
 						S_StartSound(p.mo, sfx_lvpass)
 					end
-					print(pcolor+p.name+"\128 picked up the "+fcolor_b+"Blue flag!")
+					print(pcolor+p.name+"\x80 picked up the "+bcolor_chat+bname+"\x80"+"!")
 					special.wasgrabbed = true
 					if special and special.valid then
 						P_KillMobj(special)
 						F.BlueFlag = p.mo
-						return
 					end
+					return true
 				elseif pteam == 2 and special.fuse then -- Same team as flag, so return it (remove the special.fuse part for sfx spam)
 					special.wasreturned = true
 					P_RemoveMobj(special)
 					local sfx_fr = p.ctfteam == 2 and sfx_hoop1 or sfx_hoop3
 					S_StartSound(nil, sfx_fr)
-					print(pcolor+p.name+"\128 returned the "+fcolor_b+"Blue flag\128 to base.")
+					print(pcolor+p.name+"\x80 returned the "+bcolor_chat+bname+"\x80 to base.")
 					P_AddPlayerScore(p, RET_SCORE)
-					return
+					return true
 				end
 			end
 		end
 
 		-- Dumb condition: prevent same team players from grabbing their own flag
 		-- TODO: maybe there's a better way, idk..
-		if      special.valid and ((special.type == MT_CREDFLAG and pteam == 1) or
-			(special.type == MT_CBLUEFLAG and pteam == 2))
+		if      special.valid and ((special.type == MT_REDFLAG and pteam == 1) or
+			(special.type == MT_BLUEFLAG and pteam == 2))
 		then
 			return true 
 		end
@@ -837,7 +868,6 @@ end
 
 F.FlagSpawn = function(mo)
 	if gametype ~= GT_BATTLECTF then return end
-
 	if mo and mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG then
 		mo.shadowscale = mo.scale --set flag shadow
 
@@ -1314,7 +1344,7 @@ F.CustomCaptureSFX = function()
 	for i = 1,2 do
 
 		local flag = ({F.BlueFlag, F.RedFlag})[i]
-		local inv_flag = ({F.RedFlag, F.BlueFlag})[i]
+		local inv_team = ({2, 1})[i]
 
 		if flag and flag.valid and flag.player then
 			if i == 1 then
@@ -1337,6 +1367,7 @@ F.CustomCaptureSFX = function()
 		if (new_score != nil) and (old_score != nil) and (flag and flag.valid) and flag_player and not(flag.player) then
 			--S_StartSoundAtVolume(nil, sfx_flgcap, 0)
 			--S_StartSoundAtVolume(nil, sfx_lose, 0)
+			
 			if new_score > old_score then
 				for p in players.iterate() do
 					if splitscreen and players and players[1] and p == players[1] then 
@@ -1351,14 +1382,35 @@ F.CustomCaptureSFX = function()
 						sfx = sfx_lose
 						loss = true
 					end
-					--S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
+					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
 				end
 				--S_StartSound(flag, sfx_s227)
 				if flag_player.mo and flag_player.mo.valid then
+
+					local info = {B.BlueTeam_Info, B.RedTeam_Info}
+
+					local color = info[i].skincolor
+					local pcolor = info[inv_team].skincolor
+
+					local color_chat = (pcall(do return skincolors[color].chatcolor end) and textmapToEsc[skincolors[color].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
+
+					local pcolor_chat = (pcall(do return skincolors[pcolor].chatcolor end) and textmapToEsc[skincolors[pcolor].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
+
+					local flagname = info[i].flagname and info[i].flagname:upper() or ((pcall(do return R_GetNameByColor(color) end)) and R_GetNameByColor(color):upper().." FLAG") or (i==1 and "BLUE") or "RED"+" FLAG"
+					local pname = flag_player.name
 					F.GameState.CaptureHUDTimer = 5*TICRATE
-					F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and B.Timeout) and flag_player.name or ""
+					F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
 					F.GameState.CaptureHUDTeam = flag_player.ctfteam
 					B.DoFirework(flag_player.mo)
+
+
+
+					if pname then
+						print(pcolor_chat+pname+"\x80"+" CAPTURED THE "+color_chat+flagname+"\x80"+".")
+					else
+						print("THE"+color_chat+flagname+"\x80"+" WAS "+pcolor_chat+"CAPTURED"+"\x80"+".")
+					end
+
 				end
 			end
 			if flag_player.ctfteam == 1 then
