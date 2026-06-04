@@ -66,7 +66,6 @@ local dash_overlayVars = function(mo, player)
 	mo.blendmode = AST_ADD
 	P_MoveOrigin(mo, player.mo.x, player.mo.y, overlayZ(player.mo, dash_mobjtype, (player.mo.flags2 & MF2_OBJECTFLIP)))--Keep teleporting to player
 end
-
 		
 local dash_overlayOn = function(player, overlay, colorize, bool) --Choose to enable overlay or colorize, or both.
     if player.mo and player.mo.valid then
@@ -177,6 +176,38 @@ local dash_colorizer = function(player) --Colorizes dashmode users that would sh
 	elseif player.mo.dash_colorize then --if we're not, and we're marked as colorized
 		dash_overlayOff(player, false, true) --DeColorize
 		player.mo.dash_colorize = false --Mark as not colorized
+	end
+
+
+	if (B.GetSkinVarsFlags(player) & SKINVARS_DASHMODENERF) then
+		if (player.dashmode >= DASHMODE_THRESHOLD) then
+
+			player.drawangle = R_PointToAngle2(0, 0, player.rmomx, player.rmomy)
+			if player.followmobj and player.followmobj.valid and player.followmobj.type == MT_METALJETFUME then
+				P_DoMetalJetFume(player, player.followmobj)
+			end
+
+			local dist = 55
+			local angle = player.drawangle
+			if player.mo.dashmode_arrow and player.mo.dashmode_arrow.valid then
+				player.mo.dashmode_arrow.angle = angle
+				player.mo.dashmode_arrow.color = player.mo.color
+				player.mo.dashmode_arrow.fuse = 2
+				player.mo.dashmode_arrow.frame = _G["C"]|FF_PAPERSPRITE|FF_FULLBRIGHT
+				P_MoveOrigin(player.mo.dashmode_arrow, player.mo.x+cos(angle)*dist, player.mo.y+sin(angle)*dist, sin(player.mo.z)*dist+player.mo.z+P_MobjFlip(player.mo)*(player.mo.height/2))
+			else
+				player.mo.dashmode_arrow = P_SpawnMobjFromMobj(player.mo, cos(angle)*dist, sin(angle)*dist, P_MobjFlip(player.mo)*(player.mo.height/2)+sin(player.mo.z)*dist, MT_THOK)
+				player.mo.dashmode_arrow.fuse = 2
+				player.mo.dashmode_arrow.colorized = true
+				player.mo.dashmode_arrow.state = S_INVISIBLE
+				player.mo.dashmode_arrow.color = player.mo.color
+				player.mo.dashmode_arrow.sprite = SPR_LCKN
+				player.mo.dashmode_arrow.frame = _G["C"]|FF_PAPERSPRITE|FF_FULLBRIGHT
+				player.mo.dashmode_arrow.angle = angle
+				player.mo.dashmode_arrow.rollangle = ANGLE_90
+			end
+
+		end
 	end
 end
 
