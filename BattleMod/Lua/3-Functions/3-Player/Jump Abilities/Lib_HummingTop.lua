@@ -978,6 +978,12 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 						S_StartSound(mo[n1], sfx_tink)
 						S_StartSound(mo[n1], sfx_htok)
 						mo[n1].hummingtop_beyblade = true
+						mo[n1].recurl_actionable = true
+						mo[n1].air_recoilanim_override = true
+						mo[n1].hummingtop_hit = true
+						mo[n1].recoilthrust = nil
+						mo[n1].recoilangle = nil
+						plr[n1].powers[pw_nocontrol] = min($, 1)
 
 						S_StartSoundAtVolume(mo[n1],sfx_s3k9b,70)
 
