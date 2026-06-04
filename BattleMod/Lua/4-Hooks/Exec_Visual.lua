@@ -203,6 +203,7 @@ B.BattleTagPointers = function(mo)
 	local target = mo.target
 	local color = SKINCOLOR_NONE
 	local player = (mo.tracer and mo.tracer.player) or nil
+	local gotflag = false
 
 	if not(B.IsValidPlayer(mo.tracer)) or not(mo.tracer) or (player.playerstate == PST_DEAD) or (G_GametypeHasTeams() and (player.ctfteam == 0)) then
 		if mo and mo.valid then
@@ -275,6 +276,7 @@ B.BattleTagPointers = function(mo)
 			--You need to capture the flag
 			target = homebase
 			color = homecolor
+			gotflag = true
 			--Point to your team's base
 
 		else --The Constant CTF Arrows
@@ -473,7 +475,7 @@ B.BattleTagPointers = function(mo)
 		P_RemoveMobj(mo)
 		return
 	end
-	if not (target and target.valid) then return end
+	if not(target and target.valid) and not(gotflag) then return end
 	local rx = target.x
 	local ry = target.y
 	local rz = target.z
