@@ -59,7 +59,7 @@ local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
-local dashslice_buildup = TICRATE/4
+local dashslice_buildup = 11
 
 local charged_meteroverride = 35552
 
@@ -730,7 +730,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		end
 		P_SpawnGhostMobj(mo)
 		--print(player.actiontime)
-		local spd = FixedMul((min(10, 3+player.actiontime) * FRACUNIT)/B.WaterFactor(mo),mo.scale)
+		local spd = FixedMul((min(12, 10+player.actiontime) * FRACUNIT)/B.WaterFactor(mo),mo.scale)
 		if twodlevel or mo.flags2&MF2_TWOD then
 			spd = $*3/4
 		end
@@ -740,11 +740,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.pflags = $|PF_SPINNING
 		player.powers[pw_strong] = $|STR_ANIM|STR_PUNCH
 		
-		if player.actiontime >= 10
+		if player.actiontime >= 3
 			spawnslashes(player,mo)
 		end
 		
-		local duration = 17
+		local duration = 12
 		if mo.energyattack_longerdash then
 			duration = $ + 4
 		end

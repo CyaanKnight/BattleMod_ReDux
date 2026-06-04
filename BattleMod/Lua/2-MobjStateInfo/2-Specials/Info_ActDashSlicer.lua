@@ -43,27 +43,27 @@ mobjinfo[MT_SLASH].donotwaterslow = true
 states[S_SLASH1] = {
 	sprite = SPR_SLSH,
 	frame = A,
-	tics = 5,
+	tics = 2,
 	nextstate = S_SLASH2
 }
 
 states[S_SLASH2] = {
 	sprite = SPR_SLSH,
 	frame = B,
-	tics = 8,
+	tics = 4,
 	nextstate = S_NULL
 }
 
 states[S_SLASH3] = {
 	sprite = SPR_SLSH,
 	frame = C,
-	tics = 5,
+	tics = 2,
 	nextstate = S_SLASH4
 }
 
 states[S_SLASH4] = {
 	sprite = SPR_SLSH,
 	frame = D,
-	tics = 8,
+	tics = 5,
 	nextstate = S_NULL
 }
