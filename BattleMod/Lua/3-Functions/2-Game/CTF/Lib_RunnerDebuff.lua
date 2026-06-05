@@ -16,6 +16,7 @@ B.GotFlagStats = function(player, force)
 	//Register debuff
 	if (B.MidAirAbilityAllowed(player) == false) and (player.gotflagdebuff == false) then
 		player.gotflagdebuff = true
+		print(false)
 		mo.color = player.skincolor
 		player.secondjump = 0
 		player.powers[pw_tailsfly] = 0

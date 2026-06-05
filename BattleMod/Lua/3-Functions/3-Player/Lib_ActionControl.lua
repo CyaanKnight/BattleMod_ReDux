@@ -104,7 +104,7 @@ B.CanDoAction=function(player)
 	if player.gotflag then return false end
 	if player.gotcrystal then return false end
 	if player.isjettysyn then return false end
-	if player.gotpowercard and PR and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF then return end
+	if player.gotpowercard and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF then return false end
 	return true
 end
 

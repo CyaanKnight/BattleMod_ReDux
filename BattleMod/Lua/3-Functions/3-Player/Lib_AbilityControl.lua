@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local S = B.SkinVars
 local CV = B.Console
+local PR = CBW_PowerCards
 
 B.CarryState = function(tails,passenger)
 	B.DebugPrint("Latching "..passenger.name.." onto "..tails.name,DF_PLAYER)
