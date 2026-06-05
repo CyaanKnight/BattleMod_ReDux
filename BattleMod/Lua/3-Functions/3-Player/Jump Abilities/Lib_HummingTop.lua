@@ -145,10 +145,6 @@ function B.HummingTop_AbilitySpecial(player)
 			return true
 		end
 
-		print("recurl_actionable = "+tostring(player.mo.recurl_actionable))
-		print("air_recoilanim_override = "+tostring(player.mo.air_recoilanim_override))
-		print("hummingtop_hit = "+tostring(player.mo.hummingtop_hit))
-
 		player.pflags = $|(PF_THOKKED) --We've officially thokked
 		
 		player.mo.hummingtop_angle = player.mo.angle
