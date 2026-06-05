@@ -942,7 +942,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local fail  = (hurt == -1)
 
 
-		if not(clash) then
+		if not(clash or fail) then
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
