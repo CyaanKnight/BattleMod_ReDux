@@ -94,7 +94,7 @@ function B.NetVars.Sync(network)
 	B.TagTaggers = network($)
 
 	--Power Cards
-	PR.Timer		 = net($)
-	PR.SpawnPoints	 = net($)
-	PR.SpawnNumber	 = net($)
+	PR.Timer		 = network($)
+	PR.SpawnPoints	 = network($)
+	PR.SpawnNumber	 = network($)
 end
