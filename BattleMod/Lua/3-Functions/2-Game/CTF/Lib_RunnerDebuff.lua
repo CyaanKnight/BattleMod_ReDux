@@ -1,9 +1,18 @@
 local B = CBW_Battle
 
+local PR = CBW_PowerCards
+
 B.GotFlagStats = function(player, force)
 	local mo = player.mo
 	local skin = skins[mo.skin]
 	local skinvar = (pcall(do return B.SkinVars[mo.skin].flagstats end) and (type(B.SkinVars[mo.skin].flagstats) == "table") and B.SkinVars[mo.skin].flagstats) or {}
+
+
+	//Check PowerCard status
+	if player.gotpowercard and not(player.gotpowercard.valid and player.gotpowercard.target == player.mo)
+		player.gotpowercard = nil
+	end
+
 	//Register debuff
 	if (B.MidAirAbilityAllowed(player) == false) and (player.gotflagdebuff == false) then
 		player.gotflagdebuff = true

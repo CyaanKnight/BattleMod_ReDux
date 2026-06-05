@@ -6,6 +6,7 @@ local F = B.CTF
 local CV = B.Console
 local CP = B.ControlPoint
 local I = B.Item
+local PR = CBW_PowerCards
 
 addHook("NetVars",B.NetVars.Sync)
 
@@ -62,6 +63,8 @@ addHook("MapChange",function(map)
 	R.RubyFade = 0
 	R.player_respawntime = 0
 	R.RubyWinTimeout = R.CapAnimTime
+
+	PR.ResetAll() //Re-init on each mapchange
 end)
 
 addHook("MapLoad",function(map)
@@ -69,6 +72,8 @@ addHook("MapLoad",function(map)
 	B.ApplyGametypeCVars()
 	I.GetMapHeader(map)
 	I.GenerateSpawns()
+	PR.MapLoadHook()
+	PR.GetSpawnPoints()
 end)
 
 addHook("TeamSwitch", B.JoinCheck)
@@ -89,6 +94,7 @@ addHook("PreThinkFrame", function()
 		B.PlayerPreThinkFrame(player)
 	end
 -- 	B.GetTailsCarry()
+	PR.PreThinkFrame()
 end)
 
 addHook("ThinkFrame",function()	
@@ -104,6 +110,8 @@ addHook("ThinkFrame",function()
 	
 	B.ResetScore()
 	A.ResetScore()
+	PR.TicFrame()
+	print(tostring(B.PowerCardsGametype()))
 	--F.DelayCapActivateIndicator()
 	--F.UpdateScore()
 end)

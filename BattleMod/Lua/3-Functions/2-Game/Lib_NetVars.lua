@@ -5,6 +5,7 @@ local I = B.Item
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
+local PR = CBW_PowerCards
 
 function B.NetVars.Sync(network)
 	//Training Dummy / Tails Doll
@@ -91,4 +92,9 @@ function B.NetVars.Sync(network)
 	B.TagPlayers = network($)
 	B.TagRunners = network($)
 	B.TagTaggers = network($)
+
+	--Power Cards
+	PR.Timer		 = net($)
+	PR.SpawnPoints	 = net($)
+	PR.SpawnNumber	 = net($)
 end

@@ -135,6 +135,8 @@ B.AddBattleGametype = function(tabl)
 		end
 	})
 
+
+
 	return pointlimit, timelimit, hidetime, startrings
 end
 -- Debug flags
@@ -329,14 +331,15 @@ G.CP 			= {false,false,false,false,false,false,false,false}
 G.Arena 		= {false,false,false,false,false,false,false,false}
 G.Diamond 		= {false,false,false,false,false,false,false,false}
 G.Ruby 			= {false,false,false,false,false,false,false,false}
+G.PowerCards	= {false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
 -- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
 local GAMETYPE_INDICES = {
-	{GT_ARENA			,{0, false, true, false, true, false, false, false}}, 
-	{GT_TEAMARENA		,{0, false, true, false, true, false, false, false}}, 
-	{GT_SURVIVAL		,{0, true,  true, false, true, false, false, false}}, 
-	{GT_TEAMSURVIVAL	,{0, true,  true, false, true, false, false, false}}, 
+	{GT_ARENA			,{0, false, true, false, true, false, false, true}}, 
+	{GT_TEAMARENA		,{0, false, true, false, true, false, false, true}}, 
+	{GT_SURVIVAL		,{0, true,  true, false, true, false, false, true}}, 
+	{GT_TEAMSURVIVAL	,{0, true,  true, false, true, false, false, true}}, 
 	{GT_BATTLECTF		,{0, false, true, false, false,false, false, false}}, 
 	{GT_CP				,{0, false, true, true,  false,false, false, false}},
 	{GT_TEAMCP			,{0, false, true, true,  false,false, false, false}},
@@ -356,4 +359,5 @@ for i =1,#GAMETYPE_INDICES do
 	G.Arena[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[5] -- Does this gametype use the Arena format?
 	G.Diamond[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[6] -- Does this gametype use the Diamond format?
 	G.Ruby[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[7] -- Does this gametype use the Ruby format?
+	G.PowerCards[GAME_TYPE_INDEX[1]]	= GAME_TYPE_VALUES[8] -- Does this gametype support Power Cards?
 end

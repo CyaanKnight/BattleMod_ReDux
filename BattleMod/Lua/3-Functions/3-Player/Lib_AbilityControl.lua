@@ -482,7 +482,7 @@ B.CharAbilityControl = function(player)
 end
 
 B.MidAirAbilityAllowed = function(player)
-	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) then 
+	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) or (player.gotpowercard and PR and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF) then 
 		return false
 	else
 		return true
