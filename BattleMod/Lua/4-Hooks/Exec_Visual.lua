@@ -37,13 +37,13 @@ local colorsh = function(mo, redcol, bluecol)
 		return
 	end
 	
-	if (target.player.ctfteam == 1) and redcol
-		mo.color = redcol
+	if (target.player.ctfteam == 1) then
+		mo.color = ((skincolor_redteam == SKINCOLOR_RED) and redcol) or skincolor_redteam
 		mo.colorized = true
 		return
 		
-	elseif (target.player.ctfteam == 2) and bluecol
-		mo.color = bluecol
+	elseif (target.player.ctfteam == 2) then
+		mo.color = ((skincolor_blueteam == SKINCOLOR_BLUE) and bluecol) or skincolor_blueteam
 		mo.colorized = true
 		return
 	end
