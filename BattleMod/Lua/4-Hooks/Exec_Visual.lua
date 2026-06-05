@@ -471,6 +471,9 @@ B.BattleTagPointers = function(mo)
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
+	if not(target and target.valid) and not(gotflag) then 
+		delete = true
+	end
 	if delete then
 		if mo.tracer and mo.tracer.valid and mo.tracer.player then
 			if mo.tracer.btagpointer2 == mo then
@@ -483,7 +486,6 @@ B.BattleTagPointers = function(mo)
 		P_RemoveMobj(mo)
 		return
 	end
-	if not(target and target.valid) and not(gotflag) then return end
 	local rx = target.x
 	local ry = target.y
 	local rz = target.z
