@@ -1,9 +1,16 @@
+
+--PowerCards HUD
+
 /*
 	Handles gameplay HUD info.
 	For Debug HUD info, see Debug.lua
 */
 
+local B = CBW_Battle
 local PR = CBW_PowerCards
+
+local newhud_offset = 20
+local bar_offset = 20
 
 PR.ItemHUD = function(v, player, cam)
 	if player.playerstate != PST_LIVE
@@ -18,6 +25,10 @@ PR.ItemHUD = function(v, player, cam)
 	local align = "thin"
 	local card = player.gotpowercard
 	local item = PR.Item[card.item]
+
+	if B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
+		yoffset = $-newhud_offset
+	end
 	
 	//Draw text
 	local text = item.name or "<Card with No Name>"
@@ -31,8 +42,8 @@ PR.ItemHUD = function(v, player, cam)
 	local scale = FRACUNIT>>2
 	v.drawScaled(xoffset*FRACUNIT,(yoffset+6)*FRACUNIT,scale,patch,flags)
 	//Draw health
-	v.drawFill(xoffset+12,yoffset-8,32,6)
-	v.drawFill(xoffset+12,yoffset-8,32*card.health/item.health,6,0)
+	v.drawFill(xoffset+12,yoffset+bar_offset,32,6)
+	v.drawFill(xoffset+12,yoffset+bar_offset,32*card.health/item.health,6,0)
 	if PR.CV_Debug.value
 		v.drawString(xoffset-16,yoffset-18,"HP: "..card.health.."/"..item.health,V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER,align)		
 	end
@@ -43,6 +54,11 @@ PR.EventHUD = function(v, player, cam)
 	local yoffset = 180
 	local flags = V_HUDTRANS|V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER
 	local align = "thin"
+
+	if B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
+		yoffset = $-(newhud_offset+2)
+	end
+
 	for player in players.iterate
 		local card = player.gotpowercard
 		if not(card) continue end
@@ -71,5 +87,3 @@ PR.EventHUD = function(v, player, cam)
 		xoffset = $+20
 	end
 end
-hud.add(PR.ItemHUD, player)
-hud.add(PR.EventHUD, player)

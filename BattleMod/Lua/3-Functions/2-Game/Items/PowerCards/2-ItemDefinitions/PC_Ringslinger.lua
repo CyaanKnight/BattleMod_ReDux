@@ -37,7 +37,7 @@ local HoldFunc = function(mo,player)
 		//Item is currently draining
 		if mo.health % frequency
 			mo.health = $-1
-		elseif player.pc_cmd&BT_SPIN and not(player.pc_cmdlast&BT_SPIN)
+		elseif CBW_Battle.PlayerButtonPressed(player, player.battleconfig_special, false, true)
 		and not(player.pflags&PF_THOKKED or player.actionstate or player.powers[pw_carry])
 -- 			if player.rings
 			mo.health = $-1

@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local CV = B.Console
+local PR = CBW_PowerCards
 
 B.ActionHUD=function(v, player, cam)
 	if not (B.HUDMain) then return end
@@ -50,17 +51,28 @@ B.ActionHUD=function(v, player, cam)
 	local textflags = player.actiontextflags
 	local gotflag = player.gotflag
 	local gotcrystal = player.gotcrystal
+	local gotcard = player.gotpowercard and player.gotpowercard.valid
+	local gotcard_debuff = gotcard and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF
 	--Item text
-	if gotflag or gotcrystal then
+	if gotflag or gotcrystal or gotcard_debuff then
+		local patch = v.cachePatch("TOSSFLAG")
 		if gotflag then
 			text = "Got flag!"
 		elseif gotcrystal then
-			text = "Got crystal!"
+			if B.RubyGametype() then
+				text = "Got Ruby!"
+			elseif B.DiamondGametype() then
+				text = "Got Topaz!"
+			else
+				text = "Got Crystal!"
+			end
+		elseif gotcard_debuff then
+			patch = v.cachePatch("CARDBT")
+			text = PR.Item[player.gotpowercard.item].name
 		end
 		if leveltime&4 then
 			text = "\x82"+$
 		end
-		local patch = v.cachePatch("TOSSFLAG")
 		v.draw(xoffset,yoffset-1,patch,flags)
 		v.drawString(xoffset+12,yoffset,text,flags,align)
 	elseif text and not(player.actioncooldown and leveltime&1) then 

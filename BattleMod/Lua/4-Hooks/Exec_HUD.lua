@@ -5,6 +5,7 @@ local A = B.Arena
 local D = B.Diamond
 local R = B.Ruby
 local F = B.CTF
+local PR = CBW_PowerCards
 
 --Make a wrapper function so these can be modified
 --externally by any modder
@@ -17,6 +18,7 @@ hud.add(function(v,p,c)
 	--Player info
 	B.ChangeHUD(v,p,c)
 	B.RingsHUD(v,p,c)
+	PR.ItemHUD(v,p,c)
 	B.ActionHUD(v,p,c)
 	B.ShieldHUD(v,p,c)
 	B.TeammateHUD(v,p,c)
@@ -51,6 +53,7 @@ hud.add(function(v,p,c)
 	B.DebugHUD(v,p,c)
 	B.TagGenHUD(v,p,c)
 	B.DrawMatchPoint(v,p,c)
+	PR.EventHUD(v,p,c)
 end, "game")
 
 hud.add(function(v,p,c) --Ditto
