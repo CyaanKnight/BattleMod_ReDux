@@ -237,7 +237,7 @@ B.BombCollide = function(bomb,mo)
 	if mo and mo.valid and bomb and bomb.valid and bomb.fuse > 1 
 	and B.ZCollide(bomb,mo)
 		then
-		if mo.player and (B.MyTeam(mo.player, bomb.target.player) or mo.player == bomb.target.player) then
+		if mo.player and bomb.target and  bomb.target.valid and bomb.target.player and (B.MyTeam(mo.player, bomb.target.player) or mo.player == bomb.target.player) then
 			local skin = S[mo.skin] or S[-1]
 			local sliding = skin.special == B.Action.Slide and mo.player.actionstate == 2
 			local dodgerolling = skin.special == B.Action.Slide and mo.player.actionstate == 3
@@ -258,8 +258,8 @@ B.BombCollide = function(bomb,mo)
 				end
 			end
 		end
-		if bomb.target == mo then return end
-		if not(mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR)) then return end
+		if bomb.target and bomb.target.valid and (bomb.target == mo) then return end
+		if not((mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR)) or mo.player)then return end
 		bomb.fuse = 1
 		if mo.flags&MF_MONITOR 
 		and not(G_GametypeHasTeams() and bomb.target and bomb.target.player
