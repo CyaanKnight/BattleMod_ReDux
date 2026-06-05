@@ -272,6 +272,7 @@ D.Collect = function(mo,toucher,playercansteal)
 	local toucherIsFlashing 	= toucherIsValid and toucherIsPlayer and toucher.player.powers[pw_flashing]
 	local toucherIsParrying     = toucherIsValid and (toucherIsPlayer and toucher.player.guard)
 	local toucherIsAirDodging   = toucherIsValid and (toucherIsPlayer and toucher.player.airdodge > 0)
+	local toucherIsInTossDelay  = toucherIsValid and (toucherIsPlayer and toucher.player.tossdelay >=0 )
 
 	local teammatepass = (G_GametypeHasTeams() and (targetIsValid and toucherIsValid) and not(targetIsToucher) and (toucherIsPlayer and targetIsPlayer) and (toucher.player.ctfteam == mo.target.player.ctfteam) and (mo.target.player.cmd.buttons & BT_TOSSFLAG))
 
@@ -280,6 +281,7 @@ D.Collect = function(mo,toucher,playercansteal)
 		if toucherIsPlayer and targetIsPlayer then
 			if (toucherIsPlayerInPain) or (toucherIsDead) then return true end
 			if not(playercansteal or teammatepass) then return true end
+			if toucherIsInTossDelay then return true end
 		end
 	end
 
@@ -441,8 +443,7 @@ D.Thinker = function(mo)
 	if mo.target and mo.target.player then
 		if not(mo.target.valid)
 		or P_PlayerInPain(mo.target.player)
-		or mo.target.player.playerstate != PST_LIVE
-		or mo.target.player.tossdelay then
+		or mo.target.player.playerstate != PST_LIVE then
 			if mo.target and mo.target.valid and mo.target.player then
 				B.PrintGameFeed(mo.target.player," dropped the "..diamondtext..".")
 			end
