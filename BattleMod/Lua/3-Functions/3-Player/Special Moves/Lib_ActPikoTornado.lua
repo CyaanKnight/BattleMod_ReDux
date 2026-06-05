@@ -249,7 +249,7 @@ B.Action.PikoTornado = function(mo,doaction)
 						msl.momy = $ + mo.momy
 						msl.momz = $ + mo.momz
 						if G_GametypeHasTeams() then
-							msl.color = player.ctfteam == 2 and SKINCOLOR_SKY or SKINCOLOR_ROSY
+							msl.color = player.ctfteam == 2 and ((skincolor_blueteam==SKINCOLOR_BLUE) and SKINCOLOR_SKY or skincolor_blueteam) or ((skincolor_redteam==SKINCOLOR_RED) and SKINCOLOR_ROSY or skincolor_redteam)
 						else
 							msl.color = mo.color
 						end

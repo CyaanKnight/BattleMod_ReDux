@@ -16,7 +16,7 @@ local ALLOWCHARGEHAMMER = false
 local function heartcolor(msl, player, bluecolor, redcolor)
 	msl.colorized = true
 	if G_GametypeHasTeams() then
-		return player.ctfteam == 2 and (bluecolor or SKINCOLOR_SKY) or (redcolor or SKINCOLOR_ROSY)
+		return player.ctfteam == 2 and ((skincolor_blueteam==SKINCOLOR_BLUE and (bluecolor or SKINCOLOR_SKY)) or skincolor_blueteam) or ((skincolor_redteam==SKINCOLOR_RED) and (redcolor or SKINCOLOR_ROSY) or skincolor_redteam)
 	else
 		return player.mo.color
 	end
