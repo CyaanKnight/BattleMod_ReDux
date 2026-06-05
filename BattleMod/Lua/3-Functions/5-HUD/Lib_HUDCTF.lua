@@ -80,7 +80,7 @@ F.CompassHUD = function(v, player, cam)
 		lookang = player.cmd.angleturn<<16
 	end
 	
-	color = v.getColormap(TC_DEFAULT,SKINCOLOR_RED)
+	color = v.getColormap(TC_DEFAULT,skincolor_redteam)
 	if redflag and redflag.valid and not (player.mo and player.mo == redflag) then
 		if twodlevel then
 			angle = R_PointToAngle2(xx, zz, redflag.x, redflag.z) - ANGLE_90 + ANGLE_22h
@@ -114,7 +114,7 @@ F.CompassHUD = function(v, player, cam)
 		v.draw(xoffsetred,yoffset,compass,flags,color)
 	end
 	
-	color = v.getColormap(TC_DEFAULT,SKINCOLOR_BLUE)
+	color = v.getColormap(TC_DEFAULT,skincolor_blueteam)
 	if blueflag and blueflag.valid and not (player.mo and player.mo == blueflag) then
 		if twodlevel then
 			angle = R_PointToAngle2(xx, zz, blueflag.x, blueflag.z) - ANGLE_90 + ANGLE_22h
