@@ -8,7 +8,10 @@ local CP = B.ControlPoint
 local I = B.Item
 local PR = CBW_PowerCards
 
-addHook("NetVars",B.NetVars.Sync)
+addHook("NetVars", function(network)
+	B.NetVars.Sync(network)
+	PR.NetVars_Sync(network)
+end)
 
 addHook("MapChange",function(map)
 	for player in players.iterate

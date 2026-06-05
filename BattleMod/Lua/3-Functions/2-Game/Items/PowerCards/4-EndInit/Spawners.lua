@@ -207,3 +207,10 @@ end
 PR.ResetAll()
 
 PR.AddTypeSpawner(MT_POWERCARDSPAWN_RANDOM)
+
+PR.NetVars_Sync = function(network)
+	--Power Cards
+	PR.Timer		 = network($)
+	PR.SpawnPoints	 = network($)
+	PR.SpawnNumber	 = network($)
+end
