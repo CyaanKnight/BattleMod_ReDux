@@ -81,7 +81,10 @@ PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 	local mt = item.mobj or MT_POWERCARD
 	local mo = P_SpawnMobj(x,y,z, mt)
 	if not(mo and mo.valid) return end //Something prevented the item from spawning
-	
+
+	//Add mobj to spawning table
+	PR.MobjsSpawned[#mapthing] = mo
+
 	//Set orientation
 	if flip == -1
 		mo.flags2 = $|MF2_OBJECTFLIP

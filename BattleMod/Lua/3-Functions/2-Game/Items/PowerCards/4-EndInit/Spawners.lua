@@ -13,6 +13,7 @@ PR.ResetAll = do
 	local max_time = FixedMul(cv_time*FRACUNIT,FRACUNIT+variance)/FRACUNIT
 	PR.Timer = P_RandomRange(min_time, max_time)
 	PR.SpawnPoints = {}
+	PR.MobjsSpawned = {}
 	PR.LocalSpawns = {}
 	PR.SpawnNumber = 1
 end
@@ -74,7 +75,8 @@ end
 
 //*** Spawning
 PR.SpawnOccupied = function(mapthing)
-	return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
+	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
+	return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
 end
 
 //*** Registering spawnpoints
@@ -193,6 +195,13 @@ PR.TicFrame = do
 		t[2] = time
 	end
 
+	for key, mobj in pairs(PR.MobjsSpawned) do
+		if not mobj or not mobj.valid then
+			// remove from table to prevent srb2 from yelling at us
+			PR.MobjsSpawned[key] = nil
+		end
+	end
+
 	//Global timer
 	if B.PreRoundWait() return end
 	PR.Timer = $-1
@@ -217,31 +226,28 @@ COM_AddCommand("testtable", function()
 end)
 
 PR.NetVars_Sync = function(network)
-
-	local function tablelen(tabl)
-		local int = 0
-		for _, _ in pairs(tabl) do
-			int = $ + 1
-		end
-		return int
-	end
-
-	print("Before:")
-	print("    "..#test)
-	print("    "..PR.Timer)
-	print("    "..#PR.SpawnPoints)
-	print("    "..PR.SpawnNumber)
-	print("    "..tablelen(PR.Item_Chances))
 	--Power Cards
 	test = network($)
+	PR.MapThing      = network($)
 	PR.Timer		 = network($)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
-	print("After:")
-	print("    "..#test)
-	print("    "..PR.Timer)
-	print("    "..#PR.SpawnPoints)
-	print("    "..PR.SpawnNumber)
-	print("    "..tablelen(PR.Item_Chances))
+	PR.MobjsSpawned  = network($)
 end
+
+-- addHook("ThinkFrame", do
+-- 	local function tablelen(tabl)
+-- 		local int = 0
+-- 		for _, _ in pairs(tabl) do
+-- 			int = $ + 1
+-- 		end
+-- 		return int
+-- 	end
+-- 	print("After:")
+-- 	print("    "..#test)
+-- 	print("    "..PR.Timer)
+-- 	print("    "..#PR.SpawnPoints)
+-- 	print("    "..PR.SpawnNumber)
+-- 	print("    "..tablelen(PR.Item_Chances))
+-- end)

@@ -22,13 +22,7 @@ end
 //Spawn item
 COM_AddCommand("powercards_spawn", function(player, type)
 	if not(PR.CV_Debug.value) then return end
-	print("SpawnItem: Ran")
-	print("RNG: "..P_RandomRange(0, 1024))
-
 	PR.SpawnItem(tonumber(type))
-
-	print("SpawnItem: Finished")
-	print("RNG: "..P_RandomRange(0, 1024))
 end, COM_ADMIN)
 
 //HUD
