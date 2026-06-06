@@ -22,7 +22,7 @@ PR.CV_Debug = CV_RegisterVar{
 //*** Adjust item spawn rate
 PR.CV_RespawnTime = CV_RegisterVar{
 	name = "powercards_rate",
-	defaultvalue = 30,
+	defaultvalue = 15,
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 10, MAX = 999}
 }
