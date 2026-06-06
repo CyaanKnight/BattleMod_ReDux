@@ -87,7 +87,7 @@ table.insert(CBW_PowerCardQueue, {
 	name 		= "Ringslinger",
 	chance		= 5,
 	health		= ammo,
-	flags		= PCF_NOSPIN|PCF_RUNNERDEBUFF,
+	flags		= PCF_RUNNERDEBUFF,
 	state		= S_POWERCARD_RINGSLINGER,
 	mapthing	= MT_POWERCARDSPAWN_RINGSLINGER,
 	func_spawn	= nil,
