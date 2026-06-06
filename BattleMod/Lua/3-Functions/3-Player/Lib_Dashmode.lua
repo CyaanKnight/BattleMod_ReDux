@@ -182,7 +182,9 @@ local dash_colorizer = function(player) --Colorizes dashmode users that would sh
 	if (B.GetSkinVarsFlags(player) & SKINVARS_DASHMODENERF) then
 		if (player.dashmode >= DASHMODE_THRESHOLD) then
 
-			player.drawangle = R_PointToAngle2(0, 0, player.rmomx, player.rmomy)
+			if not(player.pflags & PF_STARTDASH) then
+				player.drawangle = R_PointToAngle2(0, 0, player.rmomx, player.rmomy)
+			end
 			if player.followmobj and player.followmobj.valid and player.followmobj.type == MT_METALJETFUME then
 				P_DoMetalJetFume(player, player.followmobj)
 			end
