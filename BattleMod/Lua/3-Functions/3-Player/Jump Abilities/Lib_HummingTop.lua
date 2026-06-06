@@ -282,6 +282,11 @@ function B.HummingTop_MainHook(player)
 			if dropdashing then
 				cancelDropDash(player.mo)
 			end
+			mo.recurl_actionable = nil
+			mo.air_recoilanim_override = nil
+			mo.hummingtop_hit = nil
+			mo.recoilthrust = nil
+			mo.recoilangle = nil
 			return
 		end
 
@@ -913,9 +918,7 @@ end--, MT_PLAYER)
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
 
-		if not(mo[n1].hummingtop_marker) then
-			mo[n1].hummingtop_marker = {}
-		end
+		mo[n1].hummingtop_marker = {}
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
@@ -997,6 +1000,8 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 							mo[n1].hummingtop_beyblade_pick = true
 							mo[n2].hummingtop_beyblade_pick = true
 						end
+
+						mo[n1].hummingtop_marker = nil
 					end
 				end
 			end
