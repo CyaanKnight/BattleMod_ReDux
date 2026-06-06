@@ -383,7 +383,7 @@ B.DoPlayerFlinch = function(player, time, angle, thrust, force)
 	player.mo.air_recoilanim_override = nil
 end
 
-B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
+B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak, stunbreakcost, stunbreaktics)
 	local mo = player.mo
 	if not (mo and mo.valid) then
 		return
@@ -400,6 +400,8 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak)
 	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 	
 	player.tumble = time
+	player.tumble_stunbreakcost = stunbreakcost
+	player.tumble_stunbreaktics = stunbreaktics
 	player.airdodge_spin = 0
 	player.dashmode = 0
 	player.powers[pw_strong] = 0
