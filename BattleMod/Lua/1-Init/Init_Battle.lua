@@ -83,7 +83,7 @@ B.AddBattleGametype = function(tabl)
 
 	timelimit = CV_RegisterVar({
 		name = tabl.identifier.."_timelimit",
-		defaultvalue = tabl.defaulttimelimit,
+		defaultvalue = tabl.defaulttimelimit or 0,
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=30, ["None"]=0},
 		func = function(cv)
