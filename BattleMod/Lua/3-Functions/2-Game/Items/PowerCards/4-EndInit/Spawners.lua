@@ -213,4 +213,7 @@ PR.NetVars_Sync = function(network)
 	PR.Timer		 = network($)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
+	for i = 1, #PR.Item do
+		PR.Item[i].chance = network($)
+	end
 end
