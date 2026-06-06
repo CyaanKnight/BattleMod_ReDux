@@ -315,7 +315,7 @@ B.UpdateCollisionHistory = function(pmo)
 	end
 	local player = pmo.player
 	if player.pushed_creditplr != nil
-		if player.pushed_creditplr.valid and P_IsObjectOnGround(pmo) and not(player.powers[pw_nocontrol] or player.powers[pw_flashing]) then
+		if player.pushed_creditplr.valid and P_IsObjectOnGround(pmo) and not(player.powers[pw_nocontrol] or player.powers[pw_flashing] or player.tumble) then
 			player.pushed_creditplr = nil
 		end
 	end
