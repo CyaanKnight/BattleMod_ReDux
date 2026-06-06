@@ -78,7 +78,7 @@ PR.SpawnOccupied = function(mapthing)
 	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
 	-- return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
 
-	for key, data in ipairs(server.PR_MobjsSpawned) do
+	for key, data in ipairs(PR.MobjsSpawned) do
 		if data.mapthing == mapthing
 		and data.mobj
 		and data.mobj.valid
@@ -249,7 +249,7 @@ PR.NetVars_Sync = function(network)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
-	--PR.MobjsSpawned  = network($)
+	PR.MobjsSpawned  = network($)
 end
 
 -- addHook("ThinkFrame", do
