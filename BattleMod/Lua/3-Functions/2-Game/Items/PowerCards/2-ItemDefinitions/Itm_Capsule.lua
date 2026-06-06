@@ -96,10 +96,6 @@ end
 
 
 addHook("MobjThinker", function(mo)
-	if not ((mo.flags == capsuleflags)
-	or (mo.health <= 0))
-		return
-	end
 
 	mo.shadowscale = FRACUNIT
 
@@ -248,47 +244,51 @@ addHook("MobjThinker", function(mo)
 end, MT_POWERCARDCAPSULE)
 
 addHook("TouchSpecial", function(mo, toucher)
-	if (mo.health > 0)
-		local player = toucher.player
+	local player = toucher.player
 
+	if toucher and toucher.valid and player then
 		if (P_PlayerCanDamage(player, mo))
 			S_StopSound(mo)
 			P_KillMobj(mo, toucher, toucher)
+			mo.extravalue2 = 3*TICRATE/2
 		end
+		if (mo.extravalue2) then
+			
 
-		if (P_MobjFlip(toucher) * toucher.momz < 0)
-		and not (player.charability2 == CA2_MELEE and player.panim == PA_ABILITY2)
-			toucher.momz = -$1
+			if (P_MobjFlip(toucher) * toucher.momz < 0)
+			and not (player.charability2 == CA2_MELEE and player.panim == PA_ABILITY2)
+				toucher.momz = -$1
+			end
+
+			--[[
+			if (player.pflags & PF_BOUNCING)
+				P_DoAbilityBounce(player, false)
+			end
+			--]]
+
+			toucher.momx = -$1
+			toucher.momy = -$1
+
+			if (player.charability == CA_FLY and player.panim == PA_ABILITY)
+				toucher.momz = (-$1) / 2
+			elseif (player.pflags & PF_GLIDING and not P_IsObjectOnGround(toucher))
+				player.pflags = $1 & ~(PF_GLIDING|PF_JUMPED|PF_NOJUMPDAMAGE)
+				toucher.state = S_PLAY_FALL
+				toucher.momz = $1 + (P_MobjFlip(toucher) * (player.speed >> 3))
+				toucher.momx = 7 * $1 / 8
+				toucher.momy = 7 * $1 / 8
+			elseif (player.dashmode >= 3*TICRATE
+			and (player.charflags & (SF_DASHMODE|SF_MACHINE)) == (SF_DASHMODE|SF_MACHINE)
+			and player.panim == PA_DASH)
+				P_DoPlayerPain(player, mo, mo)
+			end
+
+			--[[
+			if (player.charability == CA_TWINSPIN and player.panim == PA_ABILITY)
+				P_TwinSpinRejuvenate(player, player.thokitem)
+			end
+			--]]
 		end
-
-		--[[
-		if (player.pflags & PF_BOUNCING)
-			P_DoAbilityBounce(player, false)
-		end
-		--]]
-
-		toucher.momx = -$1
-		toucher.momy = -$1
-
-		if (player.charability == CA_FLY and player.panim == PA_ABILITY)
-			toucher.momz = (-$1) / 2
-		elseif (player.pflags & PF_GLIDING and not P_IsObjectOnGround(toucher))
-			player.pflags = $1 & ~(PF_GLIDING|PF_JUMPED|PF_NOJUMPDAMAGE)
-			toucher.state = S_PLAY_FALL
-			toucher.momz = $1 + (P_MobjFlip(toucher) * (player.speed >> 3))
-			toucher.momx = 7 * $1 / 8
-			toucher.momy = 7 * $1 / 8
-		elseif (player.dashmode >= 3*TICRATE
-		and (player.charflags & (SF_DASHMODE|SF_MACHINE)) == (SF_DASHMODE|SF_MACHINE)
-		and player.panim == PA_DASH)
-			P_DoPlayerPain(player, mo, mo)
-		end
-
-		--[[
-		if (player.charability == CA_TWINSPIN and player.panim == PA_ABILITY)
-			P_TwinSpinRejuvenate(player, player.thokitem)
-		end
-		--]]
 	end
 
 	return true
