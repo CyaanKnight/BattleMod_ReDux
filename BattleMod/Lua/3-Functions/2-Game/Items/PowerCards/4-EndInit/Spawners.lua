@@ -208,10 +208,40 @@ PR.ResetAll()
 
 PR.AddTypeSpawner(MT_POWERCARDSPAWN_RANDOM)
 
+local test = {1, 2, 3}
+COM_AddCommand("testtable", function()
+	test = {}
+	for i = 1, P_RandomRange(1, 10) do
+		test[i] = i
+	end
+end)
+
 PR.NetVars_Sync = function(network)
+
+	local function tablelen(tabl)
+		local int = 0
+		for _, _ in pairs(tabl) do
+			int = $ + 1
+		end
+		return int
+	end
+
+	print("Before:")
+	print("    "..#test)
+	print("    "..PR.Timer)
+	print("    "..#PR.SpawnPoints)
+	print("    "..PR.SpawnNumber)
+	print("    "..tablelen(PR.Item_Chances))
 	--Power Cards
+	test = network($)
 	PR.Timer		 = network($)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
+	print("After:")
+	print("    "..#test)
+	print("    "..PR.Timer)
+	print("    "..#PR.SpawnPoints)
+	print("    "..PR.SpawnNumber)
+	print("    "..tablelen(PR.Item_Chances))
 end
