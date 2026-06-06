@@ -34,7 +34,7 @@ B.BackdraftThinker = function(player, nearest)
 end
 
 B.DisableBackdraft = function(player)
-	player.didslipbutton = 0
+	--player.didslipbutton = 0
 	player.slipping = false
 	player.normalspeed = (player.dashmode and skins[player.mo.skin].normalspeed+(player.dashmode*(FRACUNIT/5))) or skins[player.mo.skin].normalspeed
 end
@@ -102,13 +102,12 @@ B.DoBackdraft = function(player)
 		player.backdraft = max(0, $-1)
 	end
 
-	if B.ButtonCheck(player, player.battleconfig_slipstreambutton) == 1 then
-		player.didslipbutton = $+1
-	end
+	--if B.ButtonCheck(player, player.battleconfig_slipstreambutton) == 1 then
+		--player.didslipbutton = $+1
+	--end
 
 	if player.gradualspeed
 	and (nearest and nearest.valid)
-	and not (player.battleconfig_useslipstreambutton and not player.didslipbutton)
 	and not B.Timeout
 	then
 		B.BackdraftThinker(player, nearest)

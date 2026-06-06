@@ -65,7 +65,7 @@ local function twin(player, twirl)
 						msl.blockable = 1
 					end
 					msl.flags = $ | MF_NOGRAVITY
-					local xyangle = (player.battleconfig_hammerstrafe and mo.angle or player.drawangle)+n*(ANG1*3)*5
+					local xyangle = (mo.angle)+n*(ANG1*3)*5
 					local zangle = 0
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
@@ -92,7 +92,7 @@ local function twin(player, twirl)
 						msl.blockable = 1
 					end
 					msl.flags = $ | MF_NOGRAVITY
-					local xyangle = player.battleconfig_hammerstrafe and mo.angle or player.drawangle
+					local xyangle = mo.angle
 					local zangle = n*ANG1*5
 					B.InstaThrustZAim(msl,xyangle,zangle,speed,false)		
 					msl.momx = $ + mo.momx
@@ -110,9 +110,9 @@ local function twin(player, twirl)
 	end
 
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe then
+	--if player.battleconfig_hammerstrafe then
 		player.drawangle = player.mo.angle
-	end
+	--end
 end
 
 B.TwinSpinJump = function(player) //Double jump function
@@ -158,7 +158,7 @@ end
 //Wave spawning
 B.SpawnWave = function(player,angle_offset,mute)
 	local mo = player.mo
-	local wave = P_SPMAngle(mo,MT_PIKOWAVE,player.drawangle + angle_offset)
+	local wave = P_SPMAngle(mo,MT_PIKOWAVE,mo.angle + angle_offset)
 	if wave and wave.valid
 		wave.teamcolor = heartcolor(wave, player, SKINCOLOR_SAPPHIRE, SKINCOLOR_RUBY)
 		wave.mute = mute
@@ -286,15 +286,17 @@ B.HammerControl = function(player)
 
 	--Piko Wave failsafe
 	if player.actionstate == piko_special then
-		if not(P_IsObjectOnGround(mo)) and (mo.state ~= S_PLAY_MELEE) and (mo.state ~= S_PLAY_MELEE_FINISH) and (mo.state ~= S_PLAY_MELEE_LANDING) then
-			player.actionstate = 0
-			B.ApplyCooldown(player, piko_cooldown)
+		if not(P_IsObjectOnGround(mo)) then
+			if (mo.state ~= S_PLAY_MELEE) and (mo.state ~= S_PLAY_MELEE_FINISH) and (mo.state ~= S_PLAY_MELEE_LANDING) then
+				player.actionstate = 0
+				B.ApplyCooldown(player, piko_cooldown)
+			end
+			player.drawangle = mo.angle
 		end
 	end
 	
 	//Angle adjustment
-	if player.battleconfig_hammerstrafe
-	and ((player.melee_state and P_IsObjectOnGround(mo)) or mo.state == S_PLAY_TWINSPIN)
+	if ((player.melee_state and P_IsObjectOnGround(mo)) or mo.state == S_PLAY_TWINSPIN)
 	and not (mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
 	end
@@ -322,7 +324,7 @@ B.HammerControl = function(player)
 			ghost.fuse = 10
 		end
 		if watchout1 then
-			B.DrawAimLine(player, player.battleconfig_hammerstrafe and mo.angle or player.drawangle)
+			B.DrawAimLine(player, mo.angle)
 		end
 		if not P_IsObjectOnGround(mo) then
 			player.charflags = $ & ~SF_NOSKID
@@ -449,7 +451,7 @@ B.ChargeHammer = function(player)
 	return end
 	
 	//Angle adjustment
-	if (player.battleconfig_hammerstrafe) and not (mo.eflags & MFE_JUSTHITFLOOR)
+	if not(mo.eflags & MFE_JUSTHITFLOOR)
 		player.drawangle = mo.angle
 	end
 

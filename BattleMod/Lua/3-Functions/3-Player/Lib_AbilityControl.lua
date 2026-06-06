@@ -66,7 +66,7 @@ B.glide = function(player)
 		--Angle adjustment
 		if (mo.state == S_PLAY_SWIM) then
 			B.legacykill(player, 1)
-		elseif player.battleconfig_glidestrafe and B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
+		elseif B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
 			player.drawangle = player.mo.angle
 		end
 	end

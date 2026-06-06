@@ -13,10 +13,10 @@ local base_battleconfigs = {
 	{"battleconfig_roulette", true},
 	{"battleconfig_nospinshield", false},
 ----{"battleconfig_minimap", true},
-	{"battleconfig_glidestrafe", true},
-	{"battleconfig_hammerstrafe", false},
-	{"battleconfig_slipstreambutton", BT_WEAPONNEXT},
-	{"battleconfig_useslipstreambutton", false},
+----{"battleconfig_glidestrafe", true},
+----{"battleconfig_hammerstrafe", false},
+----{"battleconfig_slipstreambutton", BT_WEAPONNEXT},
+----{"battleconfig_useslipstreambutton", false},
 	{"battleconfig_altcontrols", false},
 }
 
