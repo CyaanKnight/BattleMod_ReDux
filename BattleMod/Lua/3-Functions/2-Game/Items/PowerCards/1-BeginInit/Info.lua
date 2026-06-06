@@ -7,6 +7,7 @@
 rawset(_G,"CBW_PowerCards", {})
 local PR = CBW_PowerCards
 PR.Item = {}
+PR.Item_Chances = {}
 PR.MapThing = {}
 if not(CBW_PowerCardQueue)
 	rawset(_G,'CBW_PowerCardQueue', {})

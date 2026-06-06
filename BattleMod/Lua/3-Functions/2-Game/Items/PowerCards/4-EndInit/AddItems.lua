@@ -14,6 +14,7 @@ PR.AddItem = function(item)
 	local _index = #PR.Item+1
 	
 	//General variables
+	item.index = _index
 	item.name = check($, "string", "Item"..tostring(_index))
 	item.chance = check($, "number", 1)
 	item.health = check($, "number", 1)
@@ -35,6 +36,7 @@ PR.AddItem = function(item)
 	item.func_drop 		= check($, "function", dofalse)
 	item.func_expire	= check($, "function", dofalse)
 	table.insert(PR.Item,item)
+	PR.Item_Chances[_index] = item.chance
 	print("\x84".."Added item"..#PR.Item..": "..tostring(item.name))
 	return #PR.Item
 end

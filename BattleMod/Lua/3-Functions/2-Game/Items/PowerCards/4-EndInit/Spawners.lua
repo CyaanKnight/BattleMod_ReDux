@@ -56,7 +56,7 @@ PR.GetProbabilities = function(whitelist,blacklist)
 	for n,item in ipairs(PR.Item)
 		if (not(whitelist) or item.flags&whitelist)
 		and not(blacklist and item.flags&blacklist)
-			for i = 1,item.chance
+			for i = 1,PR.Item_Chances[item.index]
 				table.insert(t,n)
 			end
 		end
@@ -116,10 +116,10 @@ PR.MapLoadHook = function()
 			continue
 		elseif PR.Item[item] //Specified items
 			if mapthing.options&MTF_EXTRA //Local timer
-			and PR.Item[item].chance != -1
+			and PR.Item_Chances[item] != -1
 				table.insert(PR.LocalSpawns,{mapthing,0})
 			else //Global timer
-				for n = 1, PR.Item[item].chance
+				for n = 1, PR.Item_Chances[item]
 					table.insert(PR.SpawnPoints,mapthing)
 				end
 			end
@@ -213,7 +213,5 @@ PR.NetVars_Sync = function(network)
 	PR.Timer		 = network($)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
-	for i = 1, #PR.Item do
-		PR.Item[i].chance = network($)
-	end
+	PR.Item_Chances  = network($)
 end

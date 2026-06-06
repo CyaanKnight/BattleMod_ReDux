@@ -36,7 +36,7 @@ COM_AddCommand("powercards_chance",function(player,item,chance)
 			print("powercards_chance <item name or #> <probability>")
 			//List all item probabilities
 			for n,t in ipairs(PR.Item)
-				print("#"..n.." "..t.name..": "..t.chance)
+				print("#"..n.." "..t.name..": "..PR.Item_Chances[t.index])
 			end
 		end
 		return
@@ -48,14 +48,14 @@ COM_AddCommand("powercards_chance",function(player,item,chance)
 			if chance == nil or tonumber(chance) == nil
 				//Show item properties
 				if player == consoleplayer
-					print("#"..n.." "..t.name..": "..t.chance)
+					print("#"..n.." "..t.name..": "..chance)
 				end
 				return
 			end
 			//Set item to new probability
-			t.chance = max(tonumber(chance), -1)
+			PR.Item_Chances[t.index] = max(tonumber(chance), -1)
 			//Announce the new setting
-			print("Item #"..n.." "..t.name.." probability has been set to "..t.chance)
+			print("Item #"..n.." "..t.name.." probability has been set to "..PR.Item_Chances[t.index])
 			return
 		end
 	end
