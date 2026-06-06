@@ -13,7 +13,7 @@ PR.ResetAll = do
 	local max_time = FixedMul(cv_time*FRACUNIT,FRACUNIT+variance)/FRACUNIT
 	PR.Timer = P_RandomRange(min_time, max_time)
 	PR.SpawnPoints = {}
-	PR.MobjsSpawned = {}
+	server.PR_MobjsSpawned = {}
 	PR.LocalSpawns = {}
 	PR.SpawnNumber = 1
 end
@@ -78,7 +78,7 @@ PR.SpawnOccupied = function(mapthing)
 	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
 	-- return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
 
-	for key, data in ipairs(PR.MobjsSpawned) do
+	for key, data in ipairs(server.PR_MobjsSpawned) do
 		if data.mapthing == mapthing
 		and data.mobj
 		and data.mobj.valid
@@ -206,11 +206,15 @@ PR.TicFrame = do
 		t[2] = time
 	end
 
-	for key = #PR.MobjsSpawned, 1, -1 do
-		local data = PR.MobjsSpawned[key]
+	if server.PR_MobjsSpawned = nil then
+		server.PR_MobjsSpawned = {}
+	end
+
+	for key = #server.PR_MobjsSpawned, 1, -1 do
+		local data = server.PR_MobjsSpawned[key]
 
 		if not (data.mobj and data.mobj.valid and data.mobj.state ~= S_NULL) then
-			table.remove(PR.MobjsSpawned, key)
+			table.remove(server.PR_MobjsSpawned, key)
 		end
 	end
 
@@ -239,13 +243,13 @@ end)
 
 PR.NetVars_Sync = function(network)
 	--Power Cards
-	test = network($)
+	--test = network($)
 	PR.MapThing      = network($)
 	PR.Timer		 = network($)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
-	PR.MobjsSpawned  = network($)
+	--PR.MobjsSpawned  = network($)
 end
 
 -- addHook("ThinkFrame", do

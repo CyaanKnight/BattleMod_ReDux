@@ -12,6 +12,9 @@ end,MT_POWERCARD)
 
 PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 	//Get spawnpoint -- make sure spawn is vacant first!
+	if server.PR_MobjsSpawned = nil then
+		server.PR_MobjsSpawned = {}
+	end
 	if mapthing == nil //Global spawn
 		local retry = #PR.SpawnPoints
 		while retry > 0
@@ -82,8 +85,12 @@ PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 	local mo = P_SpawnMobj(x,y,z, mt)
 	if not(mo and mo.valid) return end //Something prevented the item from spawning
 
+	if server.PR_MobjsSpawned = nil then
+		server.PR_MobjsSpawned = {}
+	end
+
 	//Add mobj to spawning table
-	table.insert(PR.MobjsSpawned, {
+	table.insert(server.PR_MobjsSpawned, {
 		mobj = mo,
 		mapthing = mapthing
 	})
