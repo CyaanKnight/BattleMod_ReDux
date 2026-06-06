@@ -53,7 +53,7 @@ end
 PR.GetProbabilities = function(whitelist,blacklist)
 	PR.DPrint("Getting probabilities: whitelist "..tostring(whitelist)..", blacklist "..tostring(blacklist))
 	local t = {}
-	for n,item in pairs(PR.Item)
+	for n,item in ipairs(PR.Item)
 		if (not(whitelist) or item.flags&whitelist)
 		and not(blacklist and item.flags&blacklist)
 			for i = 1,item.chance
@@ -82,7 +82,7 @@ local mapthing_table = function(...)
 	local id = {}
 	//Specified mapthing search
 	for mapthing in mapthings.iterate
-		for _,i in pairs({...})
+		for _,i in ipairs({...})
 			if mapthing.type == i
 				table.insert(id,mapthing)
 			end
@@ -106,7 +106,7 @@ PR.MapLoadHook = function()
 	for mapthing in mapthings.iterate
 		//Get spawner type
 		local item = nil
-		for n,t in pairs(PR.MapThing)
+		for n,t in ipairs(PR.MapThing)
 			if t.thingnum == mapthing.type
 				item = t.item
 				break
@@ -177,7 +177,7 @@ PR.TicFrame = do
 	or not(((PR.CV_Enabled.value==1) and B.PowerCardsGametype()) or PR.CV_Enabled.value==2)
 	return end
 	//Local timers
-	for n,t in pairs(PR.LocalSpawns)
+	for n,t in ipairs(PR.LocalSpawns)
 		local mapthing = t[1]
 		local time = t[2]
 		if PR.SpawnOccupied(mapthing)

@@ -73,7 +73,7 @@ local DoSpite = function(mo, player, pre) //Do spite
 	end
 	
 	//Apply effect to foes
-	for _,foe in pairs(hitlist)
+	for _,foe in ipairs(hitlist)
 		if pre
 			DoLightning(foe.mo)
 			S_StartSound(foe.mo,sfx_elctrc)

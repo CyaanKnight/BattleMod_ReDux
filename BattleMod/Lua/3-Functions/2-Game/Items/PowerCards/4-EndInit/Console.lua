@@ -35,13 +35,13 @@ COM_AddCommand("powercards_chance",function(player,item,chance)
 			//Show how it's done
 			print("powercards_chance <item name or #> <probability>")
 			//List all item probabilities
-			for n,t in pairs(PR.Item)
+			for n,t in ipairs(PR.Item)
 				print("#"..n.." "..t.name..": "..t.chance)
 			end
 		end
 		return
 	end
-	for n,t in pairs(PR.Item)
+	for n,t in ipairs(PR.Item)
 		//See if item argument matches an existing item name or number
 		if string.lower(item) == string.lower(t.name) or item == tostring(n)
 			//Nil prompt
