@@ -206,7 +206,7 @@ PR.TicFrame = do
 		t[2] = time
 	end
 
-	if server.PR_MobjsSpawned = nil then
+	if server.PR_MobjsSpawned == nil then
 		server.PR_MobjsSpawned = {}
 	end
 
