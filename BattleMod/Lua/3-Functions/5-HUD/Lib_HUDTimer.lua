@@ -43,26 +43,37 @@ local function GetTimer(player)
 	return tics
 end
 
-B.DrawTimer = function(v, player, cam, yoff)
+B.DrawTimer = function(v, player, cam, x, y, flags)
 	if not CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
 		or not hud.enabled("time")
 	then
 		return
 	end
-	local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
-	local x = 148
-	local y = 18+(yoff or 0)
-	v.draw(160,y+5,v.cachePatch("HUD_FADBAR"),V_HUDTRANSHALF|V_SNAPTOTOP|V_PERPLAYER|V_REVERSESUBTRACT)
+
+	v.draw(x+12,y+5,v.cachePatch("HUD_FADBAR"),(flags or 0)|V_REVERSESUBTRACT)
+
 	if B.MatchPoint == 2 then
 		local flash = TICRATE/2
 		if (leveltime/flash & 1) then
-			v.drawString(160, y, "FINAL", flags, "thin-center")
-			v.drawString(160, y+8, "SHOWDOWN!!", flags, "thin-center")
+			v.drawString(x+12, y, "FINAL", flags, "thin-center")
+			v.drawString(x+12, y+8, "SHOWDOWN!!", flags, "thin-center")
 		end
 		return
 	end
-	local p = displayplayer
-	local tics = GetTimer(player)
+
+	local hud = B.GametypeHUD[gametype] or {}
+	local timeproperties = hud.Timer or {}
+
+	local p = player or displayplayer
+	local tics
+
+	if timeproperties.gettimefunc then
+		tics = timeproperties.gettimefunc(p)
+	end
+	if tics == nil then
+		tics = GetTimer(p)
+	end
+
 	local mins = G_TicsToMinutes(tics)
 	local secs = G_TicsToSeconds(tics)
 	local cs = G_TicsToCentiseconds(tics)
@@ -88,9 +99,45 @@ B.DrawTimer = function(v, player, cam, yoff)
 end
 
 B.TimerHUD = function(v, player, cam)
-	B.DrawTimer(v, player, cam)
+	local hud = B.GametypeHUD[gametype] or {}
+	local timeproperties = hud.Timer or {}
+
+	if hud.enabled == false then return end -- code runs if its either nil or true
+
+	local timex = timeproperties.gamex
+	local timey = timeproperties.gamey
+	local timeflags = timeproperties.gameflags
+	local timefunc = timeproperties.gamefunc
+
+	if timex == nil then timex = 148 end
+	if timey == nil then timey = 18 end
+	if timeflags == nil then timeflags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER end
+	if timefunc == nil then timefunc = B.DrawTimer end
+
+	timefunc(v, player, cam, timex, timey, timeflags)
 end
 B.ScoresTimerHUD = function(v, cam)
 	if not multiplayer then return end
-	B.DrawTimer(v, consoleplayer, cam, -10)
+
+	local hud = B.GametypeHUD[gametype] or {}
+	local timeproperties = hud.Timer or {}
+
+	if hud.enabled == false then return end -- code runs if its either nil or true
+
+	local timex = timeproperties.scoresx
+	local timey = timeproperties.scoresy
+	local timeflags = timeproperties.scoresflags
+	local timefunc = timeproperties.scoresfunc
+
+	if timex == nil then timex = timeproperties.gamex end
+	if timey == nil then timey = timeproperties.gamey end
+	if timeflags == nil then timeflags = timeproperties.gameflags end
+	if timefunc == nil then timefunc = timeproperties.gamefunc end
+
+	if timex == nil then timex = 148 end
+	if timey == nil then timey = 8 end
+	if timeflags == nil then timeflags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER end
+	if timefunc == nil then timefunc = B.DrawTimer end
+
+	timefunc(v, player, cam, timex, timey, timeflags)
 end
