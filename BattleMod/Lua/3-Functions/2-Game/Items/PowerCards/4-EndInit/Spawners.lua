@@ -76,7 +76,18 @@ end
 //*** Spawning
 PR.SpawnOccupied = function(mapthing)
 	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
-	return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
+	-- return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
+
+	for key, data in ipairs(PR.MobjsSpawned) do
+		if data.mapthing == mapthing
+		and data.mobj
+		and data.mobj.valid
+		and data.mobj.state ~= S_NULL then
+			return true
+		end
+	end
+
+	return false
 end
 
 //*** Registering spawnpoints
@@ -195,10 +206,11 @@ PR.TicFrame = do
 		t[2] = time
 	end
 
-	for key, mobj in pairs(PR.MobjsSpawned) do
-		if not mobj or not mobj.valid then
-			// remove from table to prevent srb2 from yelling at us
-			PR.MobjsSpawned[key] = nil
+	for key = #PR.MobjsSpawned, 1, -1 do
+		local data = PR.MobjsSpawned[key]
+
+		if not (data.mobj and data.mobj.valid and data.mobj.state ~= S_NULL) then
+			table.remove(PR.MobjsSpawned, key)
 		end
 	end
 
@@ -233,7 +245,7 @@ PR.NetVars_Sync = function(network)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
-	// PR.MobjsSpawned  = network($)
+	PR.MobjsSpawned  = network($)
 end
 
 -- addHook("ThinkFrame", do

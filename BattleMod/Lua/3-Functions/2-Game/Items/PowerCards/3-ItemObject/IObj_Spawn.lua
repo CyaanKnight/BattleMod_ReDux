@@ -83,7 +83,10 @@ PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 	if not(mo and mo.valid) return end //Something prevented the item from spawning
 
 	//Add mobj to spawning table
-	PR.MobjsSpawned[#mapthing] = mo
+	table.insert(PR.MobjsSpawned, {
+		mobj = mo,
+		mapthing = mapthing
+	})
 
 	//Set orientation
 	if flip == -1
