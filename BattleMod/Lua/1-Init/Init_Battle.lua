@@ -7,6 +7,7 @@ local B = CBW_Battle
 B.NetVars = {}
 B.ControlPoint = {}
 B.Gametypes = {}
+B.GametypeHUD = {}
 B.Console = {}
 B.Action = {}
 B.PriorityFunction = {}
@@ -51,7 +52,10 @@ B.AddBattleGametype = function(tabl)
 		tabl.defaultstartrings = nil
 	end
 	G_AddGametype(tabl)
-	B.GametypeIDtoIdentifier[_G["GT_"..tabl.identifier:upper()]] = tabl.identifier:lower()
+	local id = _G["GT_"..tabl.identifier:upper()]
+
+	B.GametypeIDtoIdentifier[id] = tabl.identifier:lower()
+
 	local pointlimit
 	local timelimit
 	local hidetime
@@ -65,7 +69,7 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=999999999, ["None"]=0},
 		func = function(cv)
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
+			if gametype == id then
 				if (cv.value == 0) then
 					COM_BufInsertText(server, "pointlimit None")
 				else
@@ -87,7 +91,7 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=30, ["None"]=0},
 		func = function(cv)
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
+			if gametype == id then
 				if (cv.value == 0) then
 					COM_BufInsertText(server, "timelimit None")
 				else
@@ -109,7 +113,7 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=9999},
 		func = function(cv)
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
+			if gametype == id then
 				COM_BufInsertText(server, "hidetime "..cv.value)
 			end
 			if cv.value == cv.defaultvalue then return end
@@ -127,7 +131,7 @@ B.AddBattleGametype = function(tabl)
 		flags = CV_NETVAR|CV_CALL|CV_NOSHOWHELP,--|CV_NOINIT,
 		PossibleValue = {MIN=0, MAX=999},
 		func = function(cv)
-			if gametype == _G["GT_"..tabl.identifier:upper()] then
+			if gametype == id then
 				COM_BufInsertText(server, "battle_startrings "..cv.value)
 			end
 			if cv.value == cv.defaultvalue then return end
@@ -135,7 +139,10 @@ B.AddBattleGametype = function(tabl)
 		end
 	})
 
-
+	-- this is for modding battlemod hud elements through your own gametype, whether itd be replacing it completely or whatever
+	if tabl.hud ~= nil then
+		B.GametypeHUD[id] = tabl.hud
+	end
 
 	return pointlimit, timelimit, hidetime, startrings
 end
