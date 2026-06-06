@@ -249,7 +249,7 @@ PR.NetVars_Sync = function(network)
 	PR.SpawnPoints	 = network($)
 	PR.SpawnNumber	 = network($)
 	PR.Item_Chances  = network($)
-	PR.MobjsSpawned  = network($)
+	// PR.MobjsSpawned  = network($)
 end
 
 -- addHook("ThinkFrame", do
