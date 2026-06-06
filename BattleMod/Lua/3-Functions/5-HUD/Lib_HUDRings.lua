@@ -1,5 +1,6 @@
 local B = CBW_Battle
 local CV = B.Console
+local PR = CBW_PowerCards
 local TF_WHITE = 1
 local TF_YELLOW = 2
 local TF_RED = 3
@@ -141,6 +142,9 @@ B.RingsHUD = function(v, player, cam)
 
 	--Actions
 	local stunbreakallowed = B.StunBreakAllowed(player)
+	local gotcard = player.gotpowercard and player.gotpowercard.valid
+	local gotcard_debuff = gotcard and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF
+	local extra_icon = false
 	if stunbreakallowed then
 		local text = minimal_hud and "" or "Stun Break"
 		local cost = player.stunbreakcosttext
@@ -199,29 +203,42 @@ B.RingsHUD = function(v, player, cam)
 				text = (leveltime%2==0) and "\131"+text or "\139"+text
 			end
 			local tagguardcost = B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
-			if (text or tagguardcost) and not(player.gotflagdebuff) then
+			if ((text or tagguardcost) and not(player.gotflagdebuff)) or gotcard_debuff then
 				if player.actionstate then
 					text = "\x82" + text
 				else
-					if not B.CanDoAction(player) then
-						if tagguardcost then
-							text = "\x82"..(player.actionrings or "10")
-							v.draw(x-14,y + 14,v.cachePatch("PARRYBT"),flags)
-						else
-							text = "\x86" + text
+					if gotcard_debuff then
+						text = PR.Item[player.gotpowercard.item].name
+						if leveltime&4 then
+							text = "\x82"+$
 						end
-					end
-					if player.actionrings and not(player.actioncooldown) then
+						action_offsetx = $+8
+						action_offsety = $+1
+						extra_icon = v.cachePatch("CARDBT")
+					else
 						if not B.CanDoAction(player) then
-							if (CV.RequireRings.value and player.rings < player.actionrings) then
-								text = $ + "  \x85" + player.actionrings
+							if tagguardcost then
+								text = "\x82"..(player.actionrings or "10")
+								v.draw(x-14,y + 14,v.cachePatch("PARRYBT"),flags)
 							else
-								text = $ + "  " + player.actionrings
+								text = "\x86" + text
 							end
-						else
-							text = $ + "  \x82" + player.actionrings
+						end
+						if player.actionrings and not(player.actioncooldown) then
+							if not B.CanDoAction(player) then
+								if (CV.RequireRings.value and player.rings < player.actionrings) then
+									text = $ + "  \x85" + player.actionrings
+								else
+									text = $ + "  " + player.actionrings
+								end
+							else
+								text = $ + "  \x82" + player.actionrings
+							end
 						end
 					end
+				end
+				if extra_icon then
+					v.draw(x+15,y+2,extra_icon,flags)
 				end
 				if minimal_hud or tagguardcost then
 					v.drawString(x, y + 14, text, flags_hudtrans, "thin-center")
@@ -259,12 +276,13 @@ B.RingsHUD = function(v, player, cam)
 			v.drawString(x + icon_offset + action_offsetx, y-2 - (action_offsety*2)+yoff, text, flags_hudtrans, "thin")
 			--action_offsety = $ + action_offsety_line
 		end
-		if (player.gotflagdebuff) then
+		if (player.gotflagdebuff) and not(gotcard_debuff) then
 			local color = SKINCOLOR_WHITE
 			local iconflags = (flags or 0)
 			local icon_offsetx = 0
 			local icon_offsety = 0
 			patch = v.cachePatch("FLAGBT")
+
 			if B.RubyGametype() then
 				patch = v.cachePatch("RUBYBT")
 				color = nil

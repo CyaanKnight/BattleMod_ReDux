@@ -1,6 +1,9 @@
 local B = CBW_Battle
 local CV = B.Console
 local S = B.SkinVars
+local PR = CBW_PowerCards
+
+local PR = CBW_PowerCards
 
 local spendringwarning = false
 
@@ -63,6 +66,9 @@ B.MasterActionScript = function(player,doaction,type)
 		special = S[t].special_playerthink
 	end
 
+	local debuff_card = (player.gotpowercard and player.gotpowercard.valid and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF)
+
+
 	if special ~= nil then
 		special(mo,doaction)
 		--For custom characters
@@ -72,7 +78,7 @@ B.MasterActionScript = function(player,doaction,type)
 				B.Warning("player.spendrings is deprecated! Use CBW_Battle.PayRings(player)")
 			end
 			B.PayRings(player)
-		elseif (doaction == -1) then
+		elseif (doaction == -1) and not(debuff_card) then
 			S_StartSound(mo,sfx_s3k8c,player)
 		end
 	end
@@ -102,6 +108,7 @@ B.CanDoAction=function(player)
 	if player.gotflag then return false end
 	if player.gotcrystal then return false end
 	if player.isjettysyn then return false end
+	if player.gotpowercard and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF then return false end
 	return true
 end
 

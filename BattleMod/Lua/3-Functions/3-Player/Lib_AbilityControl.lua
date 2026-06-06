@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local S = B.SkinVars
 local CV = B.Console
+local PR = CBW_PowerCards
 
 B.CarryState = function(tails,passenger)
 	B.DebugPrint("Latching "..passenger.name.." onto "..tails.name,DF_PLAYER)
@@ -65,7 +66,7 @@ B.glide = function(player)
 		--Angle adjustment
 		if (mo.state == S_PLAY_SWIM) then
 			B.legacykill(player, 1)
-		elseif player.battleconfig_glidestrafe and B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
+		elseif B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
 			player.drawangle = player.mo.angle
 		end
 	end
@@ -482,7 +483,7 @@ B.CharAbilityControl = function(player)
 end
 
 B.MidAirAbilityAllowed = function(player)
-	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) then 
+	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) or (player.gotpowercard and PR and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF) then 
 		return false
 	else
 		return true

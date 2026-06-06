@@ -36,14 +36,22 @@ local colorsh = function(mo, redcol, bluecol)
 	if not (G_GametypeHasTeams() and target and target.valid and target.player and target.player.valid and target.player.ctfteam)
 		return
 	end
+
+	if (skincolor_redteam ~= SKINCOLOR_RED) then
+		redcol = skincolor_redteam
+	end
+
+	if (skincolor_blueteam ~= SKINCOLOR_BLUE) then
+		bluecol = skincolor_blueteam
+	end
 	
-	if (target.player.ctfteam == 1) then
-		mo.color = ((skincolor_redteam == SKINCOLOR_RED) and redcol) or skincolor_redteam
+	if (target.player.ctfteam == 1) and redcol then
+		mo.color = redcol
 		mo.colorized = true
 		return
 		
-	elseif (target.player.ctfteam == 2) then
-		mo.color = ((skincolor_blueteam == SKINCOLOR_BLUE) and bluecol) or skincolor_blueteam
+	elseif (target.player.ctfteam == 2) and bluecol then
+		mo.color = bluecol
 		mo.colorized = true
 		return
 	end
@@ -463,6 +471,9 @@ B.BattleTagPointers = function(mo)
 	local x = mo.tracer.x
 	local y = mo.tracer.y
 	local z = mo.tracer.z
+	if not(target and target.valid) and not(gotflag) then 
+		delete = true
+	end
 	if delete then
 		if mo.tracer and mo.tracer.valid and mo.tracer.player then
 			if mo.tracer.btagpointer2 == mo then
@@ -475,7 +486,6 @@ B.BattleTagPointers = function(mo)
 		P_RemoveMobj(mo)
 		return
 	end
-	if not(target and target.valid) and not(gotflag) then return end
 	local rx = target.x
 	local ry = target.y
 	local rz = target.z

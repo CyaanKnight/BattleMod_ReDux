@@ -942,7 +942,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local fail  = (hurt == -1)
 
 
-		if not(clash) then
+		if not(clash or fail) then
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
@@ -961,7 +961,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 					mo[n1].hummingtop_hit = nil
 					mo[n1].recurl_actionable = nil
 					mo[n1].air_recoilanim_override = nil
-					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+					--P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 				else
 					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 					mo[n1].hummingtop_hit = true

@@ -142,6 +142,7 @@ end
 B.CanShieldActive = function(player)
 	if not P_PlayerInPain(player)
 		and not player.gotflagdebuff
+		and not player.gotpowercard
 		and not (player.tossdelay == 2*TICRATE - 1)
 		and not player.isjettysyn
 		and not player.revenge
@@ -192,7 +193,7 @@ B.ShieldTossflagButton = function(player)
 
 	if B.ButtonCheck(player,shieldbutton) != 1 then
 		return
-	elseif not B.CanShieldActive(player) then
+	elseif not(B.CanShieldActive(player)) and not(player.justtossedflag) then
 		S_StartSound(nil, sfx_s3k8c, player)
 		return
 	end
@@ -232,7 +233,7 @@ B.ShieldTossflagButton = function(player)
 			player.shieldstock[#player.shieldstock+1] = temp
 			
 			S_StartSound(player.mo, sfx_shswap)
-		else
+		elseif not(player.justtossedflag) then
 			S_StartSound(nil, sfx_s3k8c, player)
 		end
 	end

@@ -43,6 +43,12 @@ B.Guard = function(player,buttonpressed)
 				mo.state = S_PLAY_FALL
 				mo.coyoteTime = 0
 			end
+			if player.tumble then
+				S_StopSoundByID(mo, sfx_cdfm39)
+				S_StartSound(mo, sfx_shattr)
+				local nega = P_SpawnMobjFromMobj(mo,0,0,0,MT_NEGASHIELD)
+				nega.target = mo
+			end
 			player.guard = 0
 		end
 		return
