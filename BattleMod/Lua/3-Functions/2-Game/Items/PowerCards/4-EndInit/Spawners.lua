@@ -13,7 +13,7 @@ PR.ResetAll = do
 	local max_time = FixedMul(cv_time*FRACUNIT,FRACUNIT+variance)/FRACUNIT
 	PR.Timer = P_RandomRange(min_time, max_time)
 	PR.SpawnPoints = {}
-	server.PR_MobjsSpawned = {}
+	if server and server.valid then server.PR_MobjsSpawned = {} end
 	PR.LocalSpawns = {}
 	PR.SpawnNumber = 1
 end
@@ -78,7 +78,7 @@ PR.SpawnOccupied = function(mapthing)
 	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
 	-- return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
 
-	for key, data in ipairs(PR.MobjsSpawned) do
+	for key, data in ipairs(server.PR_MobjsSpawned) do
 		if data.mapthing == mapthing
 		and data.mobj
 		and data.mobj.valid
