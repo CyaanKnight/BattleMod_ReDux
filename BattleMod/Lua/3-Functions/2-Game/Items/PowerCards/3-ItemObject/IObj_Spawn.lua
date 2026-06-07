@@ -119,6 +119,7 @@ PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 	//Apply additional properties
 	mo.state = item.state
 	mo.health = item.health
+	mo.name = item.name.." ".."card"
 	if not(func)
 		CBW_Battle.ZLaunch(mo,FRACUNIT*20,false)
 		if not(item.func_spawn(mo))
