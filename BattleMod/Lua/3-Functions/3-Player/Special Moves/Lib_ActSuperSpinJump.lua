@@ -207,7 +207,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				for n = 0, 360-step, step do
 					local angle = mo.angle+n*ANG1
 					local p = P_SPMAngle(mo,MT_GROUNDPOUND,angle,0)
-					if p and p.valid then
+					if not(p and p.valid) then continue end
+					pcall(do 
 						B.SafeRadiusIncrease(p, 48*FRACUNIT)
 						--p.tics = 11
 						p.spritexscale = FRACUNIT+(FRACUNIT/2)
@@ -215,7 +216,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 						p.spriteyoffset = -FRACUNIT*19
 						p.momz = 0
 						p.z = ((P_MobjFlip(mo)==-1 and (mo.z+mo.height)) or mo.z)+(P_MobjFlip(mo)*(mo.scale))
-					end
+					end)
 				end
 
 				/*Create damaging shockwave
