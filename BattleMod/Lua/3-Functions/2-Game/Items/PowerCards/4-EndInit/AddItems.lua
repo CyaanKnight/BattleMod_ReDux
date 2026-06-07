@@ -47,7 +47,7 @@ PR.AddItem = function(item)
 end
 
 //Check each tic for items in queue
-addHook("PostThinkFrame",do
+addHook("AddonLoaded", do
 	local count = 0
 	local Qu = CBW_PowerCardQueue
 	while Qu and #Qu
