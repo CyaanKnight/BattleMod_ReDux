@@ -58,9 +58,9 @@ PR.DebugHUD = function(v, player, cam)
 		v.drawString(xoffset,yoffset,string,flags,align)
 		yoffset = $+nextline
 	end
-	//****
+	--****
 	//Execute drawing
-	//****
+	--****
 	addspace()//Added spacing, in case of Arena HUD
 	addspace()
 	addheader("Power Rings")
@@ -74,9 +74,9 @@ PR.DebugHUD = function(v, player, cam)
 -- 	end
 	addspace()
 	subheader("Game")
-	addline("Spawn Points",#PR.SpawnPoints)
-	addline("Spawn #",PR.SpawnNumber)
-	addline("Timer",PR.Timer/TICRATE)
+	addline("Spawn Points",#server.PR_SpawnPoints)
+	addline("Spawn #",server.PR_SpawnNumber)
+	addline("Timer",server.PR_Timer/TICRATE)
 	
 	addspace()
 	if player.gotpowercard and player.gotpowercard.valid
@@ -85,7 +85,7 @@ PR.DebugHUD = function(v, player, cam)
 		subheader("Player Item")
 		addline("name",item.name)
 		addline("state",item.state)
-		addline("chance",PR.Item_Chances[item.index])
+		addline("chance",server.PR_Item_Chances[item.index])
 		addline("health",item.health)
 		addline("flags",item.flags)
 		addline("mapthing",item.mapthing)

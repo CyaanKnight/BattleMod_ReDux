@@ -8,7 +8,7 @@ local lerpamt = FRACUNIT>>3
 local spinspeed1 = FixedAngle(5<<FRACBITS)
 local spinspeed2 = FixedAngle(15<<FRACBITS)
 
-//*** Effects
+--*** Effects
 
 local DoSparkle = function(mo)
 	local range = mo.radius>>18
@@ -27,7 +27,7 @@ local ClaimingFX = function(mo)
 -- 	ghost.destscale = $<<1
 end
 
-//*** Thinkers
+--*** Thinkers
 
 -- local claimheight = 40
 local ClaimedThinker = function(mo)

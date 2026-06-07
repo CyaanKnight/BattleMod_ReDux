@@ -3,7 +3,7 @@
 */
 local PR = CBW_PowerCards
 
-//*** Enable/disable PowerCard system
+--*** Enable/disable PowerCard system
 PR.CV_Enabled = CV_RegisterVar{
 	name = "powercards_enabled",
 	defaultvalue = 1,
@@ -11,7 +11,7 @@ PR.CV_Enabled = CV_RegisterVar{
 	PossibleValue = {["Off"] = 0, ["On"] = 1, ["Force"] = 2}
 }
 
-//*** Toggle debug functionality
+--*** Toggle debug functionality
 PR.CV_Debug = CV_RegisterVar{
 	name = 'powercards_debug',
 	defaultvalue = 0,
@@ -19,7 +19,7 @@ PR.CV_Debug = CV_RegisterVar{
 	PossibleValue = CV_OnOff
 }
 
-//*** Adjust item spawn rate
+--*** Adjust item spawn rate
 PR.CV_RespawnTime = CV_RegisterVar{
 	name = "powercards_rate",
 	defaultvalue = 15,
@@ -27,16 +27,17 @@ PR.CV_RespawnTime = CV_RegisterVar{
 	PossibleValue = {MIN = 10, MAX = 999}
 }
 
-//*** Adjust item probabilities
+--*** Adjust item probabilities
 COM_AddCommand("powercards_chance",function(player,item,chance)
 	//Nil prompt
+	if not(server and server.PR_Initialized) then return end
 	if item == nil
 		if player == consoleplayer
 			//Show how it's done
 			print("powercards_chance <item name or #> <probability>")
 			//List all item probabilities
 			for n,t in ipairs(PR.Item)
-				print("#"..n.." "..t.name..": "..PR.Item_Chances[t.index])
+				print("#"..n.." "..t.name..": "..server.PR_Item_Chances[t.index])
 			end
 		end
 		return
@@ -53,9 +54,9 @@ COM_AddCommand("powercards_chance",function(player,item,chance)
 				return
 			end
 			//Set item to new probability
-			PR.Item_Chances[t.index] = max(tonumber(chance), -1)
+			server.PR_Item_Chances[t.index] = max(tonumber(chance), -1)
 			//Announce the new setting
-			print("Item #"..n.." "..t.name.." probability has been set to "..PR.Item_Chances[t.index])
+			print("Item #"..n.." "..t.name.." probability has been set to "..server.PR_Item_Chances[t.index])
 			return
 		end
 	end

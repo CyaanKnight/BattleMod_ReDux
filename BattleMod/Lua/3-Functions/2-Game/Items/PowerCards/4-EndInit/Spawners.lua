@@ -6,16 +6,18 @@
 local PR = CBW_PowerCards
 local variance = FRACUNIT*3/10
 
-//*** General Functions
+--*** General Functions
 PR.ResetAll = do
+	if not(server) then return end
+	if not(server.PR_Initialized) then return end
 	local cv_time = PR.CV_RespawnTime.value*TICRATE
 	local min_time = FixedMul(cv_time*FRACUNIT,FRACUNIT-variance)/FRACUNIT
 	local max_time = FixedMul(cv_time*FRACUNIT,FRACUNIT+variance)/FRACUNIT
-	PR.Timer = P_RandomRange(min_time, max_time)
-	PR.SpawnPoints = {}
-	if server and server.valid then server.PR_MobjsSpawned = {} end
-	PR.LocalSpawns = {}
-	PR.SpawnNumber = 1
+	server.PR_Timer = P_RandomRange(min_time, max_time)
+	server.PR_SpawnPoints = {}
+	server.PR_MobjsSpawned = {}
+	server.PR_LocalSpawns = {}
+	server.PR_SpawnNumber = 1
 end
 
 local shuffle = function(set)
@@ -33,31 +35,31 @@ local shuffle = function(set)
 end
 
 PR.ResetTimer = do
-	PR.Timer = PR.CV_RespawnTime.value*TICRATE
+	server.PR_Timer = PR.CV_RespawnTime.value*TICRATE
 	PR.DPrint("Timer reset to "..PR.CV_RespawnTime.value.." seconds")
 end
 
 
-//*** Spawnpoint access/cycling
+--*** Spawnpoint access/cycling
 PR.GetNextSpawnPoint = do
-	local n = PR.SpawnNumber
-	if n < #PR.SpawnPoints
-		PR.SpawnNumber = $+1
+	local n = server.PR_SpawnNumber
+	if n < #server.PR_SpawnPoints
+		server.PR_SpawnNumber = $+1
 	else
-		PR.SpawnNumber = 1
+		server.PR_SpawnNumber = 1
 	end
-	return PR.SpawnPoints[n]
+	return server.PR_SpawnPoints[n]
 end
 
 
-//*** Random
+--*** Random
 PR.GetProbabilities = function(whitelist,blacklist)
 	PR.DPrint("Getting probabilities: whitelist "..tostring(whitelist)..", blacklist "..tostring(blacklist))
 	local t = {}
 	for n,item in ipairs(PR.Item)
 		if (not(whitelist) or item.flags&whitelist)
 		and not(blacklist and item.flags&blacklist)
-			for i = 1,PR.Item_Chances[item.index]
+			for i = 1,server.PR_Item_Chances[item.index]
 				table.insert(t,n)
 			end
 		end
@@ -73,7 +75,7 @@ PR.GetRandomType = function(whitelist,blacklist)
 	return p[n]
 end
 
-//*** Spawning
+--*** Spawning
 PR.SpawnOccupied = function(mapthing)
 	-- return (mapthing.mobj and mapthing.mobj.valid and not(mapthing.mobj.state == S_NULL))
 	-- return PR.MobjsSpawned[#mapthing] and PR.MobjsSpawned[#mapthing].valid and PR.MobjsSpawned[#mapthing].state ~= NULL
@@ -90,7 +92,7 @@ PR.SpawnOccupied = function(mapthing)
 	return false
 end
 
-//*** Registering spawnpoints
+--*** Registering spawnpoints
 local mapthing_table = function(...)
 	local id = {}
 	//Specified mapthing search
@@ -112,14 +114,16 @@ PR.AddTypeSpawner = function(mobjtype,item)
 		thingnum = thingnum,
 		item = item
 	}
-	table.insert(PR.MapThing,t)
+	table.insert(server.PR_MapThing,t)
 end
 
 PR.MapLoadHook = function()
+	PR.Initialize()
+
 	for mapthing in mapthings.iterate
 		//Get spawner type
 		local item = nil
-		for n,t in ipairs(PR.MapThing)
+		for n,t in ipairs(server.PR_MapThing)
 			if t.thingnum == mapthing.type
 				item = t.item
 				break
@@ -129,20 +133,20 @@ PR.MapLoadHook = function()
 			continue
 		elseif PR.Item[item] //Specified items
 			if mapthing.options&MTF_EXTRA //Local timer
-			and PR.Item_Chances[item] != -1
-				table.insert(PR.LocalSpawns,{mapthing,0})
+			and server.PR_Item_Chances[item] != -1
+				table.insert(server.PR_LocalSpawns,{mapthing,0})
 			else //Global timer
-				for n = 1, PR.Item_Chances[item]
-					table.insert(PR.SpawnPoints,mapthing)
+				for n = 1, server.PR_Item_Chances[item]
+					table.insert(server.PR_SpawnPoints,mapthing)
 				end
 			end
 			//Store Item type as mapthing.angle
 			mapthing.angle = item
 		else //Random items
 			if mapthing.options&MTF_EXTRA //Local timer
-				table.insert(PR.LocalSpawns,{mapthing,0})
+				table.insert(server.PR_LocalSpawns,{mapthing,0})
 			else //Global timer
-				table.insert(PR.SpawnPoints,mapthing)
+				table.insert(server.PR_SpawnPoints,mapthing)
 			end
 			//Item type is "random"
 			mapthing.angle = 0
@@ -153,14 +157,14 @@ end
 
 
 PR.GetSpawnPoints = do
-	if #PR.SpawnPoints != 0 then
-		PR.SpawnPoints = shuffle($)
+	if #server.PR_SpawnPoints != 0 then
+		server.PR_SpawnPoints = shuffle($)
 		return //Already have IDs? Don't need to generate more.
 	end
 	local n = 1
 	PR.DPrint("Getting spawnpoints for power rings")
 	//Main spawns
-	local id = PR.SpawnPoints
+	local id = server.PR_SpawnPoints
 	//Secondary spawns
 	if #id == 0
 		PR.DPrint("No primary spawnpoints found, searching match emerald spawns")
@@ -176,21 +180,22 @@ PR.GetSpawnPoints = do
 		PR.DPrint("No multiplayer starts found, searching for player 1 starts")
 		id = mapthing_table(1)
 	end
-	PR.SpawnPoints = shuffle(id) //Shuffle
-	PR.SpawnNumber = 1 //Set Position
+	server.PR_SpawnPoints = shuffle(id) //Shuffle
+	server.PR_SpawnNumber = 1 //Set Position
 	PR.ResetTimer() //Reset timer
 end
 
-//*** Ticframe
+--*** Ticframe
 PR.TicFrame = do
+	PR.Initialize()
 	local B = CBW_Battle
 	local A = B.Arena
-	if #PR.SpawnPoints == 0
+	if #server.PR_SpawnPoints == 0
 	or B.SuddenDeath
 	or not(((PR.CV_Enabled.value==1) and B.PowerCardsGametype()) or PR.CV_Enabled.value==2)
 	return end
 	//Local timers
-	for n,t in ipairs(PR.LocalSpawns)
+	for n,t in ipairs(server.PR_LocalSpawns)
 		local mapthing = t[1]
 		local time = t[2]
 		if PR.SpawnOccupied(mapthing)
@@ -220,18 +225,42 @@ PR.TicFrame = do
 
 	//Global timer
 	if B.PreRoundWait() return end
-	PR.Timer = $-1
-	if PR.Timer <= 0
+	server.PR_Timer = $-1
+	if server.PR_Timer <= 0
 		PR.ResetTimer()
 		PR.SpawnItem()
 	end
 end
 
+local vars = {
+	"PR_SpawnPoints",
+	"PR_Item_Chances",
+	"PR_MobjsSpawned",
+	"PR_MapThing",
+	"PR_LocalSpawns"
+}
 
-//*** Initialize variables
-PR.ResetAll()
 
-PR.AddTypeSpawner(MT_POWERCARDSPAWN_RANDOM)
+--*** Initialize variables
+PR.Initialize = do
+	if not(server) then return end
+	if server.PR_Initialized then return end
+	server.PR_Timer = PR.CV_RespawnTime.value*TICRATE
+	server.PR_SpawnNumber = 1
+	for i = 1, #vars do
+		server[vars[i]] = {}
+	end
+	for i = 1, #PR.Item do
+		local card = PR.Item[i]
+		if (server.PR_Item_Chances[card.index]==nil) then
+			server.PR_Item_Chances[card.index] = card.chance
+		end
+	end
+	PR.ResetAll()
+
+	PR.AddTypeSpawner(MT_POWERCARDSPAWN_RANDOM)
+	server.PR_Initialized = true
+end
 
 local test = {1, 2, 3}
 COM_AddCommand("testtable", function()
@@ -244,12 +273,12 @@ end)
 PR.NetVars_Sync = function(network)
 	--Power Cards
 	--test = network($)
-	PR.MapThing      = network($)
-	PR.Timer		 = network($)
-	PR.SpawnPoints	 = network($)
-	PR.SpawnNumber	 = network($)
-	PR.Item_Chances  = network($)
-	// PR.MobjsSpawned  = network($)
+	--server.PR_Timer      = network($)
+	--server.PR_Timer		 = network($)
+	--server.PR_SpawnPoints	 = network($)
+	--server.PR_SpawnNumber	 = network($)
+	--PR.Item_Chances  = network($)
+	--PR.MobjsSpawned  = network($)
 end
 
 -- addHook("ThinkFrame", do
@@ -262,8 +291,8 @@ end
 -- 	end
 -- 	print("After:")
 -- 	print("    "..#test)
--- 	print("    "..PR.Timer)
--- 	print("    "..#PR.SpawnPoints)
--- 	print("    "..PR.SpawnNumber)
+-- 	print("    "..server.PR_Timer)
+-- 	print("    "..#server.PR_SpawnPoints)
+-- 	print("    "..server.PR_SpawnNumber)
 -- 	print("    "..tablelen(PR.Item_Chances))
 -- end)

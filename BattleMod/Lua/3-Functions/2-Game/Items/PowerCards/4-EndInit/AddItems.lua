@@ -36,7 +36,12 @@ PR.AddItem = function(item)
 	item.func_drop 		= check($, "function", dofalse)
 	item.func_expire	= check($, "function", dofalse)
 	table.insert(PR.Item,item)
-	PR.Item_Chances[_index] = item.chance
+	if server then
+		if server.PR_Item_Chances == nil then
+			server.PR_Item_Chances = {}
+		end
+		server.PR_Item_Chances[_index] = item.chance
+	end
 	print("\x84".."Added item"..#PR.Item..": "..tostring(item.name))
 	return #PR.Item
 end

@@ -16,7 +16,7 @@ PR.SpawnItem = function(itemnum, mapthing, func, rogue)
 		server.PR_MobjsSpawned = {}
 	end
 	if mapthing == nil //Global spawn
-		local retry = #PR.SpawnPoints
+		local retry = #server.PR_SpawnPoints
 		while retry > 0
 			mapthing = PR.GetNextSpawnPoint()
 			if PR.SpawnOccupied(mapthing) and not(rogue) //No vacancy

@@ -3,17 +3,15 @@
 	Handles SOC definitions and global namespace info
 */
 
-//*** Global namespace
+--*** Global namespace
 rawset(_G,"CBW_PowerCards", {})
 local PR = CBW_PowerCards
 PR.Item = {}
-PR.Item_Chances = {}
-PR.MapThing = {}
 if not(CBW_PowerCardQueue)
 	rawset(_G,'CBW_PowerCardQueue', {})
 end
 
-//*** Power Card Flag constants
+--*** Power Card Flag constants
 local c = 0
 local function pcf(str)
 	str = "PCF_"..string.upper($)
@@ -33,7 +31,7 @@ pcf('container')
 pcf('event')
 pcf('fixedspawn')
 
-//*** SOC info
+--*** SOC info
 //Sprites
 freeslot('spr_card')
 //States
@@ -60,7 +58,7 @@ states[S_POWERCARD_PARTICLES] 	= {sprite = SPR_CARD, frame = H|FF_PAPERSPRITE|FF
 states[S_POWERCARD_MELTDOWN] 	= {sprite = SPR_CARD, frame = I|FF_PAPERSPRITE|FF_FULLBRIGHT}
 states[S_POWERCARD_SPITE] 		= {sprite = SPR_CARD, frame = J|FF_PAPERSPRITE|FF_FULLBRIGHT}
 
-//*** Power Card object
+--*** Power Card object
 freeslot("MT_POWERCARD")
 mobjinfo[MT_POWERCARD] = {
         doomednum = -1,
@@ -95,7 +93,7 @@ mobjinfo[MT_POWERCARDDEATHPROP] = {
         raisestate = S_NULL
 }
 
-//*** Dedicated Map Spawns
+--*** Dedicated Map Spawns
 freeslot("MT_POWERCARDSPAWN_RANDOM")
 mobjinfo[MT_POWERCARDSPAWN_RANDOM] = {
 		//$Name "Power Card (Random)"
@@ -204,7 +202,7 @@ mobjinfo[MT_POWERCARDSPAWN_BLESSING] = {
         flags = MF_NOTHINK|MF_NOSECTOR|MF_NOBLOCKMAP,
 }
 
-//*** Sound effects
+--*** Sound effects
 freeslot("sfx_itmspn", "sfx_ssbbmp", "sfx_ssbshk", "sfx_elctrc", "sfx_ebufo", "sfx_pixied")
 //To-do: SFX info
 
