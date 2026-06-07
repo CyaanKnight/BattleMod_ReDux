@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local G = B.Gametypes
 local CV = B.Console
 local S = B.SkinVars
 local grace = 3*TICRATE
@@ -57,8 +58,13 @@ local Prevention = function(p)
 		end
 	end
 
-	--// for everry tic...
-	p.mo.realskin = p.mo.skin --// ..set skin
+	--// for everry tic SkinLock is on...
+	if G.SkinLock[gametype] then
+		p.mo.realskin = p.mo.skin --// ..set skin
+	else
+		p.mo.realskin = nil --// otherwise set to NIL
+	end
+
 	p.waspectator = false     --// ..reset this variable
 	p.wasactionstate = false
 	if doSpectate and G_GametypeHasSpectators() then
