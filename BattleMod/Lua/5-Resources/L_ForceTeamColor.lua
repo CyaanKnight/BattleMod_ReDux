@@ -22,6 +22,9 @@ addHook("ThinkFrame", do
             local color = ({skincolor_redteam, skincolor_blueteam})[player.ctfteam]
 
             player.skincolor = color
+            if player.realmo and player.realmo.valid then
+                player.realmo.color = color
+            end
         end
 
     elseif not(applied_all_stored) then
