@@ -235,6 +235,8 @@ B.DoPlayerInteract = function(smo,tmo)
 	end
 	
 	//Custom character collision functions
+	local team_interaction = (mo[s].cantouchteam or mo[t].cantouchteam) and B.MyTeam(plr[s], plr[t])
+
 	//PRECOLLIDE
 	local defaultfunc = S[-1].func_precollide
 	if plr[s]
@@ -242,7 +244,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[t].cantouchteam)
 			func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
@@ -251,7 +253,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[s].cantouchteam)
 			func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
@@ -267,7 +269,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[t].cantouchteam)
 			op1 = func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
@@ -276,11 +278,11 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[s].cantouchteam)
 			op2 = func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
-	local override_physics = (op1 or op2)
+	local override_physics = (op1 or op2) or team_interaction
 	
 	if not override_physics
 		local function applythrust(n1,n2)
@@ -364,7 +366,7 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[t].cantouchteam)
 			op1 = func(s,t,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
@@ -373,12 +375,12 @@ B.DoPlayerInteract = function(smo,tmo)
 		if not func
 			func = defaultfunc
 		end
-		if func
+		if func and not (team_interaction and mo[s].cantouchteam)
 			op2 = func(t,s,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 		end
 	end
 	local override_fx = (op1 or op2)
-	if override_fx
+	if override_fx or team_interaction
 		return
 	end
 	

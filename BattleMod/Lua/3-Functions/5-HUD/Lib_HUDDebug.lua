@@ -324,7 +324,8 @@ B.DebugHUD = function(v, player, cam)
 			subheader("PLAYER.MO")
 			addline("Pushed_last",player.mo.pushed_last)
 			addline("Pushtics",player.mo.pushtics)
-			addline("Weight",player.mo.weight*100/FRACUNIT.."%")
+			addline("Weight",(player.mo.weight or 0)*100/FRACUNIT.."%")
+			addline("CanTouchTeam",player.mo.cantouchteam)
 		end
 		local T = B.TrainingDummy
 		if T and T.valid then
