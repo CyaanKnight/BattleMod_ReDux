@@ -24,8 +24,16 @@ PR.AddItem = function(item)
 	item.mapthing = check($,"number",-1)
 
 	//Add mapthing spawner
-	if item.mapthing != -1
-		PR.AddTypeSpawner(item.mapthing, _index)
+	if pcall(do return server.PR_Initialized end) then
+		if server and server.PR_Initialized then
+			if server.PR_Item_Chances == nil then
+				server.PR_Item_Chances = {}
+			end
+			server.PR_Item_Chances[_index] = item.chance
+			if item.mapthing != -1
+				PR.AddTypeSpawner(item.mapthing, _index)
+			end
+		end
 	end
 
 	//Functions
@@ -36,12 +44,6 @@ PR.AddItem = function(item)
 	item.func_drop 		= check($, "function", dofalse)
 	item.func_expire	= check($, "function", dofalse)
 	table.insert(PR.Item,item)
-	if server then
-		if server.PR_Item_Chances == nil then
-			server.PR_Item_Chances = {}
-		end
-		server.PR_Item_Chances[_index] = item.chance
-	end
 	print("\x84".."Added item"..#PR.Item..": "..tostring(item.name))
 	return #PR.Item
 end

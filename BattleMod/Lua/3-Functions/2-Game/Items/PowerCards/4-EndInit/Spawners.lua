@@ -118,6 +118,7 @@ PR.AddTypeSpawner = function(mobjtype,item)
 end
 
 PR.MapLoadHook = function()
+	if titlemapinaction then return end
 	PR.Initialize()
 
 	for mapthing in mapthings.iterate
@@ -157,6 +158,7 @@ end
 
 
 PR.GetSpawnPoints = do
+	if titlemapinaction then return end
 	if #server.PR_SpawnPoints != 0 then
 		server.PR_SpawnPoints = shuffle($)
 		return //Already have IDs? Don't need to generate more.
@@ -187,6 +189,8 @@ end
 
 --*** Ticframe
 PR.TicFrame = do
+	if gamestate ~= GS_LEVEL then return end
+	if titlemapinaction then return end
 	PR.Initialize()
 	local B = CBW_Battle
 	local A = B.Arena
@@ -255,6 +259,7 @@ PR.Initialize = do
 		if (server.PR_Item_Chances[card.index]==nil) then
 			server.PR_Item_Chances[card.index] = card.chance
 		end
+		PR.AddTypeSpawner(card.mapthing, card._index)
 	end
 	PR.ResetAll()
 
@@ -280,6 +285,7 @@ PR.NetVars_Sync = function(network)
 	--PR.Item_Chances  = network($)
 	--PR.MobjsSpawned  = network($)
 end
+
 
 -- addHook("ThinkFrame", do
 -- 	local function tablelen(tabl)
