@@ -69,7 +69,6 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 		if not B.MyTeam(plr[n1], plr[n2])
 			plr[n2].customstunbreaktics = 5
 			plr[n2].customstunbreakcost = 35
-			plr[n2].airdodge = -1
 			B.ApplyCooldown(plr[n1], cooldown_dash)
 		else
 			plr[n1].actioncooldown = cooldown_cancel
@@ -148,7 +147,6 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 	strugglerings = $ or 5
 	struggletime = $ or TICRATE/3 -- player can only struggle again after this time is over
 	otherplayer.strugglerings = -strugglerings --for hud... lmao...
-	otherplayer.airdodge = -1
 	otherplayer.jumpstasistimer = 2 -- because giving PF_JUMPSTASIS doesnt work apparently
 	otherplayer.landlag = otherplayer.powers[pw_nocontrol]
 	local pressed = (otherplayer.realbuttons & BT_JUMP)
