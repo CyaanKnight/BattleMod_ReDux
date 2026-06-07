@@ -68,7 +68,7 @@ local resetdashmode = function(p)
 	p.dashmode = 0
 	p.normalspeed = skins[myskin].normalspeed
 	--p.jumpfactor = skins[myskin].jumpfactor
-	p.runspeed = skins[myskin].runspeed
+	--p.runspeed = skins[myskin].runspeed
 	--print(p.jumpfactor)
 end
 
@@ -249,12 +249,6 @@ local resetRingSpark = function(mo, player)
 	B.ApplyCooldown(player,cooldown_ringspark)
 	resetvars(mo)
 	mo.ringsparkclock = 0
-	player.runspeed = skins[mo.skin].runspeed
-	if not(skins[mo.skin].flags & SF_NOSKID) then
-		player.charflags = $ & ~(SF_NOSKID)
-	end
-	mo.frame = 0
-	mo.sprite = SPR_PLAY
 	mo.state = (P_IsObjectOnGround(mo) and S_PLAY_STND) or S_PLAY_SPRING
 	--player.shieldscale = skins[player.mo.skin].shieldscale
 	mo.metalsonic_stickyangle = nil
@@ -559,8 +553,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		player.canguard = false
 		
 		--mo.state = S_PLAY_WALK
-		player.charflags = ($|SF_NOSKID)
-		player.runspeed = 0
+		--player.charflags = ($|SF_NOSKID)
+		--player.runspeed = 0
 
 		if mo.state ~= S_METALSONIC_RINGSPARK1 then
 			mo.state = S_METALSONIC_RINGSPARK1
@@ -598,7 +592,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		end
 
 		player.skidtime = 0
-		player.charflags = ($|SF_NOSKID)
+		player.pflags = $ & ~PF_APPLYAUTOBRAKE
 
 		player.speed = min($, FRACUNIT*10)
 	
@@ -610,7 +604,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 				player.airdodge = -1
 				player.canguard = false
 			end
-			player.runspeed = 0
+			--player.runspeed = 0
 			
 			--mo.sprite2 = SPR2_RUN_
 			--B.DrawSVSprite(player, 1+(player.actiontime/2)%2)
@@ -824,13 +818,6 @@ local function MetalActionSuper(player)
 	resetdashmode(player)
 	B.ResetPlayerProperties(player,(player.pflags & PF_JUMPED),(player.pflags & PF_THOKKED))
 	mo.ringsparkclock = 0
-	player.runspeed = skins[mo.skin].runspeed
-	if not(skins[mo.skin].flags & SF_NOSKID) then
-		player.charflags = $ & ~(SF_NOSKID)
-	end
-	mo.frame = 0
-	mo.sprite = SPR_PLAY
-	--player.powers[pw_strong] = $ & ~(STR_ATTACK)
 end
 
 B.Action.EnergyAttack_Priority = function(player)
@@ -841,8 +828,17 @@ B.Action.EnergyAttack_Priority = function(player)
 		B.SetPriority(player,3,1,nil,3,1,"dash slicer")
 	end
 
+	if player.actionstate == state_ringsparkprep then
+		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
+			MetalActionSuper(player)
+		end
+	end
+
 	
 	if player.actionstate == state_ringspark then
+		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
+			MetalActionSuper(player)
+		end
 		B.SetPriority(player,2,2,nil,2,2,"ring spark field") --Hatin'
 	end
 end
