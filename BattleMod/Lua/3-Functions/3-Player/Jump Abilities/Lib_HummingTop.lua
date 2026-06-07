@@ -918,23 +918,25 @@ end--, MT_PLAYER)
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
 
-		if not(mo[n1].hummingtop_marker) then
-			mo[n1].hummingtop_marker = {}
-		end
+		
+		mo[n1].hummingtop_marker = {}
+		mo[n1].hummingtop_hit = nil
+		mo[n1].recurl_actionable = nil
+		mo[n1].air_recoilanim_override = nil
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
 		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
-			if not(mo[n1].hummingtop_marker) then
-				mo[n1].hummingtop_marker = {}
-			end
 			mo[n1].hummingtop_marker.beyblade = true
 		end	
 	end
 end
 
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1] and mo[n1].valid and mo[n1].hummingtop_marker then
+	if plr[n1] and mo[n1] and mo[n1].valid then
+		print(hurt)
+	end
+	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_marker~=nil) then
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
@@ -947,11 +949,11 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local fail  = (hurt == -1)
 
 
-		if not(clash or fail) then
+		if not(clash) then
 			--Thrust sonic away
 			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-			if hit then
+			if hit or fail then
 				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
@@ -959,6 +961,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].recoilthrust = nil
 				mo[n1].recoilangle = nil
 				plr[n1].powers[pw_nocontrol] = 0
+				print(true)
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			elseif bump then
 				if (plr[n2]) and not(beyblade) then
