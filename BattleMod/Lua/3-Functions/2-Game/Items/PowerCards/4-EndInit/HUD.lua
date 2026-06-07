@@ -10,7 +10,7 @@ local B = CBW_Battle
 local PR = CBW_PowerCards
 
 local newhud_offset = 20
-local bar_offset = 20
+local bar_offset = -8
 
 PR.ItemHUD = function(v, player, cam)
 	if player.playerstate != PST_LIVE
@@ -42,8 +42,8 @@ PR.ItemHUD = function(v, player, cam)
 	local scale = FRACUNIT>>2
 	v.drawScaled(xoffset*FRACUNIT,(yoffset+6)*FRACUNIT,scale,patch,flags)
 	//Draw health
-	v.drawFill(xoffset+12,yoffset+bar_offset,32,6)
-	v.drawFill(xoffset+12,yoffset+bar_offset,32*card.health/item.health,6,0)
+	v.drawFill(xoffset+12,yoffset+bar_offset,32,6, 31|flags)
+	v.drawFill(xoffset+12,yoffset+bar_offset,(32*card.health/item.health),6,0|flags)
 	if PR.CV_Debug.value
 		v.drawString(xoffset-16,yoffset-18,"HP: "..card.health.."/"..item.health,V_HUDTRANSHALF|V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_PERPLAYER,align)		
 	end
