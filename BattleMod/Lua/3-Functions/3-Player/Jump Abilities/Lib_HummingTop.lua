@@ -203,7 +203,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.hummingtop_overlay.scale = (player.mo.scale) + (player.mo.scale)/2
 		--player.mo.hummingtop_overlay.colorized = G_GametypeHasTeams()
 		player.mo.hummingtop_overlay.color = windcolor(player)
-		player.mo.state = S_SONIC_HUMMINGTOP
+		player.mo.state = S_PLAY_FALL
 		player.canguard = false
 		
 		/*player.mo.hummingtop_arrow = P_SpawnMobj(player.mo.x+cos(player.mo.hummingtop_angle)*ARROW_DIST, player.mo.y+sin(player.mo.hummingtop_angle)*ARROW_DIST, getMiddle(player.mo, mobjinfo[MT_DUST].height), MT_DUST)
@@ -274,7 +274,7 @@ function B.HummingTop_MainHook(player)
 		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
 
 
-		if flag or tumble or airdodge or carry or knux_grabbed or (humming and mo.state ~= S_SONIC_HUMMINGTOP) then
+		if flag or tumble or airdodge or carry or knux_grabbed then
 			if humming then
 				cancelHummingTop(player, false, player.gotflagdebuff)
 				cancelDropDash(player.mo)
@@ -918,7 +918,9 @@ end--, MT_PLAYER)
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
 
-		mo[n1].hummingtop_marker = {}
+		if not(mo[n1].hummingtop_marker) then
+			mo[n1].hummingtop_marker = {}
+		end
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
@@ -1000,8 +1002,6 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 							mo[n1].hummingtop_beyblade_pick = true
 							mo[n2].hummingtop_beyblade_pick = true
 						end
-
-						mo[n1].hummingtop_marker = nil
 					end
 				end
 			end
