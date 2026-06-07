@@ -95,6 +95,8 @@ S["metalsonic"] = {
 	special = Act.EnergyAttack,
 	guard_frame = 2,
 	func_priority_ext = Act.EnergyAttack_Priority,
+	func_precollide = B.MetalSonic_PreCollide,
+	func_postcollide = B.MetalSonic_PostCollide,
 	sprites = {
 		S_METALSONIC_RINGSPARK1,
 		S_METALSONIC_RINGSPARK2

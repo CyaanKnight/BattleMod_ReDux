@@ -840,23 +840,27 @@ B.Action.EnergyAttack_Priority = function(player)
 	if player.actionstate == state_dashslicer then
 		B.SetPriority(player,3,1,nil,3,1,"dash slicer")
 	end
-	
-	if player.actionstate == state_ringsparkprep then
-		--Vulnerable, but can't just be bump cancelled
-		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
-			MetalActionSuper(player)
-		else
-			player.actionsuper = true
-		end
-	end
+
 	
 	if player.actionstate == state_ringspark then
-		--Bump blockable projectiles
-		if player.tumble or P_PlayerInPain(player) or player.powers[pw_carry] or player.mo.eflags & MFE_SPRUNG then
-			MetalActionSuper(player)
-		else
-			player.actionsuper = true
-			B.SetPriority(player,2,2,nil,2,2,"ring spark field") --Hatin'
+		B.SetPriority(player,2,2,nil,2,2,"ring spark field") --Hatin'
+	end
+end
+
+function B.MetalSonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and mo[n1] and mo[n1].valid and plr[n1].actionstate == state_ringspark then
+		mo[n1].ringspark_marker = true
+	end
+end
+
+function B.MetalSonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if mo[n1] and mo[n1].valid and mo[n1].ringspark_marker then
+		mo[n1].ringspark_marker = nil
+		if (hurt==0) then
+			mo[n1].recoilanim_override = true
+			mo[n1].recoilthrust = nil
+			mo[n1].recoilangle = nil
+			plr[n1].powers[pw_nocontrol] = min($, 1)
 		end
 	end
 end
