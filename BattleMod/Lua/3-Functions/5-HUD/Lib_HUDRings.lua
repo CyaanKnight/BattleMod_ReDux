@@ -216,13 +216,11 @@ B.RingsHUD = function(v, player, cam)
 						action_offsety = $+1
 						extra_icon = v.cachePatch("CARDBT")
 					else
-						if not B.CanDoAction(player) then
-							if tagguardcost then
-								text = "\x82"..(player.actionrings or "10")
-								v.draw(x-14,y + 14,v.cachePatch("PARRYBT"),flags)
-							else
-								text = "\x86" + text
-							end
+						if tagguardcost then
+							text = "\x82"..(player.actionrings or "10")
+							v.draw(x-14,y + 14,v.cachePatch("PARRYBT"),flags)
+						else
+							text = "\x86" + text
 						end
 						if player.actionrings and not(player.actioncooldown) then
 							if not B.CanDoAction(player) then
