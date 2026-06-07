@@ -153,6 +153,19 @@ B.weight = function(player)
 	end
 	
 	player.mo.weight = FRACUNIT*w/100
+
+	local tracer = player.mo.tracer
+	if (tracer and tracer.valid and player.powers[pw_carry] == CR_PLAYER) then
+		local tails = tracer.player
+		if player.gotflagdebuff then
+			local exhaustcap = (FRACUNIT*2) - (player.mo.weight/2) --200% minus 1/2 of the weight
+			tails.exhaustmeter = min($,exhaustcap)
+		end
+		if FixedHypot(tracer.momx, tracer.momy) > 24*tracer.scale then
+			tracer.momx = $ * 99/(99+(w/TICRATE))
+			tracer.momy = $ * 99/(99+(w/TICRATE))
+		end
+	end
 end
 
 B.exhaust = function(player)
