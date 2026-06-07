@@ -958,7 +958,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].recoilthrust = nil
 				mo[n1].recoilangle = nil
 				plr[n1].powers[pw_nocontrol] = 0
-				print(true)
+				--print(true)
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			elseif bump then
 				if (plr[n2]) and not(beyblade) then
