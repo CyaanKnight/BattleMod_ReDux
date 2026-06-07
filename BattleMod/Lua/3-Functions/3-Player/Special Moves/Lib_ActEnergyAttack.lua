@@ -405,7 +405,6 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	
 	//Start charging blast
 	if chargetrigger
-		B.PayRings(player,player.actionrings)
 		--S_StartSound(mo, sfx_bechrg)
 		player.actionstate = state_charging
 		player.actiontime = 0
@@ -497,6 +496,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	//Release blast
 	//Release blast
 	if (blasttrigger) then
+		B.PayRings(player,player.actionrings)
 		mo.state = $
 		 --blast
 		mo.energyattack_chargebuffer = blastbuffer --set buffer
@@ -679,6 +679,8 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	--All I have done is remapped dash slicer to jump, and make it drain 5 rings when used for a total of 10 rings
 	if slashtrigger then
 		--Next state
+
+		B.PayRings(player,player.actionrings)
 		player.exhaustmeter = FRACUNIT
 		player.actionstate = state_dashslicerprep
 		if player.actiontime >= threshold2
