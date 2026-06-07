@@ -933,9 +933,6 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 end
 
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1] and mo[n1].valid then
-		print(hurt)
-	end
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_marker~=nil) then
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
