@@ -182,7 +182,9 @@ addHook("MobjSpawn",function(mo)
 end,MT_SONICBOOM)
 
 addHook("MobjMoveCollide",function(mover,collide)
-	if collide.flags & MF_MONITOR and B.ZCollide(mover, collide) then
+	if ((collide.flags & MF_MONITOR) or (collide.flags & MF_ENEMY) or (collide.flags & MF_BOSS))
+	and B.ZCollide(mover, collide)
+	then
 		slasheffect(collide)
 		P_DamageMobj(collide, mover, mover.target)
 	end
