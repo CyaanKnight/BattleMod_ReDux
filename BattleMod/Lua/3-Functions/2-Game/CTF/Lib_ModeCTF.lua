@@ -31,6 +31,8 @@ F.NOTICE_TIME = TICRATE*3 -- TODO: uhh.. make it a local variable probably lol
 F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
 F.DC_ColorSwitch = true -- When true flips color text to red, when false flips to white. Used to create a flickering effect
 
+
+
 F.TrackRed = function(mo)
 	F.RedFlag = mo
 end
@@ -1086,7 +1088,9 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				icon.flag.frame = ((blue and 2) or 3)|FF_FULLBRIGHT
 				icon.flag.color = info.flagcolor or info.skincolor
 				icon.flag.scale = icon.scale
+				F.ApplyFlip(pmo, icon.flag)
 			end
+			F.ApplyFlip(pmo, icon)
 			P_MoveOrigin(pmo.flag_indicator.flag, pmo.x,pmo.y,pmo.z+zoffset)
 		end
 
