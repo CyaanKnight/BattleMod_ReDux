@@ -3,7 +3,7 @@ local state_sweep = 1
 local state_dash = 2
 local state_charging = 3
 local state_didthrow = 4
-local cooldown_sweep = TICRATE*7/5 --1.4s
+local cooldown_sweep = TICRATE*2
 local cooldown_dash = TICRATE*2
 local cooldown_throw = cooldown_dash
 local cooldown_cancel = TICRATE*2/3 --0.66s
@@ -421,10 +421,6 @@ B.Action.TailSwipe = function(mo,doaction)
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
 		player.pflags = ($|PF_SPINDOWN|PF_NOJUMPDAMAGE)&~(PF_THOKKED)
-		--player.actionsuper = true
-		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
-			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
-		end
 		if leveltime%6 == 0 then
 			//post vfx
 			local g = P_SpawnGhostMobj(player.mo)
@@ -482,9 +478,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			local actualcharge = min(threshold2, player.actiontime)
 			P_Thrust(mo, B.GetInputAngle(player), actualcharge*mo.scale*2/3)
 		end
-		if player.cmd.buttons & BT_JUMP and not P_IsObjectOnGround(mo) then
-			P_SetObjectMomZ(mo,max(mo.scale*5,abs(mo.momz)),false)
-		end
+		mo.momz = 0
 		player.actiontime = 0
 
 		--Effects
