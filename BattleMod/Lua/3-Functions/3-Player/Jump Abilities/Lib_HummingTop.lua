@@ -49,19 +49,6 @@ end
 local state_startup = 1
 local state_spinning = 2
 
-local applyFlip = function(mo1, mo2)
-	if mo1.eflags & MFE_VERTICALFLIP then
-		mo2.eflags = $|MFE_VERTICALFLIP
-	else
-		mo2.eflags = $ & ~MFE_VERTICALFLIP
-	end
-	
-	if mo1.flags2 & MF2_OBJECTFLIP then
-		mo2.flags2 = $|MF2_OBJECTFLIP
-	else
-		mo2.flags2 = $ & ~MF2_OBJECTFLIP
-	end
-end
 
 local getMiddle = function(ref, mo_height)
 	if P_MobjFlip(ref) == -1 then
@@ -197,7 +184,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.hummingtop_overlay.renderflags = $|RF_FULLBRIGHT
 		player.mo.hummingtop_overlay.blendmode = AST_ADD
 		player.mo.hummingtop_overlay.dispoffset = 3
-		applyFlip(player.mo, player.mo.hummingtop_overlay)
+		B.ApplyFlip(player.mo, player.mo.hummingtop_overlay)
 		player.mo.hummingtop_overlay.target = player.mo
 		player.mo.hummingtop_overlay.fuse = 2
 		player.mo.hummingtop_overlay.scale = (player.mo.scale) + (player.mo.scale)/2
@@ -207,7 +194,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.canguard = false
 		
 		/*player.mo.hummingtop_arrow = P_SpawnMobj(player.mo.x+cos(player.mo.hummingtop_angle)*ARROW_DIST, player.mo.y+sin(player.mo.hummingtop_angle)*ARROW_DIST, getMiddle(player.mo, mobjinfo[MT_DUST].height), MT_DUST)
-		applyFlip(player.mo, player.mo.hummingtop_arrow)
+		B.ApplyFlip(player.mo, player.mo.hummingtop_arrow)
 		player.mo.hummingtop_arrow.angle = player.mo.hummingtop_angle
 		player.mo.hummingtop_arrow.fuse = (B.Console.HTop_Commit.value)
 		player.mo.hummingtop_arrow.colorized = true
@@ -418,7 +405,7 @@ function B.HummingTop_MainHook(player)
 
 			
 		if mo.hummingtop_arrow and mo.hummingtop_arrow.valid then
-			applyFlip(mo, mo.hummingtop_arrow)
+			B.ApplyFlip(mo, mo.hummingtop_arrow)
 			P_MoveOrigin(mo.hummingtop_arrow, mo.x+cos(mo.hummingtop_angle)*ARROW_DIST, mo.y+sin(mo.hummingtop_angle)*ARROW_DIST, getMiddle(mo, mo.hummingtop_arrow.height))
 		end
 
@@ -432,7 +419,7 @@ function B.HummingTop_MainHook(player)
 			if mo.hummingtop_overlay and mo.hummingtop_overlay.valid then
 				mo.hummingtop_overlay.renderflags = $|RF_FULLBRIGHT
 				mo.hummingtop_overlay.blendmode = AST_ADD
-				applyFlip(mo, mo.hummingtop_overlay)
+				B.ApplyFlip(mo, mo.hummingtop_overlay)
 				mo.hummingtop_overlay.dispoffset = 3
 				P_MoveOrigin(mo.hummingtop_overlay, mo.x, mo.y, getMiddle(mo, mobjinfo[MT_DUST].height))
 				mo.hummingtop_overlay.fuse = max($, 2)

@@ -1,28 +1,5 @@
 local B = CBW_Battle
 
-
-
-local applyflip = function(mo1, mo2)
-
-	if (mo1 and mo1.valid) and (mo2 and mo2.valid) then
-		if mo1.eflags & MFE_VERTICALFLIP then
-			mo2.eflags = $|MFE_VERTICALFLIP
-		else
-			mo2.eflags = $ & ~MFE_VERTICALFLIP
-		end
-		
-		if mo1.flags2 & MF2_OBJECTFLIP then
-			mo2.flags2 = $|MF2_OBJECTFLIP
-		else
-			mo2.flags2 = $ & ~MF2_OBJECTFLIP
-		end
-
-		return mo2
-	end
-	
-end
-
-
 local overlayZ = function(mo, overlaytype, flip)
 	if flip then
 		return mo.z+FixedMul(mobjinfo[overlaytype].height, mo.scale)+(mo.height)
@@ -80,7 +57,7 @@ local spawnslashes = function(player, mo)
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
 	z = mo.z - (((player.mo.eflags & MFE_VERTICALFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
-	applyflip(mo, P_SpawnMobj(x,y,z,MT_DUST))
+	B.ApplyFlip(mo, P_SpawnMobj(x,y,z,MT_DUST))
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
@@ -97,9 +74,9 @@ local spawnslashes = function(player, mo)
 		s = S_SLASH1
 		S_StartSound(mo,sfx_rail1)
 	end
-	local missile = applyflip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
+	local missile = B.ApplyFlip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
 	if missile and missile.valid then
-		--applyflip(mo, missile)
+		--B.ApplyFlip(mo, missile)
 		missile.momz = 0 -- Prevent dash claws from moving vertically
 		missile.state = s
 		missile.scale = FixedMul($*2, mo.scale)
@@ -291,7 +268,7 @@ B.SparkAura = function(mo,target, override)
 		mo.colorized = true --colorize
 		mo.color = target.color
 	end
-	applyflip(target, mo)
+	B.ApplyFlip(target, mo)
 	P_MoveOrigin(mo, target.x, target.y, ((target.flags2 & MF2_OBJECTFLIP) and (target.z+target.height)) or target.z)
 	--if target.player.actiontime > 999 then
 	mo.flags2 = $ & ~(MF2_DONTDRAW)

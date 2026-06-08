@@ -1,20 +1,6 @@
 local B = CBW_Battle
 local CV = CBW_Battle.Console
 
-local applyFlip = function(mo1, mo2)
-	if mo1.eflags & MFE_VERTICALFLIP then
-		mo2.eflags = $|MFE_VERTICALFLIP
-	else
-		mo2.eflags = $ & ~MFE_VERTICALFLIP
-	end
-	
-	if mo1.flags2 & MF2_OBJECTFLIP then
-		mo2.flags2 = $|MF2_OBJECTFLIP
-	else
-		mo2.flags2 = $ & ~MF2_OBJECTFLIP
-	end
-end
-
 B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
     if not(G_GametypeHasTeams()) then return end
 
@@ -65,7 +51,7 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
     local pass_indicator = mo.pass_indicator
 
     if (pass_indicator and pass_indicator.valid) then
-        applyFlip(mo, pass_indicator)
+        B.ApplyFlip(mo, pass_indicator)
         pass_indicator.mirrored = mirrored
         P_MoveOrigin(pass_indicator, mo.x, mo.y, zpos)
         pass_indicator.momx, pass_indicator.momy, pass_indicator.momz = mo.momx, mo.momy, mo.momz
@@ -85,7 +71,7 @@ B.MacGuffinPass = function(player) --PreThinkFrame (For Tossflag)
         pass_indicator.flags = MF_NOGRAVITY|MF_NOCLIPHEIGHT|MF_NOBLOCKMAP|MF_NOCLIP
         pass_indicator.flags2 = $|MF2_DONTDRAW
         pass_indicator.fuse = -1
-        applyFlip(mo, pass_indicator)
+        B.ApplyFlip(mo, pass_indicator)
         mo.pass_indicator = pass_indicator
     end
 end

@@ -5,21 +5,6 @@ local dash_mobjtype = MT_DASHMODE_OVERLAY
 local dash_sfx = sfx_dashm
 local dash_sfxvol = 207
 
-local applyFlip = function(mo1, mo2)
-	if mo1.eflags & MFE_VERTICALFLIP then
-		mo2.eflags = $|MFE_VERTICALFLIP
-	else
-		mo2.eflags = $ & ~MFE_VERTICALFLIP
-	end
-	
-	if mo1.flags2 & MF2_OBJECTFLIP then
-		mo2.flags2 = $|MF2_OBJECTFLIP
-	else
-		mo2.flags2 = $ & ~MF2_OBJECTFLIP
-	end
-end
-
-
 local height_divisor = 3
 
 local overlayZ = function(mo, overlaytype, flip)
@@ -51,7 +36,7 @@ local colortable = {
 }
 
 local dash_overlayVars = function(mo, player)
-	applyFlip(player.mo, mo)
+	B.ApplyFlip(player.mo, mo)
 	--mo.scale = player.mo.scale+(player.mo.scale/2) --1.5x player scale
 	mo.fuse = TICRATE/2 --Don't disappear immediately
 	mo.tics = TICRATE/2
