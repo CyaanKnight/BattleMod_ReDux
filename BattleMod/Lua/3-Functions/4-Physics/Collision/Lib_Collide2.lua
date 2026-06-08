@@ -235,7 +235,7 @@ B.DoPlayerInteract = function(smo,tmo)
 	end
 	
 	//Custom character collision functions
-	local team_interaction = (mo[s].cantouchteam or mo[t].cantouchteam) and B.MyTeam(plr[s], plr[t])
+	local team_interaction = (plr[s] and plr[t]) and (mo[s].cantouchteam or mo[t].cantouchteam) and B.MyTeam(plr[s], plr[t])
 
 	//PRECOLLIDE
 	local defaultfunc = S[-1].func_precollide
