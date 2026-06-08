@@ -98,6 +98,7 @@ end
 
 B.CanDoAction=function(player)
 	if CV.RequireRings.value and player.rings < player.actionrings then return false end
+	if player.noactions then return false end -- user-modified value
 	if G_RingSlingerGametype() then return false end
 	if P_PlayerInPain(player) or player.playerstate ~= PST_LIVE then return false end
 	if B.TagGametype() and not(player.pflags&PF_TAGIT or player.battletagIT) then return false end
