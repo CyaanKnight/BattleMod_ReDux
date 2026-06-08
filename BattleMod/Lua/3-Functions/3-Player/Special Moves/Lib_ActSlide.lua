@@ -26,8 +26,7 @@ B.Action.Slide = function(mo,doaction)
 	local springdrop_trigger = activate and bouncing
 	local drop_state = player.actionstate == 1 and bouncing
 		and P_MobjFlip(mo)*mo.momz < 0
-	local sliding = player.actionstate == 2
-		and player.actiontime
+	local sliding = player and (player.actionstate == 2 and player.actiontime)
 
 	//Properties
 	player.actiontext = "Slide"
