@@ -16,6 +16,7 @@ local thrustpower = 16
 local threshold1 = TICRATE/3 --0.3s
 local threshold2 = threshold1+(TICRATE*3/2) --minimum charging time + 1.5s
 local flightdash_satk = 2 -- grab only happens if opponent's def is lower
+local max_grab_stunbreak_cost = 30
 
 B.Action.TailSwipe_Priority = function(player)
 	local mo = player.mo
@@ -68,7 +69,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 		S_StartSound(mo[n1], sfx_s3ka0)
 		if not B.MyTeam(plr[n1], plr[n2])
 			plr[n2].customstunbreaktics = 5
-			plr[n2].customstunbreakcost = 35
+			plr[n2].customstunbreakcost = max_grab_stunbreak_cost
 			B.ApplyCooldown(plr[n1], cooldown_dash)
 		else
 			plr[n1].actioncooldown = cooldown_cancel
@@ -556,9 +557,9 @@ B.Action.TailSwipe = function(mo,doaction)
 				otherplayer.actioncooldown = max($,2*TICRATE)
 				B.PlayerCreditPusher(otherplayer,player)
 				if otherplayer.customstunbreakcost == nil then
-					otherplayer.customstunbreakcost = 35 
+					otherplayer.customstunbreakcost = max_grab_stunbreak_cost 
 				else
-					otherplayer.customstunbreakcost = min($+15,35)
+					otherplayer.customstunbreakcost = min($+15,max_grab_stunbreak_cost)
 				end
 				otherplayer.powers[pw_nocontrol] = max($, throw_enemystuntime)
 			else
