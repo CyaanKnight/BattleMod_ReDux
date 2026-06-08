@@ -933,76 +933,70 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		local fail  = (hurt == -1)
 
 
-		if not(clash) then
-			--Thrust sonic away
-			P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
-			B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-			if hit or fail then
-				DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
+		--Thrust sonic away
+		P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
+		B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
+		if hit or (fail and not(clash)) then
+			DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
+			mo[n1].recurl_actionable = true
+			mo[n1].air_recoilanim_override = true
+			mo[n1].hummingtop_hit = true
+			mo[n1].recoilthrust = nil
+			mo[n1].recoilangle = nil
+			plr[n1].powers[pw_nocontrol] = 0
+			--print(true)
+			P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+		elseif bump then
+			if (plr[n2]) and not(beyblade) then
+				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
+				mo[n1].hummingtop_hit = nil
+				mo[n1].recurl_actionable = nil
+				mo[n1].air_recoilanim_override = nil
+				--P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+			else
+				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+				mo[n1].hummingtop_hit = true
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
-				mo[n1].hummingtop_hit = true
-				mo[n1].recoilthrust = nil
-				mo[n1].recoilangle = nil
-				plr[n1].powers[pw_nocontrol] = 0
-				--print(true)
-				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
-			elseif bump then
-				if (plr[n2]) and not(beyblade) then
-					cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
-					mo[n1].hummingtop_hit = nil
-					mo[n1].recurl_actionable = nil
-					mo[n1].air_recoilanim_override = nil
-					--P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
-				else
-					P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
-					mo[n1].hummingtop_hit = true
+				DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
+				if beyblade then
+					S_StartSound(mo[n1], sfx_tink)
+					S_StartSound(mo[n1], sfx_htok)
+					mo[n1].hummingtop_beyblade = true
 					mo[n1].recurl_actionable = true
 					mo[n1].air_recoilanim_override = true
-					DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
-					if beyblade then
-						S_StartSound(mo[n1], sfx_tink)
-						S_StartSound(mo[n1], sfx_htok)
-						mo[n1].hummingtop_beyblade = true
-						mo[n1].recurl_actionable = true
-						mo[n1].air_recoilanim_override = true
-						mo[n1].hummingtop_hit = true
-						mo[n1].recoilthrust = nil
-						mo[n1].recoilangle = nil
-						plr[n1].powers[pw_nocontrol] = min($, 1)
+					mo[n1].hummingtop_hit = true
+					mo[n1].recoilthrust = nil
+					mo[n1].recoilangle = nil
+					plr[n1].powers[pw_nocontrol] = min($, 1)
 
-						S_StartSoundAtVolume(mo[n1],sfx_s3k9b,70)
+					S_StartSoundAtVolume(mo[n1],sfx_s3k9b,70)
 
 
-						if not(mo[n1].hummingtop_beyblade_pick) then
-							local picks = {n1, n2}
-							local pick = picks[P_RandomRange(1,#picks)]
-							local vfx = P_SpawnMobjFromMobj(mo[pick], 0, 0, mo[pick].height/2, MT_SPINDUST)
-							if vfx.valid
-								vfx.scale = mo[pick].scale/2
-								vfx.destscale = vfx.scale * 2
-								vfx.colorized = true
-								vfx.color = plr[pick].skincolor
-								vfx.blendmode = AST_ADD
-								vfx.state = S_BCEBOOM
-							end
-							mo[n1].hummingtop_beyblade_pick = true
-							mo[n2].hummingtop_beyblade_pick = true
+					if not(mo[n1].hummingtop_beyblade_pick) then
+						local picks = {n1, n2}
+						local pick = picks[P_RandomRange(1,#picks)]
+						local vfx = P_SpawnMobjFromMobj(mo[pick], 0, 0, mo[pick].height/2, MT_SPINDUST)
+						if vfx.valid
+							vfx.scale = mo[pick].scale/2
+							vfx.destscale = vfx.scale * 2
+							vfx.colorized = true
+							vfx.color = plr[pick].skincolor
+							vfx.blendmode = AST_ADD
+							vfx.state = S_BCEBOOM
 						end
+						mo[n1].hummingtop_beyblade_pick = true
+						mo[n2].hummingtop_beyblade_pick = true
 					end
 				end
 			end
+		end
 
-			plr[n1].glidetime = 2 --Commit time ends
+		plr[n1].glidetime = 2 --Commit time ends
 
-			local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
-			if not(beyblade) then
-				plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
-			end
-
-			--collisiontype = (bump and 1) or 3
-			mo[n1].hummingtop_marker = nil
-
+		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
+		if not(beyblade) then
+			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
 		end
 		return
 	end
