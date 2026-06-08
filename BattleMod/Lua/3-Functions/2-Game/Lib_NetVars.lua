@@ -70,9 +70,9 @@ function B.NetVars.Sync(network)
 	F.DC_NoticeTimer 	= network($)
 	F.DC_ColorSwitch 	= network($)
 	F.RedFlag_player 	= network($)
-	F.RedFlag_oldScore  = network($)
+	F.RedFlag_oldscore  = network($)
 	F.BlueFlag_player   = network($)
-	F.BlueFlag_oldScore = network($)
+	F.BlueFlag_oldscore = network($)
 	
 	//Game state
 	B.RedTeam_Info 	= network($)

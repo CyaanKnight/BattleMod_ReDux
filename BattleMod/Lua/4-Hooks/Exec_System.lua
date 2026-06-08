@@ -41,8 +41,8 @@ addHook("MapChange",function(map)
 	B.ResetSparring()
 	F.RedFlag = nil
 	F.BlueFlag = nil
-	F.RedFlag_oldScore = 0
-	F.BlueFlag_oldScore = 0
+	F.RedFlag_oldscore = 0
+	F.BlueFlag_oldscore = 0
 	B.GetTeamInfo(map, true)
 	B.GetTeamInfo(map)
 	skincolor_redteam = B.RedTeam_Info.skincolor

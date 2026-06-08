@@ -21,9 +21,9 @@ F.BlueFlagOpts = {flagbase_tag=0}
 
 --For SFX
 F.RedFlag_player = nil
-F.RedFlag_oldScore = 0
+F.RedFlag_oldscore = 0
 F.BlueFlag_player = nil
-F.BlueFlag_oldScore = 0
+F.BlueFlag_oldscore = 0
 
 -- delay cap variables
 F.DelayCap = false
@@ -1346,17 +1346,17 @@ F.CustomCaptureSFX = function()
 		local flag = ({F.BlueFlag, F.RedFlag})[i]
 		local inv_team = ({2, 1})[i]
 
-		if flag and flag.valid and flag.player then
-			if i == 1 then
-				if F.BlueFlag_player == nil then
-					F.BlueFlag_oldscore = redscore
+		if flag and flag.valid and flag.player then --If i team's flag is being held...
+			if i == 1 then --It's the blue flag
+				if F.BlueFlag_player == nil then --If there isn't a flagholder marked yet
+					F.BlueFlag_oldscore = redscore --Save score the red team had the moment it was held
 				end
-				F.BlueFlag_player = flag.player
-			else
-				if F.RedFlag_player == nil then
-					F.RedFlag_oldscore = bluescore
+				F.BlueFlag_player = flag.player --Save the flagrunner
+			else -- It's the red flag
+				if F.RedFlag_player == nil then --If there isn't a flagholder marked yet
+					F.RedFlag_oldscore = bluescore --Save score the blue team had the moment it was held
 				end
-				F.RedFlag_player = flag.player
+				F.RedFlag_player = flag.player --Save the flagrunner
 			end
 		end
 
@@ -1364,59 +1364,55 @@ F.CustomCaptureSFX = function()
 		local old_score = ({F.BlueFlag_oldscore, F.RedFlag_oldscore})[i]
 		local new_score = ({redscore, bluescore})[i]
 
-		if (new_score != nil) and (old_score != nil) and (flag and flag.valid) and flag_player and not(flag.player) then
-			--S_StartSoundAtVolume(nil, sfx_flgcap, 0)
-			--S_StartSoundAtVolume(nil, sfx_lose, 0)
-			
-			if new_score > old_score then
+		--If the current score of our team is greater than the score that was initially saved
+		if new_score > old_score then
+			if flag_player then --And we have a flagholder saved
 				for p in players.iterate() do
-					if splitscreen and players and players[1] and p == players[1] then 
+					if splitscreen and players and players[1] and p == players[1] then --If we're player 2 in splitscreen, skip it
 						return
 					end
-					local sfx
-					local loss
-					if (p.ctfteam == flag_player.ctfteam) or p.spectator or splitscreen then
-						sfx = sfx_flgcap
+					local sfx = sfx_lose
+					local loss = true
+					if (p.ctfteam == flag_player.ctfteam) or p.spectator or splitscreen then --If it's a splitscreen game, or we're a spectator, or we're on the flagrunner's team
+						sfx = sfx_flgcap 
 						loss = false
-					else
-						sfx = sfx_lose
-						loss = true
+						--Success!
 					end
 					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
+					--Play our sound
 				end
-				--S_StartSound(flag, sfx_s227)
+
+				local info = {B.BlueTeam_Info, B.RedTeam_Info}
+
+				local color = info[i].skincolor
+				local pcolor = info[inv_team].skincolor
+
+				local color_chat = (pcall(do return skincolors[color].chatcolor end) and textmapToEsc[skincolors[color].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
+
+				local pcolor_chat = (pcall(do return skincolors[pcolor].chatcolor end) and textmapToEsc[skincolors[pcolor].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
+
+				local flagname = info[i].flagname and info[i].flagname:upper() or ((pcall(do return R_GetNameByColor(color) end)) and R_GetNameByColor(color):upper().." FLAG") or (i==1 and "BLUE") or "RED"+" FLAG"
+				local pname = flag_player.name
+				F.GameState.CaptureHUDTimer = 5*TICRATE
+				F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
+				F.GameState.CaptureHUDTeam = flag_player.ctfteam
+
 				if flag_player.mo and flag_player.mo.valid then
-
-					local info = {B.BlueTeam_Info, B.RedTeam_Info}
-
-					local color = info[i].skincolor
-					local pcolor = info[inv_team].skincolor
-
-					local color_chat = (pcall(do return skincolors[color].chatcolor end) and textmapToEsc[skincolors[color].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
-
-					local pcolor_chat = (pcall(do return skincolors[pcolor].chatcolor end) and textmapToEsc[skincolors[pcolor].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
-
-					local flagname = info[i].flagname and info[i].flagname:upper() or ((pcall(do return R_GetNameByColor(color) end)) and R_GetNameByColor(color):upper().." FLAG") or (i==1 and "BLUE") or "RED"+" FLAG"
-					local pname = flag_player.name
-					F.GameState.CaptureHUDTimer = 5*TICRATE
-					F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
-					F.GameState.CaptureHUDTeam = flag_player.ctfteam
 					B.DoFirework(flag_player.mo)
-
-
-
-					if pname then
-						print(pcolor_chat+pname+"\x80"+" CAPTURED THE "+color_chat+flagname+"\x80"+".")
-					else
-						print("THE"+color_chat+flagname+"\x80"+" WAS "+pcolor_chat+"CAPTURED"+"\x80"+".")
-					end
-
 				end
-			end
-			if flag_player.ctfteam == 1 then
-				F.BlueFlag_player = nil
-			else
-				F.RedFlag_player = nil
+
+				if pname then
+					print(pcolor_chat+pname+"\x80"+" CAPTURED THE "+color_chat+flagname+"\x80"+".")
+				else
+					print("THE"+color_chat+flagname+"\x80"+" WAS "+pcolor_chat+"CAPTURED"+"\x80"+".")
+				end
+
+				
+				if flag_player == F.BlueFlag_player then
+					F.BlueFlag_player = nil
+				elseif flag_player == F.RedFlag_player then
+					F.RedFlag_player = nil
+				end
 			end
 		end
 	end
