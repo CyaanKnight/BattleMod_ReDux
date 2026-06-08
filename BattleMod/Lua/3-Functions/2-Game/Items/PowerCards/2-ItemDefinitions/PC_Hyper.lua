@@ -24,10 +24,19 @@ local function UnsetFunc(mo,player)
 	end
 end
 
+local shotstates = {
+	[S_PLAY_FIRE] = true,
+	[S_PLAY_FIRE_FINISH] = true,
+	[S_FANG_AIRSHOT] = true,
+	[S_FANG_AIRSHOT_FINISH] = true,
+	[S_FANG_BCESHOT] = true,
+	[S_FANG_BCESHOT_FINISH] = true
+}
+
 //Hyper
 local HoldFunc = function(mo,player)
 	if mo.health > 1
-		mo.hyper_card = player.gotpowercard
+		player.mo.hyper_card = true
 		local skin = skins[player.mo.skin]
 		//Timer
 		mo.health = $-1 - player.actioncooldown/4 //Using actions reduces hyper time
@@ -40,23 +49,32 @@ local HoldFunc = function(mo,player)
 		if player.pflags&PF_STARTDASH
 			player.dashspeed = player.maxdash
 		end
+		player.exhaustmeter = FRACUNIT
 		//Piko Wave charge
-		if player.melee_state == 1
+		if CBW_Battle.GetSkinVarsFlags(player)&SKINVARS_ROSY
 			player.melee_charge = FRACUNIT
+			if (player.pflags & PF_NOJUMPDAMAGE) then
+				if (player.mo.state == S_PLAY_JUMP) or (player.mo.state == S_PLAY_FALL) then
+					player.mo.state = S_PLAY_ROLL
+				end
+				player.pflags = $ & ~(PF_NOJUMPDAMAGE|PF_THOKKED)
+			end
 		end
 		//Popgun enhancements
 		if CBW_Battle.GetSkinVarsFlags(player)&SKINVARS_GUNSLINGER
-			if player.weapondelay > 0
-				player.weapondelay = $-2
-				mo.tics = max(1,$-2)
-			end
-			if player.weapondelay <= 0 and player.airgun == true
+			if player.airgun == true then
 				player.airgun = false
-				player.pflags = $&~PF_THOKKED
-				mo.state = S_PLAY_FALL
+				player.pflags = ($|PF_JUMPED) & ~PF_THOKKED
+			end
+			player.weapondelay = 0
+			if shotstates[player.mo.state] then
+				player.mo.tics = 1
 			end
 		end
-		
+		--Humming Top?
+		if CBW_Battle.GetSkinVarsFlags(player)&SKINVARS_HUMMINGTOP then
+			player.mo.recurl_actionable = true
+		end
 		//Visual
 		if not(player.isjettysyn)
 			DoColorGhost(player,mo.health,SKINCOLOR_GREEN)
