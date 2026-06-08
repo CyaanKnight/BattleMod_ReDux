@@ -14,9 +14,20 @@ local DoColorGhost = function(player,time,color)
 	end
 end
 
+local function UnsetFunc(mo,player)
+	if player and player.mo
+		local skin = skins[player.mo.skin]
+		player.thrustfactor = skin.thrustfactor
+		player.jumpfactor = skin.jumpfactor
+		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary
+		player.mo.hyper_card = nil
+	end
+end
+
 //Hyper
 local HoldFunc = function(mo,player)
 	if mo.health > 1
+		mo.hyper_card = player.gotpowercard
 		local skin = skins[player.mo.skin]
 		//Timer
 		mo.health = $-1 - player.actioncooldown/4 //Using actions reduces hyper time
@@ -51,6 +62,7 @@ local HoldFunc = function(mo,player)
 			DoColorGhost(player,mo.health,SKINCOLOR_GREEN)
 		end
 	else
+		UnsetFunc(mo, player)
 		PR.DiscardDeath(mo,player)
 		return true
 	end
@@ -66,6 +78,7 @@ local function UnsetFunc(mo,player)
 		player.thrustfactor = skin.thrustfactor
 		player.jumpfactor = skin.jumpfactor
 		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary
+		player.mo.hyper_card = nil
 	end
 end
 

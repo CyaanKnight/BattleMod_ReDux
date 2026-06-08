@@ -151,6 +151,13 @@ addHook("PlayerThink",function(player)
 		PR.TossItem(player.gotpowercard)
 	end
 
+	--Hyper Card failsafe
+	if mo.hyper_card and not(mo.hyper_card.valid and player.gotpowercard and player.gotpowercard.valid and (player.gotpowercard == mo.hyper_card)) then
+		player.thrustfactor = skin.thrustfactor
+		player.jumpfactor = skin.jumpfactor
+		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary
+		mo.hyper_card = nil
+	end
 
 	//Disabled
 	PR.DoCharmed(player)
