@@ -228,7 +228,7 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
     --end
 	--Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
-	if RH("PlayerDamage", nil, target.player) then return true end
+	if RH("PlayerDamage", nil, target.player, inflictor, source, damage, damagetype) then return true end
 
 	--Handle damage dealt/received by revenge jettysyns
 	A.RevengeDamage(target,inflictor,source)
