@@ -3,6 +3,12 @@ local S = B.SkinVars
 local CV = B.Console
 local PR = CBW_PowerCards
 
+local RH = B._RunHook
+
+-- Return true if the player should have flag-holder nerfs. Similar to CTF.
+-- NOTE: This does NOT restrict actions. If you want to restrict actions, set player.noactions to true.
+B._DefineHook("FlagHolderNerfs", CBW_HookHandlers.True)
+
 B.CarryState = function(tails,passenger)
 	B.DebugPrint("Latching "..passenger.name.." onto "..tails.name,DF_PLAYER)
 	B.ResetPlayerProperties(passenger,false,false)
@@ -496,7 +502,7 @@ B.CharAbilityControl = function(player)
 end
 
 B.MidAirAbilityAllowed = function(player)
-	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) or (player.gotpowercard and PR and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF) then 
+	if player.gotcrystal or player.gotflag or (B.TagGametype() and not (player.battletagIT)) or (player.gotpowercard and PR and PR.Item[player.gotpowercard.item].flags&PCF_RUNNERDEBUFF) or RH("FlagHolderNerfs", nil, player) then 
 		return false
 	else
 		return true
