@@ -30,7 +30,7 @@ CBW_HookHandlers.HighestNum = function(old, new)
 	return old
 end
 
-CBW_Battle._defineHook = function(name, handler)
+CBW_Battle._DefineHook = function(name, handler)
 	if not name then return end -- // SUPPLY A NAME!! //
 	if HOOKS[name] then return end -- // Hook already defined // --
 
@@ -40,7 +40,7 @@ CBW_Battle._defineHook = function(name, handler)
 	}
 end
 
-CBW_Battle._runHook = function(name, extra, ...)
+CBW_Battle._DunHook = function(name, extra, ...)
 	if not name then return end
 	if not HOOKS[name] then return end
 
@@ -85,7 +85,7 @@ end
 -- localize runHook so when it turns nil in the global namespace we can keep the reference and not break anything
 local RH = CBW_Battle._runHook
 
-CBW_Battle._defineHook("DoJump", CBW_HookHandlers.True)
+CBW_Battle._DefineHook("DoJump", CBW_HookHandlers.True)
 
 addHook("JumpSpecial", function(player)
 	if RH("DoJump", nil, player) then print('returned true') return true end
