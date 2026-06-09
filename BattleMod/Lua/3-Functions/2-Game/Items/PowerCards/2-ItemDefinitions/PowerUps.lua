@@ -152,7 +152,7 @@ addHook("PlayerThink",function(player)
 	end
 
 	--Hyper Card failsafe
-	if mo.hyper_card and not(mo.hyper_card.valid and player.gotpowercard and player.gotpowercard.valid and (player.gotpowercard == mo.hyper_card)) then
+	if mo.hyper_card and not(player.gotpowercard and player.gotpowercard.valid and PR.Item[player.gotpowercard.item].name == "Hyper") then
 		player.thrustfactor = skin.thrustfactor
 		player.jumpfactor = skin.jumpfactor
 		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary

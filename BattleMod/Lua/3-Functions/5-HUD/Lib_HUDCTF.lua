@@ -406,7 +406,7 @@ F.RankingHUD = function(v)
 		if p.spectator then continue end
 		--if p.ctfteam == 0 then continue end
 
-		local compact = not(CV.FindVar("compactscoreboard").value) or (redplayers <= 8 or blueplayers <= 8)
+		local compact = (not CV.FindVar("compactscoreboard").value) and (redplayers <= 9 or blueplayers <= 9)
 		local cond = compact
 		if p.ctfteam == 1 then
 			redplayers = $+1
