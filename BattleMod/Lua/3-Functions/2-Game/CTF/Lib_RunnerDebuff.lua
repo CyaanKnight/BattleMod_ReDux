@@ -1,5 +1,5 @@
 local B = CBW_Battle
-local G = B.Gametypes
+
 local PR = CBW_PowerCards
 
 B.GotFlagStats = function(player, force)
@@ -13,14 +13,9 @@ B.GotFlagStats = function(player, force)
 		player.gotpowercard = nil
 	end
 
-	print(player.gotflagdebuff)
-	// If we are allowed to handle debuffs in this gametype... Handle them!
-	if G.AutoHandleDebuff[gametype] then
-		print("handling it")
-		player.gotflagdebuff = B.MidAirAbilityAllowed(player)
-	end
-
-	if player.gotflagdebuff and not player.gotflagdebuff_prev then
+	//Register debuff
+	if (B.MidAirAbilityAllowed(player) == false) and (player.gotflagdebuff == false) then
+		player.gotflagdebuff = true
 		mo.color = player.skincolor
 		player.secondjump = 0
 		player.powers[pw_tailsfly] = 0
@@ -43,8 +38,9 @@ B.GotFlagStats = function(player, force)
 		B.ZLimit(mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
 		B.XYLimit(mo, player.normalspeed*5/4) -- 125% of Top speed
 	end
-
-	if not player.gotflagdebuff and player.gotflagdebuff_prev then
+	//Unregister debuff and apply normal stats
+	if B.MidAirAbilityAllowed(player) and player.gotflagdebuff == true then
+		player.gotflagdebuff = false
 		player.normalspeed = skin.normalspeed
 		player.acceleration = skin.acceleration
 		player.accelstart = skin.accelstart
@@ -54,11 +50,8 @@ B.GotFlagStats = function(player, force)
 		player.charflags = skins[mo.skin].flags
 		player.jumpfactor = skin.jumpfactor
 	end
-
-	player.gotflagdebuff_prev = player.gotflagdebuff
-
 	//Apply debuff
-	if player.gotflagdebuff then
+	if player.gotflagdebuff
 		player.normalspeed = skinvar.normalspeed or skin.normalspeed
 		player.acceleration = skinvar.acceleration or skin.acceleration
 		player.runspeed = skinvar.runspeed or skin.runspeed
