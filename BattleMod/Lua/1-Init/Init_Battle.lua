@@ -342,21 +342,22 @@ G.PowerCards		= {false,false,false,false,false,false,false,false,false}
 G.TailsDoll			= {false,false,false,false,false,false,false,false,false}
 G.SkinLock			= {false,false,false,false,false,false,false,false,false}
 G.AutoHandleDebuff	= {false,false,false,false,false,false,false,false,false}
+G.SpawnAnimation	= {false,false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
 -- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
 local GAMETYPE_INDICES = {
-	{GT_ARENA			,{0, false, true, false, true, false,false, true, true, true, true}}, 
-	{GT_TEAMARENA		,{0, false, true, false, true, false,false, true, true, true, true}}, 
-	{GT_SURVIVAL		,{0, true,  true, false, true, false,false, true, true, true, true}}, 
-	{GT_TEAMSURVIVAL	,{0, true,  true, false, true, false,false, true, true, true, true}}, 
-	{GT_BATTLECTF		,{0, false, true, false, false,false,false, false,true, true, true}}, 
-	{GT_CP				,{0, false, true, true,  false,false,false, true, true, true, true}},
-	{GT_TEAMCP			,{0, false, true, true,  false,false,false, true, true, true, true}},
-	{GT_DIAMOND			,{0, false, true, false, false,true, false, true, true, true, true}},
-	{GT_TEAMDIAMOND		,{0, false, true, false, false,true, false, true, true, true, true}},
-	{GT_RUBYRUN 		,{0, false, true, false, false,false, true, false,true, true, true}},
-	{GT_BATTLETAG		,{0, false, true, false, false,false,false, true, true, true, true}},
+	{GT_ARENA			,{0, false, true, false, true, false,false, true, true, true, true, true}}, 
+	{GT_TEAMARENA		,{0, false, true, false, true, false,false, true, true, true, true, true}}, 
+	{GT_SURVIVAL		,{0, true,  true, false, true, false,false, true, true, true, true, true}}, 
+	{GT_TEAMSURVIVAL	,{0, true,  true, false, true, false,false, true, true, true, true, true}}, 
+	{GT_BATTLECTF		,{0, false, true, false, false,false,false, false,true, true, true, true}}, 
+	{GT_CP				,{0, false, true, true,  false,false,false, true, true, true, true, true}},
+	{GT_TEAMCP			,{0, false, true, true,  false,false,false, true, true, true, true, true}},
+	{GT_DIAMOND			,{0, false, true, false, false,true, false, true, true, true, true, true}},
+	{GT_TEAMDIAMOND		,{0, false, true, false, false,true, false, true, true, true, true, true}},
+	{GT_RUBYRUN 		,{0, false, true, false, false,false, true, false,true, true, true, true}},
+	{GT_BATTLETAG		,{0, false, true, false, false,false,false, true, true, true, true, true}},
 }
 for i =1,#GAMETYPE_INDICES do
 	local GAME_TYPE_INDEX 	= GAMETYPE_INDICES[i]
@@ -373,4 +374,5 @@ for i =1,#GAMETYPE_INDICES do
 	G.TailsDoll[GAME_TYPE_INDEX[1]]			= GAME_TYPE_VALUES[9]  -- Does this gametype add Tails Doll?
 	G.SkinLock[GAME_TYPE_INDEX[1]]			= GAME_TYPE_VALUES[10] -- Does this gametype lock the current character?
 	G.AutoHandleDebuff[GAME_TYPE_INDEX[1]]	= GAME_TYPE_VALUES[11] -- Does this gametype let Battle handle debuffs?
+	G.SpawnAnimation[GAME_TYPE_INDEX[1]]	= GAME_TYPE_VALUES[12] -- Does this gametype play the default spawn animation?
 end
