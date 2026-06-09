@@ -10,6 +10,10 @@ local B = CBW_Battle
 local A = B.Arena
 local CV = B.Console
 local F = B.CTF
+
+local RH = B._RunHook
+-- Unlike MobjDamage, this runs EXCLUSIVELY for when the player gets hurt. Return true to override behavior.
+B._DefineHook("PlayerDamage", CBW_HookHandlers.True)
 --Handle player spawning
 addHook("PlayerSpawn",function(player) 
 	--player.gotflag = GF_BLUEFLAG
@@ -224,6 +228,8 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
     --end
 	--Do guarding
 	if B.GuardTrigger(target, inflictor, source, damage, damagetype) then return true end
+	if RH("PlayerDamage", nil, target.player) then return true end
+
 	--Handle damage dealt/received by revenge jettysyns
 	A.RevengeDamage(target,inflictor,source)
 	--Establish enemy player as the last pusher (for hazard kills)
