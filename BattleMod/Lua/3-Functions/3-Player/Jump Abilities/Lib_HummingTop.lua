@@ -950,7 +950,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].hummingtop_hit = nil
 				mo[n1].recurl_actionable = nil
 				mo[n1].air_recoilanim_override = nil
-				--P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 			else
 				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
 				mo[n1].hummingtop_hit = true
