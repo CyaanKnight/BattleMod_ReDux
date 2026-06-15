@@ -605,6 +605,7 @@ B.Action.TailSwipe = function(mo,doaction)
 
 		--Anim states
 		if not(player.spinswipe) then
+			B.legacykill(player, 2)
 			if player.actiontime < 6 then
 				--Fast Spin anim
 				player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
