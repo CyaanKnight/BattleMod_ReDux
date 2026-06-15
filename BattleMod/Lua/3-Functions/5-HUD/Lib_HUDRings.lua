@@ -359,6 +359,22 @@ B.RingsHUD = function(v, player, cam)
 		if (not shaking) and leveltime % 4 >= 2 then
 			v.drawScaled(172*FRACUNIT, 140*FRACUNIT, scale, v.cachePatch("MASHC"), flags_hudtrans, color)
 		end
+		if player.canstunbreak >= 0 and player.stunbreakcosttext and player.rings >= player.stunbreakcosttext then
+			local sbtext = "STUNBREAK ALLOWED!"
+			if not stunbreakallowed then
+				sbtext = "\x86"..sbtext
+				v.drawString(172, 178, "(Mash blocked)", flags_hudtrans)
+			else
+				if leveltime % 3 == 0 then
+					sbtext = "\x82"..sbtext
+				elseif leveltime % 3 == 1 then
+					sbtext = "\x83"..sbtext
+				else
+					sbtext = "\x87"..sbtext
+				end
+			end
+			v.drawString(172, 190, sbtext, flags_hudtrans)
+		end
 		--Opponent cooldown
 		local opponent = player.mo.tracer.player
 		if opponent and opponent.actioncooldown then
