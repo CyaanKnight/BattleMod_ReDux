@@ -48,7 +48,7 @@ end
 		
 local state_startup = 1
 local state_spinning = 2
-
+local exhaust_chunk = FRACUNIT*5/16
 
 local getMiddle = function(ref, mo_height)
 	if P_MobjFlip(ref) == -1 then
@@ -206,6 +206,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.hummingtop_arrow.renderflags = RF_FULLBRIGHT*/
 		--This function is just a trigger for the main hook
 		player.mo.hummingtop_state = state_spinning
+		player.exhaustmeter = min($, player.ledgemeter) --ledgemeter is consistent accross all gametypes
 		return true
 	end
 end
@@ -220,8 +221,6 @@ function B.HummingTop_MainHook(player)
 	if charParam(player) then --If we're valid
 	
 		local mo = player.mo
-
-		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
 
 		local humming = (mo.hummingtop_state == state_spinning)
 		local grounded = P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
@@ -865,7 +864,6 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 	if not(fxonly) then
 		player.glidetime = ($>2 and 2) or 0
 		player.mo.recurl_actionable = true
-		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
 		player.exhaustmeter = max(0, $-exhaust_chunk)
 		if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
 			P_RemoveMobj(player.mo.hummingtop_arrow)
@@ -994,7 +992,6 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 		plr[n1].glidetime = 2 --Commit time ends
 
-		local exhaust_chunk = ((G_GametypeUsesLives() and B.ArenaGametype()) and ((FRACUNIT/2)+(FRACUNIT/8))/2) or ((FRACUNIT/2)+(FRACUNIT/8))
 		if not(beyblade) then
 			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
 		end
