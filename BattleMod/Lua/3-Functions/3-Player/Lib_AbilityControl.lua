@@ -157,11 +157,13 @@ B.weight = function(player)
 	local tracer = player.mo.tracer
 	if (tracer and tracer.valid and player.powers[pw_carry] == CR_PLAYER) then
 		local tails = tracer.player
+		local speedcap = 36*tracer.scale
 		if player.gotflagdebuff then
+			speedcap = $*2/3
 			local exhaustcap = (FRACUNIT*2) - (player.mo.weight/2) --200% minus 1/2 of the weight
 			tails.exhaustmeter = min($,exhaustcap)
 		end
-		if FixedHypot(tracer.momx, tracer.momy) > 24*tracer.scale then
+		if FixedHypot(tracer.momx, tracer.momy) > speedcap then
 			tracer.momx = $ * 99/(99+(w/TICRATE))
 			tracer.momy = $ * 99/(99+(w/TICRATE))
 		end
