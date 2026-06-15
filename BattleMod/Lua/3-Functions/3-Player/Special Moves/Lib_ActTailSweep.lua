@@ -34,6 +34,8 @@ B.Action.TailSwipe_Priority = function(player)
 		B.SetPriority(player,1,1,nil,1,1,"tail sweep")
 	elseif player.actionstate == state_dash or player.actionstate == state_didthrow
 		B.SetPriority(player,0,0,"amy_melee",0,1,"flight dash") --also see: flightdash_satk
+	elseif (player.pflags & PF_JUMPED) and (player.pflags & PF_NOJUMPDAMAGE) 
+		B.SetPriority(player,0,0,nil,0,0,"tail sweep jump")
 	end
 end
 
@@ -421,7 +423,11 @@ B.Action.TailSwipe = function(mo,doaction)
 	//Charging frame
 	if player.actionstate == state_charging then
 		mo.state = S_PLAY_EDGE
-		player.pflags = ($|PF_SPINDOWN|PF_NOJUMPDAMAGE)&~(PF_THOKKED)
+		player.pflags = ($|PF_SPINDOWN)&~(PF_JUMPED|PF_THOKKED)
+		--player.actionsuper = true
+		if not (P_IsObjectOnGround(mo) or B.WaterFactor(mo) > 1) then
+			P_SetObjectMomZ(mo,gravity/2,true) //Low grav
+		end
 		if leveltime%6 == 0 then
 			//post vfx
 			local g = P_SpawnGhostMobj(player.mo)
@@ -598,6 +604,7 @@ B.Action.TailSwipe = function(mo,doaction)
 
 		--Anim states
 		if not(player.spinswipe) then
+			B.legacykill(player, 2)
 			if player.actiontime < 6 then
 				--Fast Spin anim
 				player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)

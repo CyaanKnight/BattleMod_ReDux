@@ -1,4 +1,5 @@
 local B = CBW_Battle
+local G = B.Gametypes
 local A = B.Arena
 
 local spawnanim = function(player)
@@ -23,10 +24,11 @@ local spawnanim = function(player)
 	player.cmd.buttons = 0
 end
 
-B.PlayerBattleSpawnStart = function(player)
+B.PlayerBattleSpawnStart = function(player, forced)
 	if player.spectator then return false end
 	if not(player.playerstate == PST_LIVE) then return false end
-	if not(B.BattleGametype()) then return false end
+	if not G.SpawnAnimation[gametype] and not forced then return false end
+
 	player.battlespawning = 48
 	player.mo.rubyrun_shielddespawn = nil
 	S_StartSound(player.mo,sfx_s3kb8)

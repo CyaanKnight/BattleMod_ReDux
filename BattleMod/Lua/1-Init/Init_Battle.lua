@@ -331,44 +331,46 @@ local B = CBW_Battle
 local G = B.Gametypes
 
 -- Vanilla gametypes aren't supported, so set them all to 0 values. (Vanilla gametypes start from 1 up to 8)
-G.TeamScoreType = {0,0,0,0,0,0,0,0}
-G.SuddenDeath 	= {false,false,false,false,false,false,false,false}
-G.Battle 		= {false,false,false,false,false,false,false,false}
-G.CP 			= {false,false,false,false,false,false,false,false}
-G.Arena 		= {false,false,false,false,false,false,false,false}
-G.Diamond 		= {false,false,false,false,false,false,false,false}
-G.Ruby 			= {false,false,false,false,false,false,false,false}
-G.PowerCards	= {false,false,false,false,false,false,false,false}
-G.TailsDoll		= {false,false,false,false,false,false,false,false}
-G.SkinLock		= {false,false,false,false,false,false,false,false}
+G.TeamScoreType 	= {0,0,0,0,0,0,0,0}
+G.SuddenDeath 		= {false,false,false,false,false,false,false,false,false}
+G.Battle 			= {false,false,false,false,false,false,false,false,false}
+G.CP 				= {false,false,false,false,false,false,false,false,false}
+G.Arena 			= {false,false,false,false,false,false,false,false,false}
+G.Diamond 			= {false,false,false,false,false,false,false,false,false}
+G.Ruby 				= {false,false,false,false,false,false,false,false,false}
+G.PowerCards		= {false,false,false,false,false,false,false,false,false}
+G.TailsDoll			= {false,false,false,false,false,false,false,false,false}
+G.SkinLock			= {false,false,false,false,false,false,false,false,false}
+G.SpawnAnimation	= {false,false,false,false,false,false,false,false,false}
 
 -- Format: { [GAMETYPE], {[ GAMETYPE_VALUES ]}}
 -- NOTE: the 3rd field indicates that the gametype is a BATTLE gametype.
 local GAMETYPE_INDICES = {
-	{GT_ARENA			,{0, false, true, false, true, false,false, true, true, true}}, 
-	{GT_TEAMARENA		,{0, false, true, false, true, false,false, true, true, true}}, 
-	{GT_SURVIVAL		,{0, true,  true, false, true, false,false, true, true, true}}, 
-	{GT_TEAMSURVIVAL	,{0, true,  true, false, true, false,false, true, true, true}}, 
-	{GT_BATTLECTF		,{0, false, true, false, false,false,false, false,true, true}}, 
-	{GT_CP				,{0, false, true, true,  false,false,false, true, true, true}},
-	{GT_TEAMCP			,{0, false, true, true,  false,false,false, true, true, true}},
-	{GT_DIAMOND			,{0, false, true, false, false,true, false, true, true, true}},
-	{GT_TEAMDIAMOND		,{0, false, true, false, false,true, false, true, true, true}},
-	{GT_RUBYRUN 		,{0, false, true, false, false,false, true, false,true, true}},
-	{GT_BATTLETAG		,{0, false, true, false, false,false,false, true, true, true}},
+	{GT_ARENA			,{0, false, true, false, true,  false, false, true, true, true, true, true}}, 
+	{GT_TEAMARENA		,{0, false, true, false, true,  false, false, true, true, true, true, true}}, 
+	{GT_SURVIVAL		,{0, true,  true, false, true,  false, false, true, true, true, true, true}}, 
+	{GT_TEAMSURVIVAL	,{0, true,  true, false, true,  false, false, true, true, true, true, true}}, 
+	{GT_BATTLECTF		,{0, false, true, false, false, false, false, false,true, true, true, true}}, 
+	{GT_CP				,{0, false, true, true,  false, false, false, true, true, true, true, true}},
+	{GT_TEAMCP			,{0, false, true, true,  false, false, false, true, true, true, true, true}},
+	{GT_DIAMOND			,{0, false, true, false, false, true,  false, true, true, true, true, true}},
+	{GT_TEAMDIAMOND		,{0, false, true, false, false, true,  false, true, true, true, true, true}},
+	{GT_RUBYRUN 		,{0, false, true, false, false, false,  true, false,true, true, true, true}},
+	{GT_BATTLETAG		,{0, false, true, false, false, false, false, true, true, true, true, true}},
 }
 for i =1,#GAMETYPE_INDICES do
 	local GAME_TYPE_INDEX 	= GAMETYPE_INDICES[i]
 	local GAME_TYPE_VALUES 	= GAME_TYPE_INDEX[2]
 
-	G.TeamScoreType[GAME_TYPE_INDEX[1]] = GAME_TYPE_VALUES[1]  -- Team Scoretype (1 = add player score to team score. 0 = do nothing)
-	G.SuddenDeath[GAME_TYPE_INDEX[1]] 	= GAME_TYPE_VALUES[2]  -- Does this gametype support sudden death?
-	G.Battle[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[3]  -- Does this gametype use the Battle format?
-	G.CP[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[4]  -- Does this gametype use the Control Point format?
-	G.Arena[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[5]  -- Does this gametype use the Arena format?
-	G.Diamond[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[6]  -- Does this gametype use the Diamond format?
-	G.Ruby[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[7]  -- Does this gametype use the Ruby format?
-	G.PowerCards[GAME_TYPE_INDEX[1]]	= GAME_TYPE_VALUES[8]  -- Does this gametype support Power Cards?
-	G.TailsDoll[GAME_TYPE_INDEX[1]]		= GAME_TYPE_VALUES[9]  -- Does this gametype add Tails Doll?
-	G.SkinLock[GAME_TYPE_INDEX[1]]		= GAME_TYPE_VALUES[10] -- Does this gametype lock the current character?
+	G.TeamScoreType[GAME_TYPE_INDEX[1]] 	= GAME_TYPE_VALUES[1]  -- Team Scoretype (1 = add player score to team score. 0 = do nothing)
+	G.SuddenDeath[GAME_TYPE_INDEX[1]] 		= GAME_TYPE_VALUES[2]  -- Does this gametype support sudden death?
+	G.Battle[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[3]  -- Does this gametype use the Battle format?
+	G.CP[GAME_TYPE_INDEX[1]] 				= GAME_TYPE_VALUES[4]  -- Does this gametype use the Control Point format?
+	G.Arena[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[5]  -- Does this gametype use the Arena format?
+	G.Diamond[GAME_TYPE_INDEX[1]] 			= GAME_TYPE_VALUES[6]  -- Does this gametype use the Diamond format?
+	G.Ruby[GAME_TYPE_INDEX[1]] 				= GAME_TYPE_VALUES[7]  -- Does this gametype use the Ruby format?
+	G.PowerCards[GAME_TYPE_INDEX[1]]		= GAME_TYPE_VALUES[8]  -- Does this gametype support Power Cards?
+	G.TailsDoll[GAME_TYPE_INDEX[1]]			= GAME_TYPE_VALUES[9]  -- Does this gametype add Tails Doll?
+	G.SkinLock[GAME_TYPE_INDEX[1]]			= GAME_TYPE_VALUES[10] -- Does this gametype lock the current character?
+	G.SpawnAnimation[GAME_TYPE_INDEX[1]]	= GAME_TYPE_VALUES[12] -- Does this gametype play the default spawn animation?
 end

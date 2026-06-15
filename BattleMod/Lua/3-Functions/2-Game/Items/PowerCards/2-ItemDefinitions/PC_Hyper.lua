@@ -19,7 +19,7 @@ local function UnsetFunc(mo,player)
 		local skin = skins[player.mo.skin]
 		player.thrustfactor = skin.thrustfactor
 		player.jumpfactor = skin.jumpfactor
-		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary
+		player.gotflagdebuff = false //Let the previous stats get overwritten by CTF if necessary
 		player.mo.hyper_card = nil
 	end
 end
@@ -95,7 +95,7 @@ local function UnsetFunc(mo,player)
 		local skin = skins[player.mo.skin]
 		player.thrustfactor = skin.thrustfactor
 		player.jumpfactor = skin.jumpfactor
-		player.gotflagdebuff = 0 //Let the previous stats get overwritten by CTF if necessary
+		player.gotflagdebuff = false //Let the previous stats get overwritten by CTF if necessary
 		player.mo.hyper_card = nil
 	end
 end

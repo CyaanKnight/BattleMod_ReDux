@@ -36,6 +36,7 @@ B.InitPlayer = function(player)
 	player.capturing = false
 	player.captureamount = 0
 	--player.gotflag = 0 -- Probably bad idea? there could be a condition where player spawns with flag
+	player.noactions = false -- user-modifiable value to allow for no actions whenever
 	player.gotflagdebuff = true -- This is to let Lib_RunnerDebuff refresh the player's stats
 	player.airdodge_speedreset = true -- Ditto, but for Lib_AirDodge
 	player.pushed_creditplr = nil

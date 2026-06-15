@@ -1088,9 +1088,9 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 				icon.flag.frame = ((blue and 2) or 3)|FF_FULLBRIGHT
 				icon.flag.color = info.flagcolor or info.skincolor
 				icon.flag.scale = icon.scale
-				F.ApplyFlip(pmo, icon.flag)
+				B.ApplyFlip(pmo, icon.flag)
 			end
-			F.ApplyFlip(pmo, icon)
+			B.ApplyFlip(pmo, icon)
 			P_MoveOrigin(pmo.flag_indicator.flag, pmo.x,pmo.y,pmo.z+zoffset)
 		end
 
