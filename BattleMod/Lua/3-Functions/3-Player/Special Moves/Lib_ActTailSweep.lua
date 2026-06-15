@@ -4,8 +4,8 @@ local state_dash = 2
 local state_charging = 3
 local state_didthrow = 4
 local cooldown_sweep = TICRATE*2
-local cooldown_dash = TICRATE*2
-local cooldown_throw = cooldown_dash
+local cooldown_grab = TICRATE*3/2
+local cooldown_throw = cooldown_sweep
 local cooldown_cancel = TICRATE*2/3 --0.66s
 local cooldown_spinswipe = TICRATE * 2
 local sideangle = ANG30 - ANG10
@@ -70,7 +70,7 @@ B.Tails_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,th
 		if not B.MyTeam(plr[n1], plr[n2])
 			plr[n2].customstunbreaktics = 5
 			plr[n2].customstunbreakcost = max_grab_stunbreak_cost
-			B.ApplyCooldown(plr[n1], cooldown_dash)
+			B.ApplyCooldown(plr[n1], cooldown_grab)
 		else
 			plr[n1].actioncooldown = cooldown_cancel
 		end
@@ -745,7 +745,7 @@ B.Action.TailSwipe = function(mo,doaction)
 				B.ApplyCooldown(player,cooldown_cancel)
 				P_SpawnGhostMobj(mo)
 			elseif not(throwed) then
-				B.ApplyCooldown(player,cooldown_dash)
+				B.ApplyCooldown(player,cooldown_cancel)
 			end
 		end
 	end
