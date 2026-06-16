@@ -43,7 +43,7 @@ end
 table.insert(CBW_PowerCardQueue, {
 	name 		= "Blessing",
 	chance		= 1,
-	health		= TICRATE*3+15,
+	health		= TICRATE*10,
 	flags		= PCF_HUDWARNING,
 	state		= S_POWERCARD_BLESSING,
 	mapthing	= MT_POWERCARDSPAWN_BLESSING,
