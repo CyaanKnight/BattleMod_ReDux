@@ -51,7 +51,7 @@ end
 table.insert(CBW_PowerCardQueue, {
 	name 		= "Meltdown",
 	chance		= 4,
-	health		= TICRATE*3+10,
+	health		= TICRATE*6,
 	flags		= PCF_HUDWARNING|PCF_EVENT,
 	state		= S_POWERCARD_MELTDOWN,
 	mapthing	= MT_POWERCARDSPAWN_MELTDOWN,
