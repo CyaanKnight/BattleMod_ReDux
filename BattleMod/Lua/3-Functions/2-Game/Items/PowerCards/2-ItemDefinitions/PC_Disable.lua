@@ -27,7 +27,7 @@ end
 table.insert(CBW_PowerCardQueue, {
 	name 		= "Disable",
 	chance		= 4,
-	health		= TICRATE*2,
+	health		= TICRATE*10,
 	flags		= PCF_HUDWARNING|PCF_EVENT,
 	state		= S_POWERCARD_DISABLE,
 	mapthing	= MT_POWERCARDSPAWN_DISABLE,
