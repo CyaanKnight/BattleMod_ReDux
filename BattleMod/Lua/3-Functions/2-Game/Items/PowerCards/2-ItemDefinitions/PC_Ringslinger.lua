@@ -1,7 +1,7 @@
 local PR = CBW_PowerCards
 
 local frequency = 6
-local ammo = 16*frequency
+local ammo = 12*frequency
 
 local DoParticle = function(mo,time,particle,sound)
 	if time%3 return end
