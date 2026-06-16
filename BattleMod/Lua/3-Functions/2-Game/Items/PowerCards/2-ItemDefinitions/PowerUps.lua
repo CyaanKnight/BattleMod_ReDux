@@ -103,7 +103,7 @@ PR.DoCharmed=function(player,charmtime)
 			player.pflags = $|PF_THOKKED
 		end
 		player.charability = 0
-		player.normalspeed = skin.normalspeed*1/4
+--		player.normalspeed = skin.normalspeed*1/4
 -- 		player.thrustfactor = skin.thrustfactor-1
 		//Do aesthetic
 		if not(player.charmedtime&6)
