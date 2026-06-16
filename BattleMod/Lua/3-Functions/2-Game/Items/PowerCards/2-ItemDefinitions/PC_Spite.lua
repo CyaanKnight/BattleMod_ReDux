@@ -1,5 +1,5 @@
 local PR = CBW_PowerCards
-local timer = TICRATE*3 + 10
+local timer = TICRATE*6
 local electrocuted_time = TICRATE*2
 
 local randxy = function(range,x,y)
