@@ -141,7 +141,7 @@ table.insert(CBW_PowerCardQueue, {
 	name 		= "Spite",
 	chance		= 4,
 	health		= timer,
-	flags		= PCF_HUDWARNING|PCF_EVENT,
+	flags		= PCF_HUDWARNING|PCF_EVENT|PCF_RUNNERDEBUFF,
 	state		= S_POWERCARD_SPITE,
 	mapthing	= MT_POWERCARDSPAWN_SPITE,
 	func_spawn	= nil,
