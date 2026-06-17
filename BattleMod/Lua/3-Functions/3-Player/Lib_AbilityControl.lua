@@ -36,7 +36,7 @@ B.TailsCatchPlayer = function(player1,player2)
 	end
 	
 	--Apply gates
-	if tails.panim ~= PA_ABILITY
+	if (tails.charability == CA_FLY and tails.panim ~= PA_ABILITY)
 		or not(tails.pflags&PF_CANCARRY)
 		or zdist > FixedDiv(passenger.mo.height,passenger.mo.scale)/2
 	-- 	or passenger.carried_time < 15
