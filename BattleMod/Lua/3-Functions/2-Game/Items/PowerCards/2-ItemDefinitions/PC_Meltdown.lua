@@ -52,7 +52,7 @@ table.insert(CBW_PowerCardQueue, {
 	name 		= "Meltdown",
 	chance		= 4,
 	health		= TICRATE*6,
-	flags		= PCF_HUDWARNING|PCF_EVENT|PCF_RUNNERDEBUFF,
+	flags		= PCF_HUDWARNING|PCF_EVENT|PCF_RUNNERDEBUFF|PCF_NOTOSS,
 	state		= S_POWERCARD_MELTDOWN,
 	mapthing	= MT_POWERCARDSPAWN_MELTDOWN,
 	func_spawn	= nil,
