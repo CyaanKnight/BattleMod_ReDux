@@ -197,10 +197,11 @@ local FF_BRIGHTMASK = _G["FF_BRIGHTMASK"] or 3145728
 function B.InstaShield_Removed(mo)
 	if mo and mo.valid and mo.target and mo.target.player then
 		local player = mo.target.player
-		player.pflags = $ & ~PF_SHIELDABILITY
+		player.pflags = $ & ~(PF_SHIELDABILITY|PF_THOKKED|PF_JUMPDOWN)
 		player.mo.colorized = false
 		player.mo.shieldscale = FixedMul(mo.scale, player.shieldscale)
 		player.mo.sonic_instashield = nil
+
 	end
 end
 
@@ -283,7 +284,7 @@ function B.HummingTop_MainHook(player)
 					player.exhaustmeter = max(1, $-exhaust_chunk)
 				end
 				cancelHummingTop(player, false, flag)
-				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
+				player.pflags = ($|PF_JUMPED|PF_THOKKED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING)
 				mo.state = S_PLAY_ROLL
 				mo.recurl_actionable = nil
 				mo.hummingtop_hit = nil
