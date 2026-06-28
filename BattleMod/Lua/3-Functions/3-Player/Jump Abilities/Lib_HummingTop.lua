@@ -244,13 +244,17 @@ function B.HummingTop_MainHook(player)
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
 
 		if mo.sonic_instashield and mo.sonic_instashield.valid then
-			mo.colorized = ((leveltime%2) and true) or false
-			mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
-			
-			if not(player.hitbox) then
-				local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
-				hitbox.radius = 50*player.mo.scale
-				hitbox.height = hitbox.radius
+			if not(spinjump) or grounded then
+				P_RemoveMobj(mo.sonic_instashield)
+			else
+				mo.colorized = ((leveltime%2) and true) or false
+				mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
+				
+				if not(player.hitbox) then
+					local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
+					hitbox.radius = 50*player.mo.scale
+					hitbox.height = hitbox.radius
+				end
 			end
 		end
 
