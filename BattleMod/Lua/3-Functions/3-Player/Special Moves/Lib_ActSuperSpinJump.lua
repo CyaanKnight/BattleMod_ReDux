@@ -243,7 +243,6 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		//Restore ability after end-rising
 		if mo.momz*P_MobjFlip(mo) < 0 then 
 			mo.state = S_PLAY_ROLL
-			player.pflags = $&~(PF_THOKKED)
 
 			S_StartSound(player.mo, sfx_s3k42)
 			mo.sonic_instashield = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SONIC_INSTASHIELD)
