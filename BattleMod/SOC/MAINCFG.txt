@@ -71,7 +71,6 @@ ConditionSet 1
 Condition1 = PlayTime 12600000
 
 Level BZ
-LevelName = Training
 SelectHeading = Training
 Music = SMCMUL
 Skynum = 99
@@ -81,6 +80,11 @@ LevelSelect = 1
 Lua.BattleItems_LocalRate = 10
 Lua.BattleItems_GlobalRate = 10
 Lua.AltMusic = SGCMUL
+Lua.redteam_flagsprite = SPR_TAILSFLAG
+Lua.redteam_flagcolor = SKINCOLOR_ORANGE
+Lua.redteam_skincolor = SKINCOLOR_ORANGE
+Lua.redteam_flagname = ORANGE THING
+ 
 
 Level B0
 LevelName = Grass Court
@@ -303,6 +307,10 @@ SelectHeading = Standard
 NextLevel = F5
 SkyNum = 22
 Lua.AltMusic = ERZ2OL
+Lua.redteam_flagsprite = SPR_EGGFLAG
+Lua.redteam_skincolor = SKINCOLOR_GARNET
+Lua.blueteam_flagsprite = SPR_TAILSFLAG
+Lua.blueteam_skincolor = SKINCOLOR_ORANGE
 
 Level F5
 Levelname = Clockwork Towers

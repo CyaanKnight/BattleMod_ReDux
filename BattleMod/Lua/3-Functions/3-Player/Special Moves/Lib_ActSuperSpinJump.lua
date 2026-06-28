@@ -36,12 +36,6 @@ B.Action.SuperSpinJump_Priority = function(player)
 	end
 end
 
-local function cancelDropDash(mo)
-	mo.dropdash_actionable = nil
-	mo.dropdash_prep = nil
-	mo.dropdash_momz = nil
-end
-
 	
 
 B.Action.SuperSpinJump=function(mo,doaction)
@@ -173,14 +167,12 @@ B.Action.SuperSpinJump=function(mo,doaction)
 			player.actionstate = state_groundpound_fall
 		end
 		player.actiontime = abs(mo.momz)
-		cancelDropDash(mo)
 	end
 
 	//Ground pound phase 2
 	if player.actionstate == state_groundpound_fall 
 		B.ControlThrust(mo,poundfriction,nil,FRACUNIT,FixedMul(player.actionspd,mo.scale))
 		mo.coyoteTime = 0
-		cancelDropDash(mo)
 		if mo.momz*P_MobjFlip(mo) > 0 then //If we're moving upward, then something must have interrupted us.
 			player.actionstate = (mo.eflags & MFE_SPRUNG) and $ or 0
 			if mo.pushed_last then
@@ -250,19 +242,21 @@ B.Action.SuperSpinJump=function(mo,doaction)
 		
 		//Restore ability after end-rising
 		if mo.momz*P_MobjFlip(mo) < 0 then 
-			if spin_held then
-				S_StartSound(mo, sfx_drpdsh)
-				mo.dropdash_prep = 100
-				mo.dropdash_actionable = 0
-				mo.dropdash_momz = mo.momz
-			end
-
 			mo.state = S_PLAY_ROLL
 			player.pflags = $&~(PF_THOKKED)
+
+			S_StartSound(player.mo, sfx_s3k42)
+			mo.sonic_instashield = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SONIC_INSTASHIELD)
+			if mo.sonic_instashield and mo.sonic_instashield.valid then
+				mo.sonic_instashield.target = player.mo
+				mo.sonic_instashield.spritexscale = $*3/2
+				mo.sonic_instashield.spriteyscale = $*3/2
+			end
+
 			if not P_IsObjectOnGround(mo) then
 				player.pflags = $|PF_JUMPED
 			end
-			player.actionstate = 0--((doaction == 2) and state_dropdash) or 0
+			player.actionstate = 0
 		end
 
 		if P_IsObjectOnGround(mo) then

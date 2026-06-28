@@ -74,17 +74,13 @@ local function charParam(player)
 	return (player and player.mo and player.mo.valid and (player.charability == CA_JUMPTHOK) and (B.GetSkinVarsFlags(player) & SKINVARS_HUMMINGTOP))
 end
 
-local function cancelHummingTop(player, sound, flag)
-	player.mo.hummingtop_state = nil
+local function cancelHummingTop(player, sound, flag, exhausted)
+	player.mo.state = S_PLAY_FALL
 	
 	
 	if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
 		P_RemoveMobj(player.mo.hummingtop_overlay)
 		player.mo.hummingtop_overlay = nil
-	end
-	if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
-		P_RemoveMobj(player.mo.hummingtop_arrow)
-		player.mo.hummingtop_arrow = nil
 	end
 	player.mo.hummingtop_angle = nil
 	player.mo.hummingtop_drawangle = nil
@@ -103,13 +99,6 @@ local function cancelHummingTop(player, sound, flag)
 		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
 	end
 	player.mo.hummingtop_beyblade_pick = nil
-	
-end
-
-local function cancelDropDash(mo)
-	mo.dropdash_actionable = nil
-	mo.dropdash_prep = nil
-	mo.dropdash_momz = nil
 end
 
 
@@ -136,7 +125,6 @@ function B.HummingTop_AbilitySpecial(player)
 		
 		player.mo.hummingtop_angle = player.mo.angle
 		player.mo.hummingtop_drawangle = player.mo.hummingtop_angle
-		player.canguard = false
 		--We should be completely vulnerable
 		--if player.mo.state != S_PLAY_SPRING then
 			--player.mo.state = S_PLAY_SPRING --Upwards air state
@@ -147,14 +135,14 @@ function B.HummingTop_AbilitySpecial(player)
 
 
 		local current_speed = FixedHypot(player.mo.momx, player.mo.momy)
+		local maxdash = FixedMul(player.mo.scale, player.maxdash) / B.WaterFactor(player.mo)
 		local actionspd = FixedMul(player.mo.scale, player.actionspd) / B.WaterFactor(player.mo)
 		local normalspeed = FixedMul(player.mo.scale, player.normalspeed) / B.WaterFactor(player.mo)
 		
-		local thrust = max(max(current_speed, actionspd), normalspeed)
+		local thrust = max(max(min(current_speed, maxdash), actionspd), normalspeed)
 		
 		--player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK
 		P_InstaThrust(player.mo, player.mo.hummingtop_angle, thrust)
-		cancelDropDash(player.mo)
 		if player.gotflagdebuff then
 			B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
 			B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
@@ -191,21 +179,7 @@ function B.HummingTop_AbilitySpecial(player)
 		--player.mo.hummingtop_overlay.colorized = G_GametypeHasTeams()
 		player.mo.hummingtop_overlay.color = windcolor(player)
 		player.mo.state = S_PLAY_FALL
-		player.canguard = false
-		
-		/*player.mo.hummingtop_arrow = P_SpawnMobj(player.mo.x+cos(player.mo.hummingtop_angle)*ARROW_DIST, player.mo.y+sin(player.mo.hummingtop_angle)*ARROW_DIST, getMiddle(player.mo, mobjinfo[MT_DUST].height), MT_DUST)
-		B.ApplyFlip(player.mo, player.mo.hummingtop_arrow)
-		player.mo.hummingtop_arrow.angle = player.mo.hummingtop_angle
-		player.mo.hummingtop_arrow.fuse = (B.Console.HTop_Commit.value)
-		player.mo.hummingtop_arrow.colorized = true
-		player.mo.hummingtop_arrow.color = player.skincolor
-		player.mo.hummingtop_arrow.state = S_INVISIBLE
-		player.mo.hummingtop_arrow.sprite = SPR_LCKN
-		player.mo.hummingtop_arrow.frame = _G["C"]|FF_PAPERSPRITE
-		player.mo.hummingtop_arrow.rollangle = ANGLE_90
-		player.mo.hummingtop_arrow.renderflags = RF_FULLBRIGHT*/
-		--This function is just a trigger for the main hook
-		player.mo.hummingtop_state = state_spinning
+		player.mo.state = S_SONIC_HUMMINGTOP
 		player.exhaustmeter = min($, player.ledgemeter) --ledgemeter is consistent accross all gametypes
 		return true
 	end
@@ -217,12 +191,25 @@ local state_groundpound_rise = 2
 local state_groundpound_fall = 3
 local state_superspinwave = 10 // new
 
+--????????
+local FF_BRIGHTMASK = _G["FF_BRIGHTMASK"] or 3145728
+
+function B.InstaShield_Removed(mo)
+	if mo and mo.valid and mo.target and mo.target.player then
+		local player = mo.target.player
+		player.pflags = $ & ~PF_SHIELDABILITY
+		player.mo.colorized = false
+		player.mo.shieldscale = FixedMul(mo.scale, player.shieldscale)
+		player.mo.sonic_instashield = nil
+	end
+end
+
 function B.HummingTop_MainHook(player)
 	if charParam(player) then --If we're valid
 	
 		local mo = player.mo
 
-		local humming = (mo.hummingtop_state == state_spinning)
+		local humming = (mo.state == S_SONIC_HUMMINGTOP)
 		local grounded = P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
 		local hurt = P_PlayerInPain(player)
 		local dead = (player.playerstate == PST_DEAD)
@@ -236,11 +223,9 @@ function B.HummingTop_MainHook(player)
 		local sprung = (mo.eflags & MFE_SPRUNG)
 		local exhaust = (player.exhaustmeter <= 0)
 		local tumble = player.tumble
-		local dropdashable = (mo.dropdash_actionable~=nil) and not(humming)
-		local dropdashing = (mo.dropdash_prep == 100)
 		local inexhausted = (player.exhaustmeter > 0)
 		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
-	
+		local spinjump = ((mo.state == S_PLAY_ROLL) and not(grounded) and (player.pflags & PF_JUMPED) and not(player.pflags & PF_NOJUMPDAMAGE))
 
 		local recoil = (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)) and true) or false
 		local stasis_check = true
@@ -250,23 +235,34 @@ function B.HummingTop_MainHook(player)
 		end
 
 		
-		
 		local recurlable = (mo.recurl_actionable == true)
 		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
 		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
 		local jump = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
 
-		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit))
-		local dropdash_cancel = hurt or dead or carry or gp or airdodge or ledge or flag or tumble or knux_grabbed
+		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
 
+		if mo.sonic_instashield and mo.sonic_instashield.valid then
+			mo.colorized = ((leveltime%2) and true) or false
+			mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
+			
+			if not(player.hitbox) then
+				local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
+				hitbox.radius = 50*player.mo.scale
+				hitbox.height = hitbox.radius
+			end
+		end
+
+		if grounded then
+			if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
+				P_RemoveMobj(player.mo.hummingtop_overlay)
+				player.mo.hummingtop_overlay = nil
+			end
+		end
 
 		if flag or tumble or airdodge or carry or knux_grabbed then
 			if humming then
 				cancelHummingTop(player, false, player.gotflagdebuff)
-				cancelDropDash(player.mo)
-			end
-			if dropdashing then
-				cancelDropDash(player.mo)
 			end
 			mo.recurl_actionable = nil
 			mo.air_recoilanim_override = nil
@@ -277,51 +273,9 @@ function B.HummingTop_MainHook(player)
 		end
 
 
-		if grounded or ledge then
-			if dropdashing and not(dropdash_cancel) then
-				mo.state = S_PLAY_ROLL
-				player.pflags = $|PF_SPINNING
-				S_StartSound(mo, sfx_zoom, player)
-				local speed = abs(mo.dropdash_momz/2)+FixedHypot(player.rmomx,player.rmomy)
-				local actionspd = player.actionspd+((player.actionspd/2)-3*FRACUNIT)
-				if player.powers[pw_super] then
-					actionspd = $*3/2
-				end
-				if mo.eflags&MFE_UNDERWATER then actionspd = $*2/3 end
-
-				actionspd = FixedMul(mo.scale, $)
-
-				P_InstaThrust(mo, mo.angle,max(actionspd,speed))
-
-				if player.pflags & PF_ANALOGMODE then
-					player.mo.angle = $
-				end
-				
-				//Dust
-				local function r(mo,value)
-					local w = mo.radius/FRACUNIT/2
-					return value+P_RandomRange(-w,w)*FRACUNIT
-				end
-				for n = 1,4
-					local d = P_SpawnMobj(r(mo,mo.x),r(mo,mo.y),mo.z,MT_SPINDUST)
-					d.extravalue1 = FRACUNIT
-					d.extravalue2 = FRACUNIT
-					if P_MobjFlip(mo) == -1 then
-						d.eflags = $|MFE_VERTICALFLIP
-					end
-					P_SetObjectMomZ(d,FRACUNIT*2)
-					local l = 90*n/4
-					P_InstaThrust(d,mo.angle+ANGLE_135+l*ANG1,actionspd/2)
-				end
-			end
-			cancelDropDash(mo)
-			mo.recurl_actionable = nil
-		end
-
 		if humming then
 			if cancel then
 				cancelHummingTop(player, true, flag)
-				cancelDropDash(mo)
 				return
 			end
 			if recurlable and spin and inexhausted and not(cancel) then
@@ -329,86 +283,23 @@ function B.HummingTop_MainHook(player)
 					player.exhaustmeter = max(1, $-exhaust_chunk)
 				end
 				cancelHummingTop(player, false, flag)
-				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
-				S_StartSound(mo, sfx_zoom)
+				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
 				mo.state = S_PLAY_ROLL
-				mo.dropdash_actionable = 0
 				mo.recurl_actionable = nil
 				mo.hummingtop_hit = nil
+
+				S_StartSound(player.mo, sfx_s3k42)
+				mo.sonic_instashield = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SONIC_INSTASHIELD)
+				if mo.sonic_instashield and mo.sonic_instashield.valid then
+					mo.sonic_instashield.target = player.mo
+					mo.sonic_instashield.spritexscale = $*3/2
+					mo.sonic_instashield.spriteyscale = $*3/2
+				end
+				mo.shieldscale = 0
 			end
 		end
 
-		if dropdashable and not(cancel) then
-			if spin_held then
-				if (mo.dropdash_prep or 0) < 100
-					mo.dropdash_prep = ($==nil and 100/10) or $+100/10
-					if mo.dropdash_prep >= 100
-						S_StartSound(mo, sfx_drpdsh)
-						mo.dropdash_prep = 100
-					end
-				end
-				if (mo.dropdash_prep == 100) then
-				
-					local mo = mo
-
-					local zheight = mo.z - FixedDiv(P_GetPlayerHeight(player) - mo.height, 3*FRACUNIT)
-					if (mo.eflags & MFE_VERTICALFLIP)
-						zheight = mo.z + mo.height + FixedDiv(P_GetPlayerHeight(player) - mo.height, 3*FRACUNIT) - FixedMul(mobjinfo[MT_THOK].height, mo.scale)
-					end
-					
-					if (not (mo.eflags & MFE_VERTICALFLIP)
-					and (zheight < mo.floorz)
-					and not (mobjinfo[MT_THOK].flags & MF_NOCLIPHEIGHT))
-						zheight = mo.floorz
-					elseif (mo.eflags & MFE_VERTICALFLIP and zheight + FixedMul(mobjinfo[MT_THOK].height, mo.scale) > mo.ceilingz and not (mobjinfo[MT_THOK].flags & MF_NOCLIPHEIGHT))
-						zheight = mo.ceilingz - FixedMul(mobjinfo[MT_THOK].height, mo.scale)
-					end
-					
-					local trail = P_SpawnGhostMobj(mo)
-					P_MoveOrigin(trail, trail.x, trail.y, zheight)
-					trail.fuse = 30
-					trail.state = S_THOK
-					trail.frame = TR_TRANS70|A
-					trail.destscale = 0
-					trail.spritexscale = mo.spritexscale
-					trail.spriteyscale = mo.spriteyscale
-
-					mo.dropdash_momz = mo.momz
-					mo.frame = 0
-					mo.sprite = SPR_PLAY
-					mo.sprite2 = SPR2_DRPD
-					mo.dropdash_actionable = (($<(skins[mo.skin].sprites[SPR2_DRPD].numframes)-1) and $+1) or 0
-					mo.frame = mo.dropdash_actionable
-				end
-				if humming or sprung then
-					cancelDropDash(mo)
-				end
-			elseif spin
-				mo.state = S_PLAY_JUMP
-				player.pflags = $ & ~PF_SHIELDABILITY
-				cancelDropDash(mo)
-			else
-				cancelDropDash(mo)
-			end
-		elseif cancel then
-			cancelDropDash(mo)
-			if not(grounded or ledge) then
-				player.pflags = $|PF_THOKKED
-			end
-		end
-
-			
-		
-
-
-
-			
-		if mo.hummingtop_arrow and mo.hummingtop_arrow.valid then
-			B.ApplyFlip(mo, mo.hummingtop_arrow)
-			P_MoveOrigin(mo.hummingtop_arrow, mo.x+cos(mo.hummingtop_angle)*ARROW_DIST, mo.y+sin(mo.hummingtop_angle)*ARROW_DIST, getMiddle(mo, mo.hummingtop_arrow.height))
-		end
-
-		if mo.hummingtop_state == state_spinning then --Launching?
+		if mo.state == S_SONIC_HUMMINGTOP then --Launching?
 			--Launch forwards and upwards, so Sonic can't just thok into the ground
 
 			if player.glidetime == 1 then
@@ -446,6 +337,12 @@ function B.HummingTop_MainHook(player)
 				mo.momz = 0
 				player.cmd.angleturn = player.realangleturn
 				player.glidetime = $-1
+
+				local maxdash = FixedMul(player.mo.scale, player.maxdash) / B.WaterFactor(player.mo)
+				if player.speed >= maxdash-(maxdash/3) then
+					player.mo.momx = $-($/15)
+					player.mo.momy = $-($/15)
+				end
 			elseif player.glidetime == 2 then
 				B.SpawnFlash(mo, 10, false)
 				if mo.hummingtop_overlay and mo.hummingtop_overlay.valid then
@@ -554,7 +451,7 @@ local param = function(player)
 	and player.mo 
 	and player.mo.valid 
 	and (
-			(player.mo.hummingtop_state == state_spinning)
+			(player.mo.state == S_SONIC_HUMMINGTOP)
 		 --or (player.actionstate == state_superspinjump)
 	)
 end
@@ -695,8 +592,6 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 
 	--Hold jump button for better bounce, don't hold for small bounce
 	local bigbounce = true--(player.pflags & PF_JUMPDOWN)
-	local dropdash = (mo.dropdash_prep == 100)-- or (player.actionstate == state_superspinjump)
-	
 	--Calculate angle
 	local vwallnorm = SphereToCartesian(wallnormangle, 0)
 	
@@ -721,7 +616,7 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 	end
 	
 	--Screenshake
-	if player == consoleplayer and (bigbounce or nocl) and not(dropdash or fxonly)
+	if player == consoleplayer and (bigbounce or nocl) and not(fxonly)
 		local shake = 12
 		local shaketics = 3
 		if player.powers[pw_super]
@@ -741,7 +636,7 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 	player.pflags = $ & ~PF_JUMPED
 	
 	local weak = false
-	if not bigbounce and not nocl and not dropdash then
+	if not bigbounce and not nocl then
 		--Weak bump sfx
 		S_StartSoundAtVolume(mo,sfx_s3k5d,155)
 		weak = true
@@ -865,11 +760,6 @@ local function DoWallBounce(mo,player,wallnormangle,walltype,side,reflect,fxonly
 		player.glidetime = ($>2 and 2) or 0
 		player.mo.recurl_actionable = true
 		player.exhaustmeter = max(0, $-exhaust_chunk)
-		if player.mo.hummingtop_arrow and player.mo.hummingtop_arrow.valid then
-			P_RemoveMobj(player.mo.hummingtop_arrow)
-			player.mo.hummingtop_arrow = nil
-		end
-		cancelDropDash(mo)
 	end
 	S_StartSound(mo, sfx_bounc1)
 end
@@ -901,7 +791,7 @@ end--, MT_PLAYER)
 --all night and day
 
 function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
-	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_state == state_spinning) then
+	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].state == S_SONIC_HUMMINGTOP) then
 
 		
 		mo[n1].hummingtop_marker = {}
@@ -911,7 +801,7 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 
 		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
 
-		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].hummingtop_state == state_spinning) then
+		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].state == S_SONIC_HUMMINGTOP) then
 			mo[n1].hummingtop_marker.beyblade = true
 		end	
 	end
@@ -922,6 +812,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
+		local beyblade_post = false
 		mo[n1].hummingtop_marker = nil
 
 
@@ -934,7 +825,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		--Thrust sonic away
 		P_InstaThrust(mo[n1], angle[n1], (mo[n1].scale*10) / B.WaterFactor(mo[n1]))
 		B.ZLaunch(mo[n1], 7 * mo[n1].scale, false)
-		if hit or (fail and not(clash)) then
+		if hit or fail then
 			DoWallBounce(mo[n1], plr[n1], angle[n2], 0, nil, nil, true)
 			mo[n1].recurl_actionable = true
 			mo[n1].air_recoilanim_override = true
@@ -958,6 +849,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].air_recoilanim_override = true
 				DoWallBounce(mo[n1], plr[n1], angle[n2], 1, nil, nil, true)
 				if beyblade then
+					mo[n1].state = S_SONIC_HUMMINGTOP
 					S_StartSound(mo[n1], sfx_tink)
 					S_StartSound(mo[n1], sfx_htok)
 					mo[n1].hummingtop_beyblade = true
@@ -969,6 +861,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 					plr[n1].powers[pw_nocontrol] = min($, 1)
 
 					S_StartSoundAtVolume(mo[n1],sfx_s3k9b,70)
+					beyblade_post = true
 
 
 					if not(mo[n1].hummingtop_beyblade_pick) then
@@ -992,7 +885,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 
 		plr[n1].glidetime = 2 --Commit time ends
 
-		if not(beyblade) then
+		if not(beyblade or beyblade_post) then
 			plr[n1].exhaustmeter = max(0, $-exhaust_chunk)
 		end
 		return

@@ -150,7 +150,7 @@ B.CanShieldActive = function(player)
 		and not player.actionstate
 		and not player.powers[pw_nocontrol]
 		and not (player.pflags&PF_SHIELDABILITY)
-		and not (player.mo and player.mo.valid and player.mo.dropdash_prep)
+		and not (player.mo.sonic_instashield or player.mo.recurl_actionable)
 	then
 		return true
 	end
