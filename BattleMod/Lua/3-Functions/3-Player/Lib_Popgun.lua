@@ -402,7 +402,17 @@ local function newGunslinger(player)
 			//Air function
 			if not(P_IsObjectOnGround(mo))
 			and not(player.pflags&PF_BOUNCING)
-				B.ResetPlayerProperties(player,false,true)
+				local thokked = false
+				local jumped = true
+
+				if mo._slinger_stick and mo._slinger_stick.valid then
+					if not(player.pflags&PF_JUMPED) then
+						thokked = true
+						jumped = false
+					end
+				end
+
+				B.ResetPlayerProperties(player,jumped,thokked)
 				P_Thrust(mo,mo.angle+ANGLE_180,mo.scale*10)
 				P_SetObjectMomZ(mo,FRACUNIT*5,true)
 				mo.momx = $/2
