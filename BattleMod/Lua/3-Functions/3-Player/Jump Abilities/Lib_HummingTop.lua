@@ -210,26 +210,25 @@ function B.HummingTop_MainHook(player)
 	
 		local mo = player.mo
 
-		local humming = (mo.state == S_SONIC_HUMMINGTOP)
-		local grounded = P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
-		local hurt = P_PlayerInPain(player)
-		local dead = (player.playerstate == PST_DEAD)
-		local carry = (player.powers[pw_carry]) and ((player.powers[pw_carry] != CR_FAN) and (player.powers[pw_carry] != CR_BRAKGOOP))
-		local gp = (player.actionstate == state_groundpound_rise) or (player.actionstate == state_groundpound_fall)
-		local wave = (player.actionstate == state_superspinwave)
+		local humming 		= (mo.state == S_SONIC_HUMMINGTOP)
+		local grounded 		= P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
+		local hurt 			= P_PlayerInPain(player)
+		local dead 			= (player.playerstate == PST_DEAD)
+		local carry 		= (player.powers[pw_carry]) and ((player.powers[pw_carry] != CR_FAN) and (player.powers[pw_carry] != CR_BRAKGOOP))
+		local gp 			= (player.actionstate == state_groundpound_rise) or (player.actionstate == state_groundpound_fall)
+		local wave 			= (player.actionstate == state_superspinwave)
 		local superspinjump = (player.actionstate == state_superspinjump)
-		local airdodge = (player.airdodge >= 1)
-		local ledge = (mo.state == S_PLAY_LEDGE_GRAB)
-		local flag = player.gotflagdebuff
-		local sprung = (mo.eflags & MFE_SPRUNG)
-		local exhaust = (player.exhaustmeter <= 0)
-		local tumble = player.tumble
-		local inexhausted = (player.exhaustmeter > 0)
-		local knux_grabbed = (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
-		local spinjump = ((mo.state == S_PLAY_ROLL) and not(grounded) and (player.pflags & PF_JUMPED) and not(player.pflags & PF_NOJUMPDAMAGE))
-
-		local recoil = (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)) and true) or false
-		local stasis_check = true
+		local airdodge 		= (player.airdodge >= 1)
+		local ledge 		= (mo.state == S_PLAY_LEDGE_GRAB)
+		local flag 			= player.gotflagdebuff
+		local sprung 		= (mo.eflags & MFE_SPRUNG)
+		local exhaust 		= (player.exhaustmeter <= 0)
+		local tumble 		= player.tumble
+		local inexhausted 	= (player.exhaustmeter > 0)
+		local knux_grabbed 	= (mo and mo.tracer and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and (mo.tracer.player.kgrab == mo))
+		local spinjump 		= ((mo.state == S_PLAY_ROLL) and not(grounded) and (player.pflags & PF_JUMPED) and not(player.pflags & PF_NOJUMPDAMAGE))
+		local recoil 		= (((mo.recoilangle ~= nil) and (mo.recoilthrust ~= nil)) and true) or false
+		local stasis_check 	= true
 
 		if recoil then
 			stasis_check = false
@@ -237,9 +236,9 @@ function B.HummingTop_MainHook(player)
 
 		
 		local recurlable = (mo.recurl_actionable == true)
-		local spin = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
-		local spin_held = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
-		local jump = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
+		local spin 		 = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
+		local spin_held  = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
+		local jump 		 = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
 
@@ -804,8 +803,6 @@ function B.Sonic_PreCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,t
 		mo[n1].recurl_actionable = nil
 		mo[n1].air_recoilanim_override = nil
 
-		mo[n1].hummingtop_marker.xyspeed = {mo[n1].momx, mo[n1].momy}
-
 		if plr[n2] and mo[n2] and mo[n2].valid and (mo[n2].state == S_SONIC_HUMMINGTOP) then
 			mo[n1].hummingtop_marker.beyblade = true
 		end	
@@ -814,9 +811,8 @@ end
 
 function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	if plr[n1] and mo[n1] and mo[n1].valid and (mo[n1].hummingtop_marker~=nil) then
-
-		local sonic_xyspeed = mo[n1].hummingtop_marker.xyspeed
 		local beyblade = mo[n1].hummingtop_marker.beyblade
+		local bumpspeed = FixedDiv(5*mo[n1].scale, weight[n2])
 		local beyblade_post = false
 		mo[n1].hummingtop_marker = nil
 
@@ -838,17 +834,16 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 			mo[n1].recoilthrust = nil
 			mo[n1].recoilangle = nil
 			plr[n1].powers[pw_nocontrol] = 0
-			--print(true)
-			P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+			P_InstaThrust(mo[n2], angle[n2], bumpspeed)
 		elseif bump then
 			if (plr[n2]) and not(beyblade) then
 				cancelHummingTop(plr[n1], false, plr[n1].gotflagdebuff)
 				mo[n1].hummingtop_hit = nil
 				mo[n1].recurl_actionable = nil
 				mo[n1].air_recoilanim_override = nil
-				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+				P_InstaThrust(mo[n2], angle[n2], bumpspeed)
 			else
-				P_InstaThrust(mo[n2], angle[n2], FixedHypot(sonic_xyspeed[1], sonic_xyspeed[2])/3)
+				P_InstaThrust(mo[n2], angle[n2], bumpspeed)
 				mo[n1].hummingtop_hit = true
 				mo[n1].recurl_actionable = true
 				mo[n1].air_recoilanim_override = true
