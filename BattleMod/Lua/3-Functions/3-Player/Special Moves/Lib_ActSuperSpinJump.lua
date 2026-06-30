@@ -48,6 +48,7 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	
 	if not(B.CanDoAction(player)) then
 		player.actionstate = 0
+		mo.sonic_instashieldbuffer = nil
 		if not player.exiting then
 			mo.spritexscale = FRACUNIT
 			mo.spriteyscale = FRACUNIT
@@ -96,7 +97,8 @@ B.Action.SuperSpinJump=function(mo,doaction)
 	//Neutral
 	if player.actionstate == 0
 		player.squashstretch = 0
-		if doaction == 1 then
+		if doaction == 1 or (mo.sonic_instashieldbuffer and not(mo.sonic_instashield and mo.sonic_instashield.valid) and doaction == 2) then
+			mo.sonic_instashieldbuffer = nil
 			B.PayRings(player)
 			//Do spin wave if charging a spin dash
 			if mo.state == S_PLAY_SPINDASH and player.dashspeed > (player.maxdash/5*3) then

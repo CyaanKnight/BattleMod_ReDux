@@ -201,7 +201,6 @@ function B.InstaShield_Removed(mo)
 		player.mo.colorized = false
 		player.mo.shieldscale = FixedMul(mo.scale, player.shieldscale)
 		player.mo.sonic_instashield = nil
-
 	end
 end
 
@@ -242,18 +241,27 @@ function B.HummingTop_MainHook(player)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
 
-		if mo.sonic_instashield and mo.sonic_instashield.valid then
-			if not(spinjump) or grounded then
-				P_RemoveMobj(mo.sonic_instashield)
-			else
-				mo.colorized = ((leveltime%2) and true) or false
-				mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
-				
-				if not(player.hitbox) then
-					local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
-					hitbox.radius = 50*player.mo.scale
-					hitbox.height = hitbox.radius
+		if mo.sonic_instashield
+			if mo.sonic_instashield.valid then
+				if not(spinjump) or grounded then
+					P_RemoveMobj(mo.sonic_instashield)
+				else
+					mo.colorized = ((leveltime%2) and true) or false
+					mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
+					
+					if not(player.hitbox) then
+						local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
+						hitbox.radius = 50*player.mo.scale
+						hitbox.height = hitbox.radius
+					end
+					
+					mo.sonic_instashieldbuffer = true
 				end
+			else
+				player.pflags = $ & ~(PF_SHIELDABILITY|PF_THOKKED|PF_JUMPDOWN)
+				mo.colorized = false
+				mo.shieldscale = FixedMul(mo.scale, player.shieldscale)
+				mo.sonic_instashield = nil
 			end
 		end
 
