@@ -250,9 +250,9 @@ function B.HummingTop_MainHook(player)
 					mo.frame = ($ & ~FF_BRIGHTMASK)|FF_FULLBRIGHT
 					
 					if not(player.hitbox) then
-						local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 12*player.mo.scale, 2, S_SONIC_HUMMINGTOP, true, 0)	
-						hitbox.radius = 50*player.mo.scale
-						hitbox.height = hitbox.radius
+						local hitbox = B.BattleHitboxSpawn(player, 1*player.mo.scale, 1*player.mo.scale, 2, nil, true, 0)
+						hitbox.radius = 45*player.mo.scale
+						hitbox.height = 65*player.mo.scale
 					end
 					
 					mo.sonic_instashieldbuffer = true
