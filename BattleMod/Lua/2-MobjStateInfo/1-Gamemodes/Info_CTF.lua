@@ -10,6 +10,7 @@ freeslot(
         "SPR_TAILSFLAG",
         "SPR_AMYFLAG",
         "SPR_FANGFLAG",
+		"SPR_METALSONFLAG",
         "SPR_EGGFLAG",
         "SPR_CGOTFLAG"
 )

@@ -86,6 +86,7 @@ B.AirDodge = function(player)
 		local dodge_momz_real = dodge_momz*mo.scale/B.WaterFactor(mo)
 		local dodge_thrust_real = mo.scale*dodge_thrust
 		if player.gotflagdebuff
+			player.safedodge = -1
 			dodge_thrust_real = $ * 3/4
 			dodge_momz_real = $ / 2
 		end

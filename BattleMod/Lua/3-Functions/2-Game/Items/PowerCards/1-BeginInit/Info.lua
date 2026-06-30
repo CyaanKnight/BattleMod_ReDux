@@ -44,7 +44,8 @@ freeslot('S_POWERCARD_BLANK',
 	'S_POWERCARD_DISABLE',
 	'S_POWERCARD_PARTICLES',
 	'S_POWERCARD_MELTDOWN',
-	'S_POWERCARD_SPITE')
+	'S_POWERCARD_SPITE',
+	'S_POWERCARD_CURSE')
 
 //State info
 states[S_POWERCARD_BLANK] 		= {sprite = SPR_CARD, frame = A|FF_PAPERSPRITE|FF_FULLBRIGHT}
@@ -57,6 +58,7 @@ states[S_POWERCARD_DISABLE] 	= {sprite = SPR_CARD, frame = G|FF_PAPERSPRITE|FF_F
 states[S_POWERCARD_PARTICLES] 	= {sprite = SPR_CARD, frame = H|FF_PAPERSPRITE|FF_FULLBRIGHT}
 states[S_POWERCARD_MELTDOWN] 	= {sprite = SPR_CARD, frame = I|FF_PAPERSPRITE|FF_FULLBRIGHT}
 states[S_POWERCARD_SPITE] 		= {sprite = SPR_CARD, frame = J|FF_PAPERSPRITE|FF_FULLBRIGHT}
+states[S_POWERCARD_CURSE]		= {sprite = SPR_CARD, frame = K|FF_PAPERSPRITE|FF_FULLBRIGHT}
 
 --*** Power Card object
 freeslot("MT_POWERCARD")
@@ -196,6 +198,18 @@ mobjinfo[MT_POWERCARDSPAWN_BLESSING] = {
 		//$Sprite CARDD0
 		//$Category "BattleMod Power Card Spawns"
         doomednum = 3598,
+        spawnstate = S_NULL,
+        radius = 36*FRACUNIT,
+        height = 80*FRACUNIT,
+        flags = MF_NOTHINK|MF_NOSECTOR|MF_NOBLOCKMAP,
+}
+
+freeslot("MT_POWERCARDSPAWN_CURSE")
+mobjinfo[MT_POWERCARDSPAWN_CURSE] = {
+		//$Name "Power Card (Curse)"
+		//$Sprite CARDK0
+		//$Category "BattleMod Power Card Spawns"
+        doomednum = 3599,
         spawnstate = S_NULL,
         radius = 36*FRACUNIT,
         height = 80*FRACUNIT,

@@ -33,6 +33,10 @@ PR.LoseOwner = function(mo,intangible)
 end
 
 PR.TossItem = function(mo,intangible)
+	if PR.Item[mo.item].flags & PCF_NOTOSS then
+		return
+	end
+	
 	if mo.target and mo.target.valid
 		local t = mo.target
 		P_TeleportMove(mo,t.x,t.y,t.z)

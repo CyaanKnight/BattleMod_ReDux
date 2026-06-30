@@ -210,10 +210,11 @@ B.Action.Slide = function(mo,doaction)
 			mo._fbomb.momx = 0
 			mo._fbomb.momy = 0
 			P_SetObjectMomZ(mo._fbomb, mo.scale*10*P_MobjFlip(mo))
-			mo._fbomb.flags = $|MF_BOUNCE|MF_GRENADEBOUNCE
-			mo._fbomb.scale = mo.scale*5/4
+			mo._fbomb.flags = $|MF_BOUNCE|MF_GRENADEBOUNCE|MF_SHOOTABLE
+			mo._fbomb.flags2 = $ & ~MF2_FRET
+			mo._fbomb.scale = mo.scale*5/3
 			mo._fbomb.bombtype = 0
-			mo._fbomb.fuse = 4*TICRATE
+			mo._fbomb.fuse = 9*TICRATE
 		end
 		player.actiontime = 0
 		player.actionstate = 0
@@ -399,10 +400,11 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			mo._fbomb.momx = 0
 			mo._fbomb.momy = 0
 			P_SetObjectMomZ(mo._fbomb, mo[n1].scale*8*P_MobjFlip(mo[n1]))
-			mo._fbomb.flags = $ &~ (MF_GRENADEBOUNCE)
-			mo._fbomb.scale = mo[n1].scale*5/4
+			mo._fbomb.flags = $|MF_SHOOTABLE & ~(MF_GRENADEBOUNCE)
+			mo._fbomb.flags2 = $ & ~MF2_FRET
+			mo._fbomb.scale = mo[n1].scale*5/3
 			mo._fbomb.bombtype = 0
-			mo._fbomb.fuse = 4*TICRATE
+			mo._fbomb.fuse = 9*TICRATE
 		end
 	end
 

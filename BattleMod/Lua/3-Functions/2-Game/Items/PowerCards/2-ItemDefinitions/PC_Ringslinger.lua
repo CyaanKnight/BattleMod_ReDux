@@ -1,7 +1,7 @@
 local PR = CBW_PowerCards
 
 local frequency = 6
-local ammo = 16*frequency
+local ammo = 12*frequency
 
 local DoParticle = function(mo,time,particle,sound)
 	if time%3 return end
@@ -87,7 +87,7 @@ table.insert(CBW_PowerCardQueue, {
 	name 		= "Ringslinger",
 	chance		= 5,
 	health		= ammo,
-	flags		= PCF_RUNNERDEBUFF,
+	flags		= PCF_RUNNERDEBUFF|PCF_NOTOSS,
 	state		= S_POWERCARD_RINGSLINGER,
 	mapthing	= MT_POWERCARDSPAWN_RINGSLINGER,
 	func_spawn	= nil,

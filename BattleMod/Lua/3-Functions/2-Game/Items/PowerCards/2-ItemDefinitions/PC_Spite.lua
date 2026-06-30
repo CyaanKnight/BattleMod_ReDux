@@ -1,5 +1,5 @@
 local PR = CBW_PowerCards
-local timer = TICRATE*3 + 10
+local timer = TICRATE*6
 local electrocuted_time = TICRATE*2
 
 local randxy = function(range,x,y)
@@ -141,7 +141,7 @@ table.insert(CBW_PowerCardQueue, {
 	name 		= "Spite",
 	chance		= 4,
 	health		= timer,
-	flags		= PCF_HUDWARNING|PCF_EVENT,
+	flags		= PCF_HUDWARNING|PCF_EVENT|PCF_RUNNERDEBUFF,
 	state		= S_POWERCARD_SPITE,
 	mapthing	= MT_POWERCARDSPAWN_SPITE,
 	func_spawn	= nil,
