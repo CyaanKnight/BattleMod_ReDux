@@ -213,6 +213,7 @@ B.DebugHUD = function(v, player, cam)
 			if(D.ID and D.ID.valid) then
 				addline("Idle",(D.ID.idle))
 			end
+			addline("SpawnGrace", R.SpawnGrace)
 		end
 	end
 	

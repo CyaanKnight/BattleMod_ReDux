@@ -5,6 +5,7 @@ R.ID = nil
 R.CheckPoint = nil
 R.RedGoal = nil
 R.BlueGoal = nil
+R.SpawnGrace = 0
 local RUBYRUN_SCORE = 250 -- The score a player gets for capping ruby in ruby run
 
 local rotatespd = ANG20
@@ -23,7 +24,18 @@ R.GameControl = function()
 	if not(B.RubyGametype())or B.PreRoundWait() 
 	then return end
 	if R.ID == nil or not(R.ID.valid) then
-		R.SpawnRuby()
+		if CV.RubySpawnDelay.value and not(R.SpawnGrace) then
+			if (R.CheckPoint and R.CheckPoint.valid) then
+				R.SpawnGrace = 1
+			else
+				R.SpawnGrace = CV.RubySpawnDelay.value
+			end
+		else
+			R.SpawnGrace = max(0,$-1)
+			if not(R.SpawnGrace) then
+				R.SpawnRuby()
+			end
+		end
 	end
 	for player in players.iterate do
 		if player and player.mo and player.mo.valid then

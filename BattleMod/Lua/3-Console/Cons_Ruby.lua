@@ -13,3 +13,10 @@ CV.RubyCaptureBonus = CV_RegisterVar{
 	flags = CV_NETVAR,
 	PossibleValue = {MIN = 0, MAX = 100000}
 }
+
+CV.RubySpawnDelay = CV_RegisterVar{
+	name = "ruby_spawn_delay",
+	defaultvalue = 0,
+	flags = CV_NETVAR,
+	PossibleValue = {MIN = 0, MAX = 100000}
+}

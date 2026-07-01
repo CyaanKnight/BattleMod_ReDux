@@ -19,13 +19,21 @@ end
 
 R.HUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
+	local newhud = CV.FindVarString("battleconfig_hud", {"New", "Minimal"})
+
+	if B.RubyGametype() and R.SpawnGrace then
+		local xoff = 320/2
+		local yoff = 24
+		if newhud then yoff = $+12 end
+		v.drawString(xoff,yoff,R.SpawnGrace/TICRATE,V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER,"center")
+	end
 
 	if not (player.realmo and player.realmo.valid) then return end
 
 	local ruby = R.ID
 	if not (ruby and ruby.valid) then return end
 	
-	if CV.FindVarString("battleconfig_hud", {"New", "Minimal"}) then
+	if newhud then
 		local flags = V_HUDTRANS|V_SNAPTOTOP|V_PERPLAYER
 		local xoffset = 160
 		local yoffset = 38
