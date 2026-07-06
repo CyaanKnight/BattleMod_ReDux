@@ -254,6 +254,18 @@ function B.HummingTop_MainHook(player)
 						hitbox.radius = 45*player.mo.scale
 						hitbox.height = 65*player.mo.scale
 					end
+
+					if (player.pflags & PF_JUMPDOWN) then
+						if not(leveltime%3) then
+							local ghost = P_SpawnGhostMobj(mo)
+							if ghost and ghost.valid then
+								ghost.colorized = true
+								ghost.frame = $|FF_FULLBRIGHT
+								ghost.blendmode = AST_ADD
+								ghost.fuse = 10
+							end
+						end
+					end
 					
 					mo.sonic_instashieldbuffer = true
 				end
