@@ -1,5 +1,5 @@
 '''
-# SRB2ModCompiler v9 (BETA 1) by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v9 (BETA 2) by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
@@ -867,7 +867,7 @@ def _get_file_crc(file_path: str) -> int:
     return crc_value & 0xFFFFFFFF
 
 
-def create_or_update_zip(source_path: str, destination_path: str, zip_name: str, compression_method: str):
+def create_or_update_zip(source_path: str, destination_path: str, zip_name: str, extra: str = "DEFLATED"):
     '''
     This function aims to create or update a zip file using as least write operations as possible.
     SSD health is important when you're zipping a large tree frequently.
@@ -876,24 +876,25 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str,
     import io
     import zipfile
     zip_full_path = os.path.join(destination_path, zip_name)
-    compressionmethod = zipfile.ZIP_STORED if compression_method.upper() == "STORED" else zipfile.ZIP_DEFLATED
+    compressionmethod = zipfile.ZIP_STORED if extra.upper() == "STORED" else zipfile.ZIP_DEFLATED
     ignore_file = None
 
-    try:
-        mod_dir = find_mod_directory()
-        fileInModDir = True
-        ignore_file = os.path.join(mod_dir, ".SRB2C_IGNORE")
-        if not os.path.exists(ignore_file):
-            fileInModDir = False
-            ignore_file = os.path.join(os.path.dirname(__file__), ".SRB2C_IGNORE")
+    if not extra == "IGNORE-IGNORES":
+        try:
+            mod_dir = find_mod_directory()
+            fileInModDir = True
+            ignore_file = os.path.join(mod_dir, ".SRB2C_IGNORE")
+            if not os.path.exists(ignore_file):
+                fileInModDir = False
+                ignore_file = os.path.join(os.path.dirname(__file__), ".SRB2C_IGNORE")
 
-        with open(ignore_file, "r") as file:
-            if isVerbose:
-                where = os.path.basename(os.path.dirname(mod_dir if fileInModDir else os.path.dirname(__file__)))
-                verbose(f"Found {GREEN}.SRB2C_IGNORE{BLUE} file in {where}")
-    except FileNotFoundError:
-        verbose(f"{GREEN}.SRB2C_IGNORE{BLUE} file not found, so we will be using the default parameters: {GREEN}{DEFAULT_IGNORE}{BLUE}")
-        ignore_file = io.StringIO(DEFAULT_IGNORE)
+            with open(ignore_file, "r") as file:
+                if isVerbose:
+                    where = os.path.basename(os.path.dirname(mod_dir if fileInModDir else os.path.dirname(__file__)))
+                    verbose(f"Found {GREEN}.SRB2C_IGNORE{BLUE} file in {where}")
+        except FileNotFoundError:
+            verbose(f"{GREEN}.SRB2C_IGNORE{BLUE} file not found, so we will be using the default parameters: {GREEN}{DEFAULT_IGNORE}{BLUE}")
+            ignore_file = io.StringIO(DEFAULT_IGNORE)
 
     ignore_patterns = _load_ignore_patterns(ignore_file)
     
@@ -1260,6 +1261,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.zip:
-        create_or_update_zip(args.zip[0], args.zip[1], args.zip[2], "DEFLATED")
+        create_or_update_zip(args.zip[0], args.zip[1], args.zip[2], args.zip[3])
     else:
         main()
