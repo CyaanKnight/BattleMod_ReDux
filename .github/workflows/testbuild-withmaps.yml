@@ -1,0 +1,56 @@
+name: Generate & Upload Full Build
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    # (Manual trigger) Allows you to run this workflow manually from the Actions tab
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Create VersionInfo
+        run: |
+         touch Init_VersionInfo.lua
+
+      - name: Populate VersionInfo
+        run: |
+          printf "CBW_Battle.VersionNumber = 10\nCBW_Battle.VersionSub = 0\nCBW_Battle.VersionPublic = 0\nCBW_Battle.VersionDate = '$(date +"%-m/%-d/%Y")'\nCBW_Battle.VersionTime = '$(date +"%l:%M:%S %p")'\nCBW_Battle.VersionBranch = '$(git rev-parse --abbrev-ref HEAD)'\nCBW_Battle.VersionCommit = '$(git rev-parse --short HEAD)'" >> Init_VersionInfo.lua
+
+      - name: Copy VersionInfo into .pk3
+        run: |
+          cp Init_VersionInfo.lua .\BattleMod\Lua\1-Init\
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.1.1
+        with:
+            python-version: '3.10' 
+
+      - name: Remove ignore file from runner
+        shell: pwsh
+        run: |
+          if (Test-Path .SRB2C_IGNORE) {
+            Remove-Item .SRB2C_IGNORE -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: SRB2Compile
+        run: |
+         python3 .github\workflows\SRB2C.py -zip ".\BattleMod\" ".\" "ZBa_BattleReDux_FULLTEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"  
+
+      - name: Shortened Hash
+        uses: 2428392/gh-truncate-string-action@v1
+        id: truncatedString
+        with:
+            stringToTruncate: ${{ github.sha }}
+            maxLength: 6
+      - name: Upload to Discord
+        run: |
+          curl -F 'payload_json={"content": "Commit - [${{ steps.truncatedString.outputs.string }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})"}' -F "file1=@ZBa_BattleReDux_FULLTEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" ${{ secrets.DISCORD_WEBHOOK_URL }}   

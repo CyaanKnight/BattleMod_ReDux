@@ -1,0 +1,26 @@
+# Default
+
+*.py
+*.pyw
+*.md
+LICENSE
+*.ase
+.*
+.git/
+
+# Blacklist every map-related thing except the training map
+
+Level select pictures/
+LongSprites/Flags/
+#Lua/a-MapSoc/
+#Lua/b-MapLua/
+
+Maps/*
+!Maps/MAPBZ.wad
+
+Music/Maps/*
+!Music/Maps/Training/
+
+#Sprites/ZoneBuilder/
+Textures/
+zSOC/

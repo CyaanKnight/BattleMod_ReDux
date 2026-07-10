@@ -1,5 +1,5 @@
 '''
-# SRB2ModCompiler v8.2 by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v9 (BETA 1) by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
@@ -20,10 +20,13 @@ LAZY IMPORTS:
 - json: Only in the save_config() and load_config() functions
 - platformdirs: Only in the get_config_path() function
 - warnings: Only in the create_or_update_zip() function
+- fnmatch: Only in the _is_ignored() function
+- zlib: Only in the _get_file_crc() function
 '''
 
 runcount = 0
 isVerbose = False
+isDeflate = False
 
 def verbose(*args, **kwargs):
     if isVerbose:
@@ -39,8 +42,19 @@ BLACK = '\033[30m' if vscode else ''
 UNDERLINE = '\033[4m' if vscode else ''
 NOUNDERLINE = '\033[24m' if vscode else ''
 
+DEFAULT_IGNORE = '''
+*.py
+*.pyw
+*.md
+LICENSE
+*.ase
+.*
+.git/
+'''
+
 def main():
     global isVerbose
+    global isDeflate
 
     profile, name = get_active_profile()
     status = GREEN+"ready" if profile["exe_path"] else (YELLOW+"optional" if os.name=="posix" else RED+"not set")
@@ -111,7 +125,7 @@ def main():
             print(f"- Used to launch the game with special settings. DEFAULT: {GREEN}-skipintro{BLUE}")
             print(f'- Example: {GREEN}-skipintro -server +downloading off +color orange +skin tails +wait 1 +"map tut -g 0 -f"{BLUE}')
             print(f"{RED}- NOTE: Regardless of what parameters you type in here, the script will always use the {GREEN}-file (your_mod.pk3){RED} parameter to run your mod.")
-            verbose(f"    - Ensure no conflicts by using {GREEN}-prefile{RED} or {GREEN}+addfile{RED} instead to ensure there won't be conflicts.{BLUE}")
+            verbose(f"    - Use {GREEN}-prefile{RED} or {GREEN}+addfile{RED} instead to ensure there won't be addon load order conflicts.{BLUE}")
             print(f"{BLACK}- TIP: Refer to the 'command line parameters' page from the SRB2 Wiki for more parameters{BLUE}.")
             print()
             print(f"{UNDERLINE}First, where do you want to save the file?{NOUNDERLINE}")
@@ -125,7 +139,7 @@ def main():
                 print("Operation cancelled.")
                 continue
 
-            print("Enter your args, or leave blank to delete the file.")
+            print("Enter your args, or leave blank to delete the file (DEFAULT will be used by the program).")
             
             script_dir = os.path.dirname(os.path.abspath(__file__))
             mod_dir = find_mod_directory()
@@ -216,6 +230,9 @@ def main():
         elif command == "verbose":
             isVerbose = not isVerbose
             print(f"Verbose mode is now {GREEN if isVerbose else RED}{('enabled' if isVerbose else 'disabled')}{BLUE}.")
+        elif command == "deflate":
+            isDeflate = not isDeflate
+            print(f"Deflate mode is now {GREEN if isDeflate else RED}{('enabled' if isDeflate else 'disabled')}{BLUE}.")
         elif command == "mod":
             print("- Enter the relative path of the mod to launch. Example: ../my_mod")
             print("- Enter 'e' to use file explorer, or 'c' to delete the file and use the default (this script's directory).")
@@ -388,6 +405,47 @@ def main():
                 print(f"7-Zip path updated successfully!")
         elif command == "enter":
             print("dude.")
+        elif command == "ignore":
+            print(f"- Used to ignore files and directories when compiling the mod with gitignore syntax... mostly.")
+            print(f"DEFAULT: {GREEN}{DEFAULT_IGNORE}{BLUE}")
+            print()
+            print(f"{UNDERLINE}First, where do you want to save the file?{NOUNDERLINE}")
+            print(f"{GREEN}Nothing{BLUE}: Leave blank to cancel")
+            print(f"{GREEN}Enter 1{BLUE}: Default directory (Will be modified for everyone in this repository)")
+            print(f"{GREEN}Enter 2{BLUE}: Mod directory (Will be modified only for you, if it's on .gitignore)")
+
+            save_location = input(RESETCOLOR+">> ").strip()
+            print(BLUE, end="")
+            if save_location not in ["1", "2"]:
+                print("Operation cancelled.")
+                continue
+
+            print("Enter your args, or leave blank to delete the file (DEFAULT will be used by the program).")
+            
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            mod_dir = find_mod_directory()
+            filename = ".SRB2C_IGNORE"
+            filepath = os.path.join(script_dir if save_location == "1" else mod_dir, filename)
+            basedirname = os.path.basename(os.path.dirname(filepath))
+
+            if os.path.exists(filepath):
+                with open(filepath, "r") as file:
+                    existing_ignore = file.read().strip()
+                print(f"Current contents of {GREEN}{basedirname}/{filename}{BLUE}:{GREEN} {existing_ignore}{BLUE}")
+
+            command = input(RESETCOLOR+">>> ").lower().strip()
+            print(BLUE, end="")
+            if command == "":
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"{filename} file was deleted.")
+                else:
+                    print(f"{filename} file does not exist.")
+            else:
+                params = command.split()
+                with open(filepath, "w") as file:
+                    file.write(" ".join(params))
+                print(f"{filename} file was created/updated in the {'default' if save_location == '1' else 'mod'} directory!")
         else:
             print(f"Invalid command. Type '{GREEN}help{BLUE}' to see available commands.")
 
@@ -548,7 +606,10 @@ def run(isGUI=None, multiCount=0, use_7zip=False):
             "-x!*.ase", "-x!.git*", "-x!.*"
         ])
     else:
-        create_or_update_zip(mod_dir, srb2_dl, pk3name)
+        filesize = create_or_update_zip(mod_dir, srb2_dl, pk3name, "DEFLATE" if isDeflate else "STORED")
+        if runcount == 0 and filesize is not None and filesize > 10 * 1024 * 1024 and not isDeflate:
+            print(f"{YELLOW}Warning: The compiled pk3 file is larger than 10MB. This may cause issues when sharing in certain platforms.")
+            print(f"Consider deleting the pk3 and using the '{GREEN}deflate{YELLOW}' or '{GREEN}7z{YELLOW}' option for better compression.{BLUE}")
 
     if os.path.exists(os.path.join(srb2_dl, pk3name)):
         if runcount == 0:
@@ -614,6 +675,7 @@ def run(isGUI=None, multiCount=0, use_7zip=False):
 def check_flatpak_availability():
     """Check if SRB2 Flatpak is available on the system."""
     import sys
+    sys.dont_write_bytecode = True
     import shutil
     import subprocess
 
@@ -740,15 +802,100 @@ def directory_explorer():
 
     return directory_path
 
-def create_or_update_zip(source_path: str, destination_path: str, zip_name: str):
+import functools
+@functools.lru_cache(maxsize=8)
+def _load_ignore_patterns(ignore_file):
+    if not ignore_file:
+        return []
+
+    if not os.path.isfile(ignore_file):
+        verbose(f"Ignore file '{ignore_file}' was not found, skipping ignore rules.")
+        return []
+
+    patterns = []
+    with open(ignore_file, 'r', encoding='utf-8') as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith('#'):
+                continue
+            patterns.append(line)
+
+    return patterns
+
+
+def _is_ignored(rel_path: str, patterns):
+    import fnmatch
+
+    normalized_path = rel_path.replace(os.sep, '/')
+    ignored = False
+
+    for pattern in patterns:
+        negate = pattern.startswith('!')
+        rule = pattern[1:] if negate else pattern
+        if not rule:
+            continue
+
+        if rule.endswith('/'):
+            directory_rule = rule.rstrip('/')
+            matches = (
+                normalized_path == directory_rule
+                or normalized_path.startswith(directory_rule + '/')
+            )
+        else:
+            matches = (
+                fnmatch.fnmatchcase(normalized_path, rule)
+                or fnmatch.fnmatchcase(os.path.basename(normalized_path), rule)
+                or rule in normalized_path.split('/')
+            )
+
+        if matches:
+            ignored = not negate
+
+    return ignored
+
+
+def _get_file_crc(file_path: str) -> int:
+    import zlib
+
+    crc_value = 0
+    with open(file_path, 'rb') as handle:
+        while True:
+            chunk = handle.read(1024 * 1024)
+            if not chunk:
+                break
+            crc_value = zlib.crc32(chunk, crc_value)
+    return crc_value & 0xFFFFFFFF
+
+
+def create_or_update_zip(source_path: str, destination_path: str, zip_name: str, compression_method: str):
     '''
     This function aims to create or update a zip file using as least write operations as possible.
-    SSD health is important when you're zipping a lot of files frequently.
+    SSD health is important when you're zipping a large tree frequently.
+    NEW: Also supports ignore patterns from a file, similar to .gitignore.
     '''
     import io
     import zipfile
     zip_full_path = os.path.join(destination_path, zip_name)
-    compressionmethod = zipfile.ZIP_DEFLATED
+    compressionmethod = zipfile.ZIP_STORED if compression_method.upper() == "STORED" else zipfile.ZIP_DEFLATED
+    ignore_file = None
+
+    try:
+        mod_dir = find_mod_directory()
+        fileInModDir = True
+        ignore_file = os.path.join(mod_dir, ".SRB2C_IGNORE")
+        if not os.path.exists(ignore_file):
+            fileInModDir = False
+            ignore_file = os.path.join(os.path.dirname(__file__), ".SRB2C_IGNORE")
+
+        with open(ignore_file, "r") as file:
+            if isVerbose:
+                where = os.path.basename(os.path.dirname(mod_dir if fileInModDir else os.path.dirname(__file__)))
+                verbose(f"Found {GREEN}.SRB2C_IGNORE{BLUE} file in {where}")
+    except FileNotFoundError:
+        verbose(f"{GREEN}.SRB2C_IGNORE{BLUE} file not found, so we will be using the default parameters: {GREEN}{DEFAULT_IGNORE}{BLUE}")
+        ignore_file = io.StringIO(DEFAULT_IGNORE)
+
+    ignore_patterns = _load_ignore_patterns(ignore_file)
     
     # Check if the destination zip file already exists
     if os.path.exists(zip_full_path):
@@ -768,45 +915,59 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str)
             with zipfile.ZipFile(existing_zip_data, 'r') as existing_zip, \
                 zipfile.ZipFile(temp_zip_data, 'w', compression=compressionmethod) as temp_zip:
 
-                # Create a dictionary of existing files for faster lookup
-                existing_files = {name: existing_zip.read(name) for name in existing_zip.namelist()}
+                existing_entries = {info.filename: info for info in existing_zip.infolist()}
 
                 # Process the source directory
                 verbose("Processing source directory...")
-                for root, dirs, files in os.walk(source_path):
+                for root, dirs, files in os.walk(source_path, topdown=True):
                     dirs.sort()
                     files.sort()
+
+                    rel_root = os.path.relpath(root, source_path)
+                    pruned_dirs = []
+                    for dir_name in dirs:
+                        dir_rel_path = os.path.join(rel_root, dir_name) if rel_root != '.' else dir_name
+                        if _is_ignored(dir_rel_path.replace(os.sep, '/'), ignore_patterns):
+                            verbose(f"Skipping ignored directory: {dir_rel_path}")
+                            continue
+                        pruned_dirs.append(dir_name)
+                    dirs[:] = pruned_dirs
+
                     for file in files:
                         source_file_path = os.path.join(root, file)
-                        rel_path = os.path.relpath(source_file_path, source_path)
+                        rel_path = os.path.relpath(source_file_path, source_path).replace(os.sep, '/')
 
                         # Exclude unwanted files
-                        if not (file.endswith('.py') or file.endswith('.pyw')
-                                or file.endswith('.md') or file.endswith('LICENSE')
-                                or file.endswith('.ase') or file.startswith('.')
-                                or '.git' in rel_path):
+                        if _is_ignored(rel_path, ignore_patterns):
+                            continue
 
-                            # Read source file data
-                            with open(source_file_path, 'rb') as source_file:
-                                source_file_data = source_file.read()
+                        existing_info = existing_entries.get(rel_path)
+                        source_size = os.path.getsize(source_file_path)
 
-                            # Check if file exists and needs updating
-                            if rel_path in existing_files:
-                                if existing_files[rel_path] != source_file_data:
-                                    verbose(f"Updating modified file: {rel_path}")
-                                    temp_zip.writestr(rel_path, source_file_data)
-                                else:
-                                    verbose(f"Keeping unchanged file: {rel_path}")
-                                    temp_zip.writestr(rel_path, existing_files[rel_path])
-                            else:
-                                verbose(f"Adding new file: {rel_path}")
-                                temp_zip.writestr(rel_path, source_file_data)
+                        if existing_info is not None and source_size == existing_info.file_size:
+                            source_crc = _get_file_crc(source_file_path)
+                            if source_crc == existing_info.CRC:
+                                verbose(f"Keeping unchanged file: {rel_path}")
+                                with existing_zip.open(existing_info) as existing_entry:
+                                    temp_zip.writestr(existing_info, existing_entry.read())
+                                continue
+
+                        # Read source file data for modified or new files
+                        with open(source_file_path, 'rb') as source_file:
+                            source_file_data = source_file.read()
+
+                        if existing_info is not None:
+                            verbose(f"Updating modified file: {rel_path}")
+                        else:
+                            verbose(f"Adding new file: {rel_path}")
+                        temp_zip.writestr(rel_path, source_file_data)
 
         # Update the destination zip file with the modified contents
         verbose("Updating the destination zip file...")
         with open(zip_full_path, 'wb') as updated_zip_file:
             updated_zip_file.write(temp_zip_data.getvalue())
         verbose(f"Zip file '{zip_name}' updated successfully!")
+        return os.path.getsize(zip_full_path)
     else:
         verbose(f"Zip file '{zip_name}' does not exist, creating a new one...")
         # Create directory if it doesn't exist
@@ -815,19 +976,28 @@ def create_or_update_zip(source_path: str, destination_path: str, zip_name: str)
         # If the destination zip file doesn't exist, create a new one
         with zipfile.ZipFile(zip_full_path, 'w', compression=compressionmethod) as new_zip:
             verbose("Processing source directory and adding files to the new zip...")
-            for root, dirs, files in os.walk(source_path):
+            for root, dirs, files in os.walk(source_path, topdown=True):
                 dirs.sort()
                 files.sort()
+
+                rel_root = os.path.relpath(root, source_path)
+                pruned_dirs = []
+                for dir_name in dirs:
+                    dir_rel_path = os.path.join(rel_root, dir_name) if rel_root != '.' else dir_name
+                    if _is_ignored(dir_rel_path.replace(os.sep, '/'), ignore_patterns):
+                        verbose(f"Skipping ignored directory: {dir_rel_path}")
+                        continue
+                    pruned_dirs.append(dir_name)
+                dirs[:] = pruned_dirs
+
                 for file in files:
                     source_file_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(source_file_path, source_path)
+                    rel_path = os.path.relpath(source_file_path, source_path).replace(os.sep, '/')
                     # Exclude unwanted files
-                    if not (file.endswith('.py') or file.endswith('.pyw')
-                            or file.endswith('.md') or file.endswith('LICENSE')
-                            or file.endswith('.ase') or file.startswith('.')
-                            or '.git' in rel_path):
+                    if not _is_ignored(rel_path, ignore_patterns):
                         new_zip.write(source_file_path, rel_path)
         verbose(f"New zip file '{zip_name}' created successfully!")
+        return os.path.getsize(zip_full_path)
 
 def sanitized_exe_filepath(user_input):
     path = os.path.normpath(user_input)
@@ -1090,6 +1260,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.zip:
-        create_or_update_zip(args.zip[0], args.zip[1], args.zip[2])
+        create_or_update_zip(args.zip[0], args.zip[1], args.zip[2], "DEFLATED")
     else:
         main()
