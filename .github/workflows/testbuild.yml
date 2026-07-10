@@ -42,7 +42,7 @@ jobs:
 
       - name: SRB2Compile
         run: |
-         python3 .github\workflows\SRB2C.py -zip ".\BattleMod\" ".\" "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3"  
+         python3 .github\workflows\SRB2C.py -zip ".\BattleMod\" ".\" "ZBa_BattleReDux_TEST-${{ github.run_number }}_$(git rev-parse --abbrev-ref HEAD).pk3" "DEFLATED"
 
       - name: Shortened Hash
         uses: 2428392/gh-truncate-string-action@v1
