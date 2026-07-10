@@ -1,5 +1,5 @@
 '''
-# SRB2ModCompiler v9 (BETA 2) by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v9 (BETA 3) by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
@@ -1256,7 +1256,7 @@ def get_active_profile():
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Process some launch parameters.")
-    parser.add_argument('-zip', nargs=3, type=str, help="Skips interface and zips given path with the given name and export path")
+    parser.add_argument('-zip', nargs=4, type=str, help="Skips interface and zips given path with the given name and export path")
 
     args = parser.parse_args()
 
