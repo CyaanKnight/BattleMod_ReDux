@@ -128,7 +128,6 @@ B.Action.PikoTornado = function(mo,doaction)
 
 			player.drawangle = player.mo.angle
 			player.jumpstasistimer = TICRATE/5
-			player.charflags = $|SF_NOSKID
 			B.hammerchargevfx(mo)
 			B.ZLaunch(mo, FRACUNIT*9, true)
 			P_Thrust(mo, player.drawangle, 4*mo.scale)

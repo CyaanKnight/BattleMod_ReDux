@@ -326,9 +326,6 @@ B.HammerControl = function(player)
 		if watchout1 then
 			B.DrawAimLine(player, mo.angle)
 		end
-		if not P_IsObjectOnGround(mo) then
-			player.charflags = $ & ~SF_NOSKID
-		end
 	end
 
 	if not(P_IsObjectOnGround(mo))
@@ -384,6 +381,9 @@ B.HammerControl = function(player)
 			doGroundHearts(player)
 		end
 		player.melee_state = st_idle
+		player.charflags = $ &~ SF_NOSKID
+	elseif player.melee_state == st_release then
+		player.charflags = $ | SF_NOSKID
 	end
 end
 

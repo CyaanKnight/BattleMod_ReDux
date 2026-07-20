@@ -52,7 +52,7 @@ local HoldFunc = function(mo,player)
 		player.exhaustmeter = FRACUNIT
 		//Piko Wave charge
 		if CBW_Battle.GetSkinVarsFlags(player)&SKINVARS_ROSY
-			player.melee_charge = FRACUNIT
+			--player.melee_charge = FRACUNIT
 			if (player.pflags & PF_NOJUMPDAMAGE) and not (player.actionstate) then
 				if (player.mo.state == S_PLAY_JUMP) or (player.mo.state == S_PLAY_FALL) then
 					player.mo.state = S_PLAY_ROLL
