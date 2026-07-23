@@ -42,7 +42,7 @@ B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics)
 			end
 		end
 		if source.player then
-			P_AddPlayerScore(source.player, 10)
+			player.score = $+10
 		end
 		P_AddPlayerScore(player, -10)
 		S_StartSound(target, sfx_s3kaa)
