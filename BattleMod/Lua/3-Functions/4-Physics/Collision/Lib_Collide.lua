@@ -125,7 +125,7 @@ B.GetZCollideAngle = function(mo,collide)
 end
 
 local function damage(target, inflictor, source, damage, extra)
-	if target and target.valid and target.player and ((extra == "shove") or (extra == "shove_special" and target.player.battle_def <= 0)) then
+	if target and target.valid and target.player and ((extra == "shove") or (extra == "shove_special" and target.player.battle_def >= 1)) then
 		B.DoPlayerShove(target.player, inflictor, source)
 	else
 		P_DamageMobj(target, inflictor, source, damage)
