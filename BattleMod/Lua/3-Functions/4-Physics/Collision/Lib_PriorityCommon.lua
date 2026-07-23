@@ -4,6 +4,8 @@ local B = CBW_Battle
 
 B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics)
 
+	if B.GuardTrigger(player.mo, inflictor, source, 0) then return true end
+
 	if (inflictor==nil) then
 		inflictor = source
 	end
