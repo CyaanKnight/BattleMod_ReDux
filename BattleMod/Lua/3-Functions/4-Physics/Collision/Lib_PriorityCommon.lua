@@ -1,5 +1,59 @@
 local B = CBW_Battle
 
+
+
+B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics, always_shove)
+
+	if (inflictor==nil) then
+		inflictor = source
+	end
+
+	if (source==nil) then
+		source = inflictor
+	end
+
+	if (ringdmg==nil) or (ringdmg<=0) then
+		ringdmg = 5
+	end
+
+	local burstrings = max(player.rings-ringdmg, 0)
+
+	if (player.rings <= ringdmg) and not(always_shove) then
+		P_DamageMobj(player.mo, inflictor, source, 0)
+		return false
+	else
+		player.rings = burstrings
+		player.powers[pw_flashing] = ((flashtics~=nil) and flashtics) or 10
+
+		--Knock rings out from the player's head
+		local top = player.mo.z+(P_MobjFlip(player.mo)*player.mo.height)
+		for i = 1, ringdmg do
+			local ring = P_SpawnMobj(player.mo.x, player.mo.y, top, MT_FLINGRING)
+			if ring and ring.valid then
+				ring.flags = $|MF_NOCLIPTHING
+				ring.extravalue1 = 10
+				ring.fuse = TICRATE*2
+				ring.angle = P_RandomRange(1, 5)*ANGLE_45
+				ring.scale = player.mo.scale
+				P_InstaThrust(ring, ring.angle, player.mo.scale*(P_RandomRange(2, 5)))
+				P_SetObjectMomZ(ring, player.mo.scale*(2+P_RandomRange(2, 5)), false)
+			end
+		end
+		if source.player then
+			P_AddPlayerScore(source.player, 10)
+		end
+		P_AddPlayerScore(player, -10)
+		S_StartSound(target, sfx_s3kaa)
+		local score = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z + P_MobjFlip(player.mo)*(player.mo.height/2), MT_SCORE)
+		if score and score.valid then
+			score.state = mobjinfo[MT_SCORE].spawnstate+11
+			if P_MobjFlip(player.mo)==-1 then
+				score.flags2 = $|MF2_OBJECTFLIP
+			end
+		end
+	end
+end
+
 B.Priority_Core = function(player)
 	local pflags = player.pflags
 -- 	local shieldability = pflags&PF_SHIELDABILITY
@@ -9,6 +63,7 @@ B.Priority_Core = function(player)
 	and (skins[player.mo.skin].flags&SF_STOMPDAMAGE) and not P_PlayerInPain(player))
 	
 	local t = "attack"
+	local extra = nil
 	local atk = 0
 	local def = 0
 	
@@ -23,13 +78,15 @@ B.Priority_Core = function(player)
 		atk = 1
 		def = 1
 		t = "jumping spin attack"
+		extra = "shove"
 	elseif spinning then
 		atk = 1
 		def = 1
 		t = "spin attack"
+		extra = "shove"
 	end
 	
-	B.SetPriority(player,atk,def,"can_damage",1,1,t)	
+	B.SetPriority(player,atk,def,"can_damage",1,1,t,extra)	
 end
 
 B.Priority_Ability = function(player)
@@ -92,7 +149,7 @@ B.Priority_Ability = function(player)
 	else
 		//Sonic
 		if spinjump and sonicthokked then
-			B.SetPriority(player,1,1,nil,1,1,"speed thok")
+			B.SetPriority(player,1,1,nil,1,1,"speed thok","shove")
 		end
 		if sonichopped then
 			B.SetPriority(player,1,0,"amy_twirl",1,1,"humming top")

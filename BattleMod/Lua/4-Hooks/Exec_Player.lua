@@ -280,6 +280,8 @@ addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)
 	if B.TagGametype()
 		B.TagTeamSwitch(target, inflictor, source)
 	end
+
+
 end,MT_PLAYER)
 
 addHook("MobjDamage",function(target,inflictor,source, damage,damagetype)

@@ -124,6 +124,14 @@ B.GetZCollideAngle = function(mo,collide)
 	return collideangle * P_MobjFlip(mo)
 end
 
+local function damage(target, inflictor, source, damage, extra)
+	if target.player and extra == "shove" then
+		B.DoPlayerShove(target.player, inflictor, source)
+	else
+		P_DamageMobj(target, inflictor, source, damage)
+	end
+end
+
 B.DoPlayerCollisionDamage = function(smo,tmo)
 	local s = 1
 	local t = 2
@@ -131,6 +139,7 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 	local atk = {}
 	local def = {}
 	local bias = {}
+	local extra = {}
 	local power = {false,false}
 	local tagit = {false,false}
 	local invuln = {true,true} //Default, for nonplayer objects
@@ -138,9 +147,11 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 		if mo[n].player then
 			atk[n] = mo[n].player.battle_atk
 			def[n] = mo[n].player.battle_def
+			extra[n] = mo[n].player.battle_extra
 		else
 			atk[n] = mo[n].battle_atk
 			def[n] = mo[n].battle_def
+			extra[n] = mo[n].battle_extra
 		end
 		if atk[n] == nil then atk[n] = 0 end
 		if def[n] == nil then def[n] = 0 end
@@ -163,27 +174,27 @@ B.DoPlayerCollisionDamage = function(smo,tmo)
 	if not(smo.player) then ssrc = smo.target end
 	if not(tmo.player) then tsrc = tmo.target end
 	if power[s] and not(power[t] or invuln[t]) then
-		P_DamageMobj(tmo,smo,ssrc,0)
+		damage(tmo,smo,ssrc,0,extra[s])
 		return 1
 	elseif power[t] and not(power[s] or invuln[s]) then
-		P_DamageMobj(smo,tmo,tsrc,0)
+		damage(smo,tmo,tsrc,0,extra[t])
 		return -1
 	else
 		//adding this in because it was missing it seems
 		if tagit[s] and not (tagit[t] or invuln[t])
-			P_DamageMobj(tmo, smo, ssrc, 0)
+			damage(tmo, smo, ssrc, 0, extra[s])
 			return 1
 		elseif tagit[t] and not (tagit[s] or invuln[s])
-			P_DamageMobj(smo, tmo, tsrc, 0)
+			damage(smo, tmo, tsrc, 0, extra[t])
 			return -1
 		end
 		local ret = 0
 		if bias[s] < 0 and not(invuln[s] or power[s]) then
-			P_DamageMobj(smo,tmo,tsrc,0)
+			damage(smo,tmo,tsrc,0, extra[t])
 			ret = -1
 		end
 		if bias[t] < 0 and not(invuln[t] or power[t]) then
-			P_DamageMobj(tmo,smo,ssrc,0)
+			damage(tmo,smo,ssrc,0, extra[s])
 			if ret == -1
 				ret = 2
 			else

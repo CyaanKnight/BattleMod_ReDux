@@ -46,5 +46,14 @@ addHook("PostThinkFrame", F.DrawIndicator)
 -- Check if flag was tossed or capped, etc.
 addHook("PreThinkFrame", F.FlagPreThinker) 
 
+addHook("MobjThinker", function(mo)
+	if not(mo.extravalue1) then return end
+	mo.extravalue1 = $-1
+	mo.flags = $|MF_NOCLIPTHING
+	if not(mo.extravalue1) then
+		mo.flags = $ & ~MF_NOCLIPTHING
+	end
+end, MT_FLINGRING)
+
 -- Toss ruby
 --addHook("PreThinkFrame", R.PreThinker) 
