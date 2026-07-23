@@ -155,7 +155,7 @@ B.Priority_Ability = function(player)
 			B.SetPriority(player,1,0,"amy_twirl",1,1,"humming top")
 		end
 		if instashield then
-			B.SetPriority(player,1,2,nil,1,2,"insta-shield")
+			B.SetPriority(player,2,2,nil,2,2,"insta-shield","shove_special")
 		end
 		//Tails
 		if flying then
