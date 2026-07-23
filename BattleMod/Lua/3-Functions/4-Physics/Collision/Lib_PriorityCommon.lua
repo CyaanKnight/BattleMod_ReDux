@@ -163,7 +163,7 @@ B.Priority_Ability = function(player)
 		end
 		//Knuckles
 		if gliding then
-			B.SetPriority(player,1,0,"knuckles_glide",2,1,"gliding fists")
+			B.SetPriority(player,1,0,"knuckles_glide",2,1,"gliding fists", "shove_special")
 		end
 		if player.kgrab and player.kgrab.valid then
 			B.SetPriority(player,0,0,nil,0,0,"knuckle buster")
