@@ -2,7 +2,7 @@ local B = CBW_Battle
 
 
 
-B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics, always_shove)
+B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics)
 
 	if (inflictor==nil) then
 		inflictor = source
@@ -18,7 +18,7 @@ B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics, always
 
 	local burstrings = max(player.rings-ringdmg, 0)
 
-	if (player.rings <= ringdmg) and not(always_shove) then
+	if (player.rings <= ringdmg) then
 		P_DamageMobj(player.mo, inflictor, source, 0)
 		return false
 	else
@@ -173,15 +173,15 @@ B.Priority_Ability = function(player)
 //		end
 		//Amy
 		if twinspin then 
-			B.SetPriority(player,1,1,"amy_twinspin",1,2,"aerial hammer strike")
+			B.SetPriority(player,1,1,"amy_twinspin",2,2,"aerial hammer strike","shove_special")
 		elseif pikotwirl then
-			B.SetPriority(player,1,1,"amy_twirl",1,2,"piko twirl")
+			B.SetPriority(player,1,1,"amy_twirl",2,2,"piko twirl","shove_special")
 		end
 		if melee then
 			if player.melee_state == 1//st_hold
 				B.SetPriority(player,0,0,nil,0,0,"hammer charge")
 			else
-				B.SetPriority(player,1,0,"amy_melee",1,2,"hammer strike")
+				B.SetPriority(player,1,0,"amy_melee",2,2,"hammer strike","shove_special")
 			end
 		end
 		//Fang

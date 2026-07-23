@@ -85,10 +85,12 @@ B.DoPlayerInteract = function(smo,tmo)
 	//Get current attack and defensive priorities
 	local atk = {}
 	local def = {}
+	local extra = {}
 	for n = 1,2
 		if plr[n] then
 			atk[n] = plr[n].battle_atk
 			def[n] = plr[n].battle_def
+			extra[n] = plr[n].battle_extra
 		else
 			if mo[n].battle_atk then
 				atk[n] = mo[n].battle_atk			
@@ -99,6 +101,9 @@ B.DoPlayerInteract = function(smo,tmo)
 				def[n] = mo[n].battle_def
 			else
 				def[n] = 0
+			end
+			if mo[n].battle_extra then
+				extra[n] = mo[n].extra
 			end
 		end
 	end
@@ -348,7 +353,7 @@ B.DoPlayerInteract = function(smo,tmo)
 			local function dorecoil(n1,n2)
 				if plr[n1] and not(plr[n1].climbing or pain[n1] or plr[n1].playerstate != PST_LIVE) and (atk[n2] >= def[n1])
 					then
-					B.DoPlayerFlinch(plr[n1],((thrust[n1] * 2)/(mo[n1].scale * 5)*4), angle[n1], thrust[n1])
+					B.DoPlayerFlinch(plr[n1],((thrust[n1] * 2)/(mo[n1].scale * 5)*4), angle[n1], thrust[n1], (extra[n2]=="shove"))
 				end
 			end
 			

@@ -37,7 +37,7 @@ local function twin(player, twirl)
 	//Extra projectiles
 	player.melee_charge = 0
 	local powerjump = not (pflags&PF_NOJUMPDAMAGE)
-	if true --not(pflags&PF_NOJUMPDAMAGE)
+	if powerjump
 		local mo = player.mo
 		local speed = mo.scale * 20
 		local lefthearts = -1
