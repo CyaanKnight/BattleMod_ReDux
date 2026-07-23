@@ -302,7 +302,7 @@ function B.HummingTop_MainHook(player)
 				cancelHummingTop(player, true, flag)
 				return
 			end
-			if recurlable and spin and inexhausted and not(cancel) then
+			if recurlable and spin_held and inexhausted and not(cancel) then
 				if not(mo.hummingtop_beyblade)
 					player.exhaustmeter = max(1, $-exhaust_chunk)
 				end
