@@ -1,5 +1,5 @@
 '''
-# SRB2ModCompiler v9 (BETA 3) by Lumyni (felixlumyni on discord)
+# SRB2ModCompiler v9.0 by Lumyni (felixlumyni on discord)
 # Requires https://www.python.org/
 # Messes w/ files, only edit this if you know what you're doing!
 '''
@@ -802,26 +802,28 @@ def directory_explorer():
 
     return directory_path
 
-import functools
-@functools.lru_cache(maxsize=8)
+def _parse_lines(handle):
+    patterns = []
+    for raw_line in handle:
+        line = raw_line.strip()
+        if not line or line.startswith('#'):
+            continue
+        patterns.append(line)
+    return patterns
+
 def _load_ignore_patterns(ignore_file):
     if not ignore_file:
         return []
+
+    if hasattr(ignore_file, 'read'):
+        return _parse_lines(ignore_file)
 
     if not os.path.isfile(ignore_file):
         verbose(f"Ignore file '{ignore_file}' was not found, skipping ignore rules.")
         return []
 
-    patterns = []
     with open(ignore_file, 'r', encoding='utf-8') as handle:
-        for raw_line in handle:
-            line = raw_line.strip()
-            if not line or line.startswith('#'):
-                continue
-            patterns.append(line)
-
-    return patterns
-
+        return _parse_lines(handle)
 
 def _is_ignored(rel_path: str, patterns):
     import fnmatch
