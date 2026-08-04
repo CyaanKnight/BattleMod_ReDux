@@ -192,7 +192,7 @@ B.CarryStun = function(otherplayer, strugglerings, struggletime, noshake, nostun
 		if otherplayer.mo.skin == "tails"
 			otherplayer.followmobj.state = S_TAILSOVERLAY_PAIN
 		elseif otherplayer.mo.skin == "tailsdoll"
-			P_SetMobjStateNF(otherplayer.followmobj,S_NULL)
+			player.hidefollowmobj = max($, 2)
 		end
 	end
 	otherplayer.mo.state = S_PLAY_PAIN
@@ -610,13 +610,13 @@ B.Action.TailSwipe = function(mo,doaction)
 				--Fast Spin anim
 				player.drawangle = mo.angle-ANGLE_90*(player.actiontime-4)
 				B.DrawSVSprite(player,1)
-				P_SetMobjStateNF(player.followmobj,S_NULL)
+				player.hidefollowmobj = max($, 2)
 				dodust(mo)
 			elseif player.actiontime < 12 then
 				--Medium Spin anim
 				player.drawangle = mo.angle-ANGLE_45*(player.actiontime-4)
 				B.DrawSVSprite(player,1)
-				P_SetMobjStateNF(player.followmobj,S_NULL)
+				player.hidefollowmobj = max($, 2)
 				dodust(mo)
 			else
 				--Teeter anim
@@ -709,7 +709,7 @@ B.Action.TailSwipe = function(mo,doaction)
 					tail.state = S_TAILSOVERLAY_RUN
 				end
 			else
-				if player.followmobj then P_SetMobjStateNF(player.followmobj,S_NULL) end
+				if player.followmobj then player.hidefollowmobj = max($, 2) end
 				if not B.DrawSVSprite(player,1) then mo.state = S_PLAY_EDGE end
 				player.drawangle = mo.angle-ANG60*player.actiontime
 			end
