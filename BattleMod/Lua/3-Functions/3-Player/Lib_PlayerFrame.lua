@@ -155,6 +155,24 @@ B.PlayerThinkFrame = function(player)
 	if player.lockmove then
 		player.lockmove = false
 	end
+
+	if player.hidefollowmobj == nil then
+		player.hidefollowmobj = 0
+	end
+
+	if player.hidefollowmobj > 0 then
+
+		player.hidefollowmobj = $-1
+
+		if player.followmobj and player.followmobj.valid then
+			if player.hidefollowmobj == 0 then
+				player.followmobj.flags2 = $ & ~MF2_DONTDRAW
+			else
+				player.followmobj.flags2 = $|MF2_DONTDRAW
+			end
+		end
+
+	end
 	
 	--Skinvars
 	B.GetSkinVars(player)

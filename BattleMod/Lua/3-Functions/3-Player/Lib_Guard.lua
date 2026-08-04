@@ -88,7 +88,7 @@ B.Guard = function(player,buttonpressed)
 		player.guardbuffer = $-1
 	end
 	if player.guard != 0 and (player.followmobj) then
-		P_SetMobjStateNF(player.followmobj,S_NULL)
+		player.hidefollowmobj = max($, 2)
 	end
 	local guardframe
 	if B.SkinVars[player.skinvars].guard_frame != nil then
