@@ -307,10 +307,6 @@ SelectHeading = Standard
 NextLevel = F5
 SkyNum = 22
 Lua.AltMusic = ERZ2OL
-Lua.redteam_flagsprite = SPR_EGGFLAG
-Lua.redteam_skincolor = SKINCOLOR_GARNET
-Lua.blueteam_flagsprite = SPR_TAILSFLAG
-Lua.blueteam_skincolor = SKINCOLOR_ORANGE
 
 Level F5
 Levelname = Clockwork Towers
