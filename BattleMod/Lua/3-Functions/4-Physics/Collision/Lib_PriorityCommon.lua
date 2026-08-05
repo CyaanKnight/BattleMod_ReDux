@@ -80,12 +80,10 @@ B.Priority_Core = function(player)
 		atk = 1
 		def = 1
 		t = "jumping spin attack"
-		extra = "shove"
 	elseif spinning then
 		atk = 1
 		def = 1
 		t = "spin attack"
-		extra = "shove"
 	end
 	
 	B.SetPriority(player,atk,def,"can_damage",1,1,t,extra)	
@@ -151,7 +149,7 @@ B.Priority_Ability = function(player)
 	else
 		//Sonic
 		if spinjump and sonicthokked then
-			B.SetPriority(player,1,1,nil,1,1,"speed thok","shove")
+			B.SetPriority(player,1,1,nil,1,1,"speed thok")
 		end
 		if sonichopped then
 			B.SetPriority(player,1,0,"amy_twirl",1,1,"humming top")
