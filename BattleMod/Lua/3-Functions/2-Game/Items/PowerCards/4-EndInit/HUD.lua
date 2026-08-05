@@ -77,7 +77,7 @@ PR.EventHUD = function(v, player, cam)
 			scale,
 			v.getSprite2Patch(player.mo.skin, SPR2_LIFE),
 			flags,
-			v.getColormap(nil, player.mo.color)
+			v.getColormap(player.mo.skin, player.mo.color)
 		)
 		//Draw health
 		if leveltime&1
