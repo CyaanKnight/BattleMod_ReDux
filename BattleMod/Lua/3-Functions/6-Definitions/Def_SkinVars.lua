@@ -51,7 +51,7 @@ S["tails"] = {
 	}
 }
 S["knuckles"] = {
-	flags = SKINVARS_GUARD|SKINVARS_GLIDESTRAFE|SKINVARS_GLIDESOUND,
+	flags = SKINVARS_GUARD|SKINVARS_GLIDESOUND,
 	weight = 120,
 	special = Act.Dig,
 	guard_frame = 2,
