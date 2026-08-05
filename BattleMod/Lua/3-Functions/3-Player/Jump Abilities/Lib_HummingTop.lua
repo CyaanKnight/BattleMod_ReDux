@@ -13,6 +13,7 @@ B.Console.HTop_Commit = CV_RegisterVar({
 local COMMIT_TIME = 10
 local ZTHRUST = 7
 local ARROW_DIST = 55
+local RECURL_TIME = 3
 
 local NOTEAM_COLOR = SKINCOLOR_SILVER
 local REDTEAM_COLOR = SKINCOLOR_APRICOT
@@ -99,6 +100,7 @@ local function cancelHummingTop(player, sound, flag, exhausted)
 		B.XYLimit(player.mo, player.normalspeed*5/4) -- 125% of Top speed
 	end
 	player.mo.hummingtop_beyblade_pick = nil
+	player.mo.hummingtop_timer = nil
 end
 
 
@@ -234,12 +236,21 @@ function B.HummingTop_MainHook(player)
 		end
 
 		
-		local recurlable = (mo.recurl_actionable == true)
+		local recurlable = (mo.recurl_actionable == true) and mo.hummingtop_timer~=nil and (mo.hummingtop_timer >= RECURL_TIME)
 		local spin 		 = B.PlayerButtonPressed(player, BT_SPIN, false, stasis_check)
 		local spin_held  = B.PlayerButtonPressed(player, BT_SPIN, true, stasis_check)
 		local jump 		 = B.PlayerButtonPressed(player, BT_JUMP, false, stasis_check)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
+
+		if (mo.recurl_actionable == true) then
+			if mo.hummingtop_timer == nil then
+				mo.hummingtop_timer = 1
+			elseif mo.hummingtop_timer < RECURL_TIME
+				mo.hummingtop_timer = $+1
+			end
+		end
+
 
 		if mo.sonic_instashield
 			if mo.sonic_instashield.valid then
