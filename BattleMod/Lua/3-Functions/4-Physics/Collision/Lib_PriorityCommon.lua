@@ -42,9 +42,9 @@ B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics)
 			end
 		end
 		if source.player then
-			player.score = $+10
+			source.player.score = $+10
 		end
-		P_AddPlayerScore(player, -10)
+		player.score = max(0, $-10)
 		S_StartSound(target, sfx_s3kaa)
 		local score = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z + P_MobjFlip(player.mo)*(player.mo.height/2), MT_SCORE)
 		if score and score.valid then
