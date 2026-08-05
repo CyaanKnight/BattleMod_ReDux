@@ -2,13 +2,7 @@ local B = CBW_Battle
 
 -- A Humming Top-esque move for Sonic
 
-B.Console.HTop_Commit = CV_RegisterVar({
-	name = "htop_committics",
-	defaultvalue = 10,
-	flags = CV_NETVAR|CV_SHOWMODIF,
-	PossibleValue = CV_Natural
-})
-
+B.HTOP_COMMIT = 10
 
 local COMMIT_TIME = 10
 local ZTHRUST = 7
@@ -338,7 +332,7 @@ function B.HummingTop_MainHook(player)
 			--Launch forwards and upwards, so Sonic can't just thok into the ground
 
 			if player.glidetime == 1 then
-				player.glidetime = (B.Console.HTop_Commit.value)+2
+				player.glidetime = B.HTOP_COMMIT+2
 			end
 
 			if mo.hummingtop_overlay and mo.hummingtop_overlay.valid then
@@ -367,7 +361,7 @@ function B.HummingTop_MainHook(player)
 				end
 			end
 			
-			if (player.glidetime > 2) and (player.glidetime <= (B.Console.HTop_Commit.value)+2) then
+			if (player.glidetime > 2) and (player.glidetime <= B.HTOP_COMMIT+2) then
 				player.pflags = $|PF_STASIS
 				mo.momz = 0
 				player.cmd.angleturn = player.realangleturn
