@@ -10,7 +10,7 @@ local sideangle = ANG30 - ANG10
 local air_special = 9
 local piko_special = 11 
 local piko_cooldown = TICRATE * 2
-local pikowave_duration = TICRATE
+local pikowave_duration = 22
 local ALLOWCHARGEHAMMER = false
 
 local function heartcolor(msl, player, bluecolor, redcolor)
