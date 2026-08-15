@@ -119,7 +119,7 @@ B.PlayerThinkFrame = function(player)
 		player.lasthoming = leveltime
 	end
 
-	local knuckle_busted_flag = (pmo and pmo.valid and pmo.kgrabbed and pmo.kgrabbed.valid and pmo.kgrabbed.actionstate)
+	local knuckle_busted_flag = (pmo and pmo.valid and pmo.kgrabbed and pmo.kgrabbed.valid)
 	local knuckle_busted = (pmo and pmo.valid and pmo.tracer and pmo.tracer.valid and pmo.tracer.player and pmo.tracer.player.kgrab and pmo.tracer.player.kgrab.valid and pmo.tracer.player.kgrab == pmo)
 
 
