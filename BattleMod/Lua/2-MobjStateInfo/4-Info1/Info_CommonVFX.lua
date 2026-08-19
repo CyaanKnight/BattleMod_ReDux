@@ -44,9 +44,7 @@ freeslot(
 
 states[S_SLASH] = {
 	sprite = SPR_SLAS,
-	frame = FF_FULLBRIGHT|FF_ANIMATE,
-	var1 = 5,
-	var2 = 2,
+	frame = FF_FULLBRIGHT|A,
 	tics = 10,
 	nexstate = S_NULL
 }

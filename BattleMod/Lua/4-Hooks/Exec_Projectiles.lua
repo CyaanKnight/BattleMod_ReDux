@@ -172,8 +172,15 @@ addHook("TouchSpecial",B.SwipeTouch,MT_SONICBOOM)
 local slasheffect = function(target)
 	local slash = P_SpawnMobjFromMobj(target, 0, 0, (target.height/2)*P_MobjFlip(target), MT_THOK)
 	slash.state = S_SLASH
-	slash.dispoffset = 2
-	slash.scale = $*3/2
+	for i=1,2 do
+		local g = P_SpawnGhostMobj(slash)
+		--g.blendmode = AST_ADD
+		g.renderflags = $ | RF_FULLBRIGHT
+		g.fuse = TICRATE / 3
+		g.dispoffset = 2
+		g.scale = slash.scale * 3
+	end
+	slash.flags2 = $ | MF2_DONTDRAW
 	S_StartSound(target, sfx_hit02)
 end
 
@@ -181,8 +188,24 @@ addHook("MobjSpawn",function(mo)
 	mo.hit_sound = slasheffect
 end,MT_SONICBOOM)
 
+B.IsCollectableMonitor = function(monitor, player)
+	if not (player.valid) then
+		return
+	end
+	if player.player then
+		player = player.player
+	end
+	if monitor.type == MT_RING_REDBOX and not(player.ctfteam == 1) then
+		return false
+	end
+	if monitor.type == MT_RING_BLUEBOX and not(player.ctfteam == 2) then
+		return false
+	end
+	return (monitor.flags & MF_MONITOR)
+end
+
 addHook("MobjMoveCollide",function(mover,collide)
-	if ((collide.flags & MF_MONITOR) or (collide.flags & MF_ENEMY) or (collide.flags & MF_BOSS))
+	if (B.IsCollectableMonitor(collide, mover.target) or (collide.flags & MF_ENEMY) or (collide.flags & MF_BOSS))
 	and B.ZCollide(mover, collide)
 	then
 		slasheffect(collide)
