@@ -71,7 +71,7 @@ S["knuckles"] = {
 	}
 }
 S["amy"] = {
-	flags = SKINVARS_GUARD|SKINVARS_ROSY|SKINVARS_NOSPINSHIELD,
+	flags = SKINVARS_GUARD|SKINVARS_NOSPINSHIELD,
 	weight = 110,
 	special = Act.PikoTornado,
 	guard_frame = 1,

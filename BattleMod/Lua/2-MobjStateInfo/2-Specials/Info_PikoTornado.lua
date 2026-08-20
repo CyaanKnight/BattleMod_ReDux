@@ -9,8 +9,8 @@ spr2defaults[SPR2_ATWZ] = SPR2_TWIN
 
 states[S_AMY_PIKOTWIRL] = {
     sprite = SPR_PLAY, 
-    frame = SPR2_ATWR|FF_ANIMATE|A, 
-    tics = 10,
+    frame = SPR2_TWRL|FF_ANIMATE|A, 
+    tics = -1,
     nextstate = S_PLAY_JUMP, 
     var1 = 7,
     var2 = 1

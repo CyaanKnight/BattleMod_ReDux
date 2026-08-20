@@ -1,4 +1,5 @@
 name = amy
 thokitem = MT_NULL
 revitem = MT_NULL
+ability2 = CA2_NONE
 jumpfactor = 1.1
