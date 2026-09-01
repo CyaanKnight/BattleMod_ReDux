@@ -7,7 +7,7 @@ B.HTOP_COMMIT = 10
 local COMMIT_TIME = 10
 local ZTHRUST = 7
 local ARROW_DIST = 55
-local RECURL_TIME = 3
+local RECURL_TIME = 4
 
 local NOTEAM_COLOR = SKINCOLOR_SILVER
 local REDTEAM_COLOR = SKINCOLOR_APRICOT
@@ -177,6 +177,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.state = S_PLAY_FALL
 		player.mo.state = S_SONIC_HUMMINGTOP
 		player.exhaustmeter = min($, player.ledgemeter) --ledgemeter is consistent accross all gametypes
+		player.mo.recurl_actionable = nil
 		return true
 	end
 end
@@ -312,19 +313,19 @@ function B.HummingTop_MainHook(player)
 					player.exhaustmeter = max(1, $-exhaust_chunk)
 				end
 				cancelHummingTop(player, false, flag)
-				player.pflags = ($|PF_JUMPED|PF_THOKKED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING)
+				player.pflags = ($|PF_JUMPED) & ~(PF_NOJUMPDAMAGE|PF_SPINNING|PF_THOKKED)
 				mo.state = S_PLAY_ROLL
 				mo.recurl_actionable = nil
 				mo.hummingtop_hit = nil
 
-				S_StartSound(player.mo, sfx_s3k42)
-				mo.sonic_instashield = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SONIC_INSTASHIELD)
+				S_StartSound(player.mo, sfx_zoom)
+				/*mo.sonic_instashield = P_SpawnMobjFromMobj(player.mo, 0, 0, 0, MT_SONIC_INSTASHIELD)
 				if mo.sonic_instashield and mo.sonic_instashield.valid then
 					mo.sonic_instashield.target = player.mo
 					mo.sonic_instashield.spritexscale = $*3/2
 					mo.sonic_instashield.spriteyscale = $*3/2
 				end
-				mo.shieldscale = 0
+				mo.shieldscale = 0*/
 			end
 		end
 
