@@ -223,7 +223,7 @@ B.UpdateRecoilState = function(mo)
 			if mo.player.skidtime == 0 and mo.recoilthrust > mo.scale*5 then
 				S_StartSound(mo, sfx_skid)
 			end
-			mo.player.powers[pw_nocontrol] = min($,TICRATE/2)
+			mo.player.powers[pw_nocontrol] = min($,TICRATE)
 			mo.player.skidtime = mo.player.powers[pw_nocontrol]
 			//Apply recoil thrust
 			P_InstaThrust(mo,mo.recoilangle,mo.recoilthrust)
