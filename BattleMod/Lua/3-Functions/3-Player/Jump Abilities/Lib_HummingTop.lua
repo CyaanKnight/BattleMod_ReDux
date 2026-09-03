@@ -208,6 +208,11 @@ function B.HummingTop_MainHook(player)
 
 		local humming 		= (mo.state == S_SONIC_HUMMINGTOP)
 		local grounded 		= P_IsObjectOnGround(mo) or (mo.eflags & MFE_JUSTHITFLOOR)
+
+		if grounded then
+			mo.recurl_actionable = nil
+		end
+
 		local hurt 			= P_PlayerInPain(player)
 		local dead 			= (player.playerstate == PST_DEAD)
 		local carry 		= (player.powers[pw_carry]) and ((player.powers[pw_carry] != CR_FAN) and (player.powers[pw_carry] != CR_BRAKGOOP))
@@ -238,6 +243,7 @@ function B.HummingTop_MainHook(player)
 
 		local cancel = grounded or hurt or dead or carry or gp or wave or airdodge or ledge or exhaust or flag or tumble or knux_grabbed or (recoil and not(mo.hummingtop_hit or mo.hummingtop_beyblade))
 
+
 		if (mo.recurl_actionable == true) then
 			if mo.hummingtop_timer == nil then
 				mo.hummingtop_timer = 1
@@ -245,7 +251,6 @@ function B.HummingTop_MainHook(player)
 				mo.hummingtop_timer = $+1
 			end
 		end
-
 
 		if mo.sonic_instashield
 			if mo.sonic_instashield.valid then
@@ -280,13 +285,6 @@ function B.HummingTop_MainHook(player)
 				mo.colorized = false
 				mo.shieldscale = FixedMul(mo.scale, player.shieldscale)
 				mo.sonic_instashield = nil
-			end
-		end
-
-		if grounded then
-			if player.mo.hummingtop_overlay and player.mo.hummingtop_overlay.valid then
-				P_RemoveMobj(player.mo.hummingtop_overlay)
-				player.mo.hummingtop_overlay = nil
 			end
 		end
 
