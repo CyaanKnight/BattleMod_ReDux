@@ -61,7 +61,7 @@ B.StunBreak = function(player, doguard)
 	and (player.rings >= break_cost)
 		player.canstunbreak = 0
 		player.tailsthrown = nil
-		local angle = (player.battleconfig_dodgecamera and not(player.pflags & PF_ANALOGMODE)) and mo.angle or B.GetInputAngle(player)
+		local angle = (player.battleconfig_dodgecamera and not(player.pflags & PF_ANALOGMODE)) and mo.angle or player.thinkmoveangle
 
 		player.tech_timer = 0
 		
