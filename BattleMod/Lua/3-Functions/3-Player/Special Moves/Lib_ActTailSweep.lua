@@ -691,7 +691,6 @@ B.Action.TailSwipe = function(mo,doaction)
 	end
 	//Thrust state
 	if player.actionstate == state_dash or player.actionstate == state_didthrow
-		B.analogkill(player, 2)
 		if player.actionstate == state_dash then
 			player.mo.cantouchteam = 1
 			local tail = player.followmobj
@@ -711,6 +710,7 @@ B.Action.TailSwipe = function(mo,doaction)
 			else
 				if player.followmobj then player.hidefollowmobj = max($, 2) end
 				if not B.DrawSVSprite(player,1) then mo.state = S_PLAY_EDGE end
+				B.analogkill(player, 2)
 				player.drawangle = mo.angle-ANG60*player.actiontime
 			end
 		else

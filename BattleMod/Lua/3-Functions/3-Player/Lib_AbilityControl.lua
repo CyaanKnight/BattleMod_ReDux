@@ -63,7 +63,7 @@ B.glide = function(player)
 				P_SetObjectMomZ(mo, FRACUNIT * -1/2, true)
 			end
 		end
-		B.legacykill(player, 4)
+		B.legacykill(player, 2)
 	end
 end
 
@@ -104,14 +104,14 @@ B.legacykill = function(player, time)
 
 	if time then
 		player.waslegacy = time
-	end
-	if player.waslegacy then
-		player.pflags = $ | PF_DIRECTIONCHAR
-		player.waslegacy = max(1,$-1)
-	end
-	if player.waslegacy and player.waslegacy==1 and not time then
-		player.waslegacy = nil
-		player.pflags = $ & ~PF_DIRECTIONCHAR
+	elseif player.waslegacy then
+		player.waslegacy = max(0,$-1)
+		if player.waslegacy == 0 then
+			player.waslegacy = nil
+			player.pflags = $ & ~PF_DIRECTIONCHAR
+		else
+			player.pflags = $ | PF_DIRECTIONCHAR
+		end
 	end
 end
 
@@ -120,14 +120,14 @@ B.analogkill = function(player, time)
 
 	if time then
 		player.wasanalog = time
-	end
-	if player.wasanalog then
-		player.pflags = $ & ~PF_ANALOGMODE
-		player.wasanalog = max(1,$-1)
-	end
-	if player.wasanalog and player.wasanalog==1 and not time then
-		player.wasanalog = nil
-		player.pflags = $ | PF_ANALOGMODE
+	elseif player.wasanalog then
+		player.wasanalog = max(0,$-1)
+		if player.wasanalog == 0 then
+			player.wasanalog = nil
+			player.pflags = $ | PF_ANALOGMODE
+		else
+			player.pflags = $ & ~PF_ANALOGMODE
+		end
 	end
 end
 
