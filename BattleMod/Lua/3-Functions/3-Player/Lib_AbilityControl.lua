@@ -63,12 +63,7 @@ B.glide = function(player)
 				P_SetObjectMomZ(mo, FRACUNIT * -1/2, true)
 			end
 		end
-		--Angle adjustment
-		if (mo.state == S_PLAY_SWIM) then
-			B.legacykill(player, 1)
-		elseif B.GetSkinVarsFlags(player)&SKINVARS_GLIDESTRAFE then
-			player.drawangle = player.mo.angle
-		end
+		B.legacykill(player, 4)
 	end
 end
 
