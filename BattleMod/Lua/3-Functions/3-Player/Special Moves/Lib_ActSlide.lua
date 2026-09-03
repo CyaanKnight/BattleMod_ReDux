@@ -90,6 +90,7 @@ B.Action.Slide = function(mo,doaction)
 			B.ApplyCooldown(player, cooldown2)
 			return
 		end
+		local angle = ((player.pflags & PF_ANALOGMODE) and player.thinkmoveangle) or mo.angle
 		player.lockaim = true
 		player.lockmove = true
 		//Cancel dodgeroll and do slide on ground
@@ -97,7 +98,8 @@ B.Action.Slide = function(mo,doaction)
 			player.actionstate = 2
 			player.actiontime = duration
 			player.lockjumpframe = nojumpwindow
-			P_InstaThrust(mo,mo.angle,rollspeed*mo.scale/water)
+			P_InstaThrust(mo,angle,rollspeed*mo.scale/water)
+			player.drawangle = angle
 			player.slidebouncex = mo.momx
 			player.slidebouncey = mo.momy
 			player.slidebouncez = abs(mo.momz)
@@ -107,7 +109,8 @@ B.Action.Slide = function(mo,doaction)
 			return
 		end
 	    mo.state = S_PLAY_ROLL
-		P_InstaThrust(mo,mo.angle,rollspeed*mo.scale/water)
+		player.drawangle = angle
+		P_InstaThrust(mo,angle,rollspeed*mo.scale/water)
 		P_SetObjectMomZ(mo,0,false)
 		P_SpawnGhostMobj(mo)
 		if player.actiontime%3 == 1 and P_IsObjectOnGround(mo) then

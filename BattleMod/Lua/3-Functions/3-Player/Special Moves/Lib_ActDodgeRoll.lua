@@ -72,11 +72,12 @@ B.Action.DodgeRoll = function(mo,doaction)
 	end
 	//Dodge roll state
 	if player.actionstate == state_dodgeroll
+		local angle = ((player.pflags & PF_ANALOGMODE) and player.thinkmoveangle) or mo.angle
 		player.lockaim = true
 		player.lockmove = true
 		mo.state = S_PLAY_ROLL
 		mo.frame = (player.actiontime/2)%4
-		P_InstaThrust(mo,mo.angle,rollspeed*mo.scale/twod/water)
+		P_InstaThrust(mo,angle,rollspeed*mo.scale/twod/water)
 		P_SetObjectMomZ(mo,0,false)
 		//End dodge roll
 		if player.actiontime > dodgeroll_time
