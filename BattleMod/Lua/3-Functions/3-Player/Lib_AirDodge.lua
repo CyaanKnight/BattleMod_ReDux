@@ -42,9 +42,11 @@ B.AirDodge = function(player)
 		local deadzone = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
 		local automatic = (player.pflags & PF_ANALOGMODE)
 
+		local angle = mo.angle
+
 		local angle = player.thinkmoveangle
 		
-		if (dodgecam or deadzone) and not(automatic) then
+		if (dodgecam or deadzone) and ((automatic and player.airdodge) or not(automatic)) then
 			angle = player.mo.angle
 		end
 		
