@@ -38,10 +38,14 @@ B.AirDodge = function(player)
 		and not P_IsObjectOnGround(mo)
 		and not mo.temproll
 		
-		local angle = B.GetInputAngle(player)
+		local dodgecam = player.battleconfig_dodgecamera
+		local deadzone = (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
+		local automatic = (player.pflags & PF_ANALOGMODE)
+
+		local angle = player.thinkmoveangle
 		
-		if player.battleconfig_dodgecamera or (R_PointToDist2(0, 0, player.cmd.forwardmove, player.cmd.sidemove) <= 10)
-			angle = mo.angle
+		if (dodgecam or deadzone) and not(automatic) then
+			angle = player.mo.angle
 		end
 		
 		player.airdodge_speedreset = true
