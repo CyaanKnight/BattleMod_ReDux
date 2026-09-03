@@ -57,7 +57,8 @@ local spawnslashes = function(player, mo)
 	x = mo.x+P_ReturnThrustX(nil,mo.angle+angoff,dist)
 	y = mo.y+P_ReturnThrustY(nil,mo.angle+angoff,dist)
 	z = mo.z - (((player.mo.eflags & MFE_VERTICALFLIP) and FixedMul(mobjinfo[MT_DUST].height, mo.scale)) or 0) --overlayZ(mo, MT_DUST, (mo.flags2 & MF2_OBJECTFLIP))
-	B.ApplyFlip(mo, P_SpawnMobj(x,y,z,MT_DUST))
+	local dust = P_SpawnMobj(x,y,z,MT_DUST)
+	if dust and dust.valid then B.ApplyFlip(mo, dust) end
 	--Slashes
 	local dist = 46*mo.scale
 	local x,y,z,s
@@ -74,9 +75,9 @@ local spawnslashes = function(player, mo)
 		s = S_SLASH1
 		S_StartSound(mo,sfx_rail1)
 	end
-	local missile = B.ApplyFlip(mo, P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z))
+	local missile = P_SpawnXYZMissile(mo,mo,MT_SLASH,x,y,z)
 	if missile and missile.valid then
-		--B.ApplyFlip(mo, missile)
+		B.ApplyFlip(mo, missile)
 		missile.momz = 0 -- Prevent dash claws from moving vertically
 		missile.state = s
 		missile.scale = FixedMul($*2, mo.scale)
@@ -712,7 +713,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		P_Thrust(mo, move, spd)
 		player.pflags = $|PF_SPINNING
 		player.powers[pw_strong] = $|STR_ANIM|STR_PUNCH
-		
+
 		if player.actiontime >= 3
 			spawnslashes(player,mo)
 		end
