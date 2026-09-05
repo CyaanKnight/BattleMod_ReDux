@@ -99,6 +99,10 @@ end, MT_SUPERSPINWAVE)
 
 addHook("MobjMoveBlocked", function(mo,thing,line)
 	if mo and mo.valid then
+		if thing and thing.valid and thing.player and mo.target and mo.target.valid and mo.target.player then
+			if B.MyTeam(mo.target.player, thing.player) then
+			end
+		end
 		P_KillMobj(mo, mo)
 	end
 end, MT_SUPERSPINWAVE)
@@ -146,7 +150,7 @@ local function SpinWaveObjCollide(mo, mobj)
 	if mobj and mobj.valid and (mobj.flags & MF_SOLID) then
 		if not (mo.z+(1*FRACUNIT) >= mobj.z+mobj.height)
 		and not(mobj.z+(1*FRACUNIT) >= mo.z+mo.height) then
-		if (mobj.type == MT_PLAYER and mobj.player.powers[pw_flashing]) then return false end
+		if (mobj.type == MT_PLAYER and (mobj.player.powers[pw_flashing] or (mobj and mobj.valid and mobj.player and mo.target and mo.target.valid and mo.target.player and B.MyTeam(mobj.player, mo.target.player)))) then return false end
 		if (mobj.flags & MF_MONITOR) or (mobj.type == MT_PLAYER) then return end
 		P_KillMobj(mo, mo)
 		end
