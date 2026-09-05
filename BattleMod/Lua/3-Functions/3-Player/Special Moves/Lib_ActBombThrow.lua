@@ -146,10 +146,12 @@ B.FBombThink=function(mo)
 		local radius = FRACUNIT*96
 		if dist < radius then
 			local angle = R_PointToAngle2(mo.x,mo.y,mo.target.x,mo.target.y)
-			mo.target.player.actionstate = state_bombjump
-			mo.target.player.actiontime = 0
-			mo.target.player.pflags = $&~(PF_JUMPED|PF_THOKKED|PF_BOUNCING)
-			mo.target.state = S_PLAY_FALL
+			if B.SkinVars[mo.target.skin].special == B.Action.Slide then
+				mo.target.player.actionstate = state_bombjump
+				mo.target.player.actiontime = 0
+				mo.target.player.pflags = $&~(PF_JUMPED|PF_THOKKED|PF_BOUNCING)
+				mo.target.state = S_PLAY_FALL
+			end
 			P_SetObjectMomZ(mo.target,bjvert,1)
 			P_Thrust(mo.target,angle,bjhorz)
 		end
