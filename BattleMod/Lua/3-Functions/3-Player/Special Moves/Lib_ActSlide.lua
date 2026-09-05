@@ -237,6 +237,7 @@ B.Action.Slide = function(mo,doaction)
 
 	if sliding then
 	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) or (player.pflags&PF_SLIDING) then
+			player.pflags = $ & ~PF_SPINNING
 			player.actionstate = 0
 			player.actiontime = 0
 			B.ApplyCooldown(player, cooldown2)
@@ -300,6 +301,7 @@ B.Action.Slide = function(mo,doaction)
 		player.slidebouncez = abs(mo.momz)
 
 		if player.actiontime == 0
+		or (B.PlayerButtonPressed(player, player.battleconfig_special, false) and not(player.lockjumpframe))
 		or FixedHypot(mo.momx - player.cmomx, mo.momy - player.cmomy) < 4 * mo.scale
 		or player.powers[pw_carry] then
 	//	or not grounded then
@@ -317,20 +319,6 @@ B.Action.Slide = function(mo,doaction)
 			player.actionsuper = false
 			B.ApplyCooldown(player, cooldown)
 			return
-		end
-
-		if player.cmd.buttons & BT_FIRENORMAL
-		and player.lastbuttons & BT_FIRENORMAL == 0 then
-			if P_IsObjectOnGround(mo) then
-				mo.state = S_PLAY_STND
-			else
-				mo.state = S_PLAY_FALL
-			end
-
-			player.pflags = $ & ~PF_SPINNING
-			player.actionstate = 0
-			player.actionsuper = false
-			B.ApplyCooldown(player, cooldown)
 		end
 	end
 
