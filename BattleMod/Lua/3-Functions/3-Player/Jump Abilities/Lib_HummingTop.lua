@@ -97,9 +97,20 @@ local function cancelHummingTop(player, sound, flag, exhausted)
 	player.mo.hummingtop_timer = nil
 end
 
+-- angtoint
+local AngToInt = function(a)
+	if not a return 0 end
+	a = $/ANG1
+	if a < 0
+		a = $+360
+	end
+	return a
+end
+
 
 function B.HummingTop_AbilitySpecial(player)
 	if charParam(player) then --If we're valid
+		local mo = player.mo
 
 		local exhaust = (player.exhaustmeter <= 0)
 	
@@ -129,15 +140,14 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.momz = 0 -- Stall Z-Momentum
 		player.glidetime = 1
 
+		-- From Vector's Beat Bash
+		-- transfer speed (affected by angle so we dont get fast 180 turns)
+		local angle = R_PointToAngle2(0, 0, mo.momx, mo.momy) - mo.angle
+		local anglefactor = abs(cos((AngToInt(angle)/2) * ANG1))
+		local anglespeed = FixedMul(anglefactor, FixedHypot(mo.momx, mo.momy))
+		local thrust = max(FixedMul(mo.scale, player.actionspd)/B.WaterFactor(mo), anglespeed)
 
-		local current_speed = FixedHypot(player.mo.momx, player.mo.momy)
-		local maxdash = FixedMul(player.mo.scale, player.maxdash) / B.WaterFactor(player.mo)
-		local actionspd = FixedMul(player.mo.scale, player.actionspd) / B.WaterFactor(player.mo)
-		local normalspeed = FixedMul(player.mo.scale, player.normalspeed) / B.WaterFactor(player.mo)
-		
-		local thrust = max(max(min(current_speed, maxdash), actionspd), normalspeed)
-		
-		--player.powers[pw_strong] = $|STR_ANIM|STR_ATTACK
+
 		P_InstaThrust(player.mo, player.mo.hummingtop_angle, thrust)
 		if player.gotflagdebuff then
 			B.ZLimit(player.mo, 10*FRACUNIT) -- Worth about 125% of Sonic's jump
@@ -147,7 +157,7 @@ function B.HummingTop_AbilitySpecial(player)
 		player.mo.momz = 0
 		S_StopSoundByID(player.mo, sfx_thok)
 		S_StartSound(player.mo, sfx_thok)
-		if thrust > actionspd then
+		if thrust > FixedMul(mo.scale, player.actionspd) then
 			spawncircle(player.mo)
 			S_StartSound(player.mo, sfx_dash)
 		end
@@ -365,12 +375,6 @@ function B.HummingTop_MainHook(player)
 				mo.momz = 0
 				player.cmd.angleturn = player.realangleturn
 				player.glidetime = $-1
-
-				local maxdash = FixedMul(player.mo.scale, player.maxdash) / B.WaterFactor(player.mo)
-				if player.speed >= maxdash-(maxdash/3) then
-					player.mo.momx = $-($/15)
-					player.mo.momy = $-($/15)
-				end
 			elseif player.glidetime == 2 then
 				B.SpawnFlash(mo, 10, false)
 				if mo.hummingtop_overlay and mo.hummingtop_overlay.valid then
