@@ -554,10 +554,11 @@ B.CustomGunslinger = function(player)
 
 	//Player is damaged
 	
-	if P_PlayerInPain(player)
+	if P_PlayerInPain(player) or player.tumble or player.guard or player.airdodge>0 then
 		player.airgun = false
 		player.gunheld = 0
-	return end
+		return 
+	end
 
 	local skin = S[player.mo.skin] or S[-1]
 	local sliding = skin.special == B.Action.Slide
