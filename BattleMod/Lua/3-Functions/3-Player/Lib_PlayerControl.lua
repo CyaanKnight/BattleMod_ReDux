@@ -494,9 +494,11 @@ B.Tumble = function(player)
 		player.panim = PA_PAIN
 		mo.state = S_PLAY_PAIN
 		
-		player.airdodge_spin = $ + ANGLE_45
-		player.drawangle = mo.angle + player.airdodge_spin
-
+		if player.airdodge_spin ~= nil then
+			player.airdodge_spin = $ + ANGLE_45
+			player.drawangle = mo.angle + player.airdodge_spin
+		end
+		
 		if not (player.tumble % 4)-- and not P_PlayerInPain(player)
 			local g = P_SpawnGhostMobj(mo)
 			g.color = SKINCOLOR_BLACK
