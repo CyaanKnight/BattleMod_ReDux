@@ -261,7 +261,7 @@ B.BombCollide = function(bomb,mo)
 			end
 		end
 		if (bomb.target and bomb.target.valid and ((bomb.target == mo) or (bomb.target.player and mo.player and B.MyTeam(bomb.target.player, mo.player)))) then return end
-		if not((mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR)) or mo.player)then return end
+		if not(((mo.flags&(MF_MISSILE|MF_ENEMY|MF_BOSS|MF_MONITOR)) and not(B.MyTeam(bomb.target.player, mo.player))) or mo.player) then return end
 		bomb.fuse = 1
 		if mo.flags&MF_MONITOR 
 		and not(G_GametypeHasTeams() and bomb.target and bomb.target.player
