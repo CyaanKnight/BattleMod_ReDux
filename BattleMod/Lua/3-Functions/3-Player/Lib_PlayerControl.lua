@@ -443,6 +443,8 @@ B.Tumble = function(player)
 			endtumble = true
 		end
 	end
+
+	local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 	
 	--End tumble
 	if player.isjettysyn
@@ -450,6 +452,14 @@ B.Tumble = function(player)
 	or (P_PlayerInPain(player) and player.powers[pw_flashing] == 3*TICRATE)
 	or endtumble
 	then
+
+		if B.StunBreakAllowed(player) and (player.stunbreak_wait==0) and (player.stunbreakcosttext~=nil and (player.rings >= player.stunbreakcosttext)) then
+			if doguard then
+				B.DoStunBreak(player, player.stunbreakcosttext)
+			end
+		end
+
+
 		player.tumble = nil
 		player.lockmove = false
 		player.drawangle = mo.angle
@@ -458,6 +468,7 @@ B.Tumble = function(player)
 		if not (P_IsObjectOnGround(mo) or P_PlayerInPain(player))
 			mo.state = S_PLAY_FALL
 		end
+
 		return
 	end
 	

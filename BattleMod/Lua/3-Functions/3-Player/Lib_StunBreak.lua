@@ -8,6 +8,79 @@ B.StunBreakVFXThinker = function(mo)
 	mo.color = B.Choose(SKINCOLOR_WHITE,SKINCOLOR_YELLOW,SKINCOLOR_ROSY,SKINCOLOR_GREEN,SKINCOLOR_ORANGE,SKINCOLOR_BLUE,SKINCOLOR_PURPLE)
 end
 
+B.DoStunBreak = function(player, cost)
+
+	local mo = player.mo
+
+	player.canstunbreak = 0
+	player.tailsthrown = nil
+	local angle = (player.battleconfig_dodgecamera and not(player.pflags & PF_ANALOGMODE)) and mo.angle or player.thinkmoveangle
+
+	player.tech_timer = 0
+	
+	//State and flags
+	if (player.tumble)
+		player.tumble = nil
+		player.lockmove = false
+		S_StopSoundByID(mo, sfx_kc38)
+	end
+	B.ResetPlayerProperties(player,false,false)
+	mo.state = S_PLAY_ROLL
+	mo.temproll = 19
+	player.exhaustmeter = min($, player.ledgemeter)
+	//player.powers[pw_invulnerability] = mo.temproll
+	player.powers[pw_flashing] = mo.temproll
+	player.airdodge = 0
+	
+	//Launch
+	local techmomz = 7*FRACUNIT/B.WaterFactor(mo)
+	P_SetObjectMomZ(mo, techmomz, false)
+	P_InstaThrust(mo,angle,FRACUNIT*12)
+	player.drawangle = angle
+	
+	//SFX
+	S_StartSound(mo,sfx_cdfm66,player)
+	S_StartSound(mo, sfx_nbmper)
+	S_StartSoundAtVolume(mo, sfx_kc31, 200)
+	
+	//Pay rings, cooldown
+	player.actioncooldown = max($, TICRATE)
+
+	if cost ~= nil then
+		player.rings = $ - cost
+	end
+	
+	//Visual effects
+	local sb = P_SpawnMobjFromMobj(mo,0,0,0,MT_STUNBREAK)
+	sb.scale = mo.scale * 4/3
+	sb.destscale = mo.scale * 3
+	sb.momz = mo.momz * 3/4
+	local sh = P_SpawnMobjFromMobj(mo,0,0,0,MT_BATTLESHIELD)
+	sh.target = mo
+	
+	//Screenshake
+	if player == consoleplayer
+		P_StartQuake(12 * FRACUNIT, 4)
+	end
+
+	local knuckle_busted = (mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and mo.tracer.player.kgrab == mo)
+
+	//Troll tails players
+	if player.powers[pw_carry] == CR_PLAYER and player.mo.tracer and player.mo.tracer.player then
+		local tails = player.mo.tracer
+		player.mo.tracer = nil
+		player.powers[pw_carry] = 0
+		P_SetObjectMomZ(tails, mo.scale*10)
+		B.DoPlayerTumble(tails.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
+	end
+	if knuckle_busted then
+		local knuckles = player.mo.tracer
+		player.mo.tracer = nil
+		P_SetObjectMomZ(knuckles, mo.scale*10)
+		B.DoPlayerTumble(knuckles.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
+	end
+end
+
 B.StunBreak = function(player, doguard)
 	if not (player and player.valid and player.mo and player.mo.valid)
 	or player.isjettysyn
@@ -98,70 +171,7 @@ B.StunBreak = function(player, doguard)
 	//Do the stun break
 	if canAfford then
 		if (doguard) then	-- pressing the guard button (lets us buffer since it'll be 2 for holding)
-			player.canstunbreak = 0
-			player.tailsthrown = nil
-			local angle = (player.battleconfig_dodgecamera and not(player.pflags & PF_ANALOGMODE)) and mo.angle or player.thinkmoveangle
-
-			player.tech_timer = 0
-			
-			//State and flags
-			if (player.tumble)
-				player.tumble = nil
-				player.lockmove = false
-				S_StopSoundByID(mo, sfx_kc38)
-			end
-			B.ResetPlayerProperties(player,false,false)
-			mo.state = S_PLAY_ROLL
-			mo.temproll = 19
-			player.exhaustmeter = min($, player.ledgemeter)
-			//player.powers[pw_invulnerability] = mo.temproll
-			player.powers[pw_flashing] = mo.temproll
-			player.airdodge = 0
-			
-			//Launch
-			local techmomz = 7*FRACUNIT/B.WaterFactor(mo)
-			P_SetObjectMomZ(mo, techmomz, false)
-			P_InstaThrust(mo,angle,FRACUNIT*12)
-			player.drawangle = angle
-			
-			//SFX
-			S_StartSound(mo,sfx_cdfm66,player)
-			S_StartSound(mo, sfx_nbmper)
-			S_StartSoundAtVolume(mo, sfx_kc31, 200)
-			
-			//Pay rings, cooldown
-			player.actioncooldown = max($, TICRATE)
-			player.rings = $ - break_cost
-			
-			//Visual effects
-			local sb = P_SpawnMobjFromMobj(mo,0,0,0,MT_STUNBREAK)
-			sb.scale = mo.scale * 4/3
-			sb.destscale = mo.scale * 3
-			sb.momz = mo.momz * 3/4
-			local sh = P_SpawnMobjFromMobj(mo,0,0,0,MT_BATTLESHIELD)
-			sh.target = mo
-			
-			//Screenshake
-			if player == consoleplayer
-				P_StartQuake(12 * FRACUNIT, 4)
-			end
-
-			local knuckle_busted = (mo and mo.valid and mo.tracer and mo.tracer.valid and mo.tracer.player and mo.tracer.player.kgrab and mo.tracer.player.kgrab.valid and mo.tracer.player.kgrab == mo)
-
-			//Troll tails players
-			if player.powers[pw_carry] == CR_PLAYER and player.mo.tracer and player.mo.tracer.player then
-				local tails = player.mo.tracer
-				player.mo.tracer = nil
-				player.powers[pw_carry] = 0
-				P_SetObjectMomZ(tails, mo.scale*10)
-				B.DoPlayerTumble(tails.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
-			end
-			if knuckle_busted then
-				local knuckles = player.mo.tracer
-				player.mo.tracer = nil
-				P_SetObjectMomZ(knuckles, mo.scale*10)
-				B.DoPlayerTumble(knuckles.player, 45, mo.angle, mo.scale*3, true, true) --prevent stunbreak
-			end
+			B.DoStunBreak(player, break_cost)
 		end
 	end
 end
