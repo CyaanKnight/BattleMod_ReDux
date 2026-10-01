@@ -179,6 +179,9 @@ B.PlayerThinkFrame = function(player)
 	
 	--Tumble state
 	B.Tumble(player)
+
+	--Stunned
+	B.Stunned(player)
 	
 	--Ability control
 	B.GuardControl(player)--Check if guard is allowed

@@ -513,3 +513,4 @@ B.StunBreakAllowed = function(player)
 	return (hurtbreak or tumblebreak)
 end
 
+

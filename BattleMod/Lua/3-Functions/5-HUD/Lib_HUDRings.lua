@@ -150,7 +150,7 @@ B.RingsHUD = function(v, player, cam)
 		local cost = player.stunbreakcosttext
 		local noshake = false
 		local colormap = nil
-		if cost != nil and player.rings >= cost then
+		if cost != nil and (player.rings >= cost) and (player.stunbreak_wait == 0) then
 			noshake = true
 			if leveltime % 3 == 0 then
 				text = "\x82" + $

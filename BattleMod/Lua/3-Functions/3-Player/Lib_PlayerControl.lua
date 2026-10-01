@@ -400,6 +400,8 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak, stu
 	player.mo.state = S_PLAY_PAIN
 	player.pflags = $&~(PF_GLIDING|PF_JUMPED|PF_BOUNCING|PF_SPINNING|PF_THOKKED|PF_SHIELDABILITY)
 	
+	player.blocked_stunbreak = nil
+
 	player.tumble = time
 	player.tumble_stunbreakcost = stunbreakcost
 	player.tumble_stunbreaktics = stunbreaktics
@@ -505,32 +507,37 @@ B.Tumble = function(player)
 			g.colorized = true
 			g.destscale = g.scale * 2
 		end
-
-		if player.tumble_nostunbreak
-			local spd = 6
-			local angle = leveltime*ANG1*spd
-			local radius = 64*FRACUNIT
-			local x = FixedMul(cos(angle), radius)
-			local y = FixedMul(sin(angle), radius)
-			local z = sin(leveltime*FRACUNIT*TICRATE*spd)*32
-			local star1 = P_SpawnMobjFromMobj(mo,x,y,(mo.height*2)+z,MT_THOK)
-			local star2 = P_SpawnMobjFromMobj(mo,-x,-y,(mo.height*2)-z,MT_THOK)
-			for _, star in ipairs({star1, star2}) do
-				if star and star.valid
-					star.target = mo
-					star.sprite = SPR_NSTR
-					star.frame = B.Wrap(leveltime/3, 0, 14)
-					star.scale = $/2
-					star.destscale = 1
-				end
-			end
-		end
-
-		-- hi
 	end
 
 	--Do tumble physics
 	player.pflags = $ | PF_FULLSTASIS
+end
+
+B.Stunned = function(player)
+
+	local mo = player.mo
+
+	if not(mo and mo.valid) then return end
+
+	if player.stunbreak_wait then
+		local spd = 6
+		local angle = leveltime*ANG1*spd
+		local radius = 64*FRACUNIT
+		local x = FixedMul(cos(angle), radius)
+		local y = FixedMul(sin(angle), radius)
+		local z = sin(leveltime*FRACUNIT*TICRATE*spd)*32
+		local star1 = P_SpawnMobjFromMobj(mo,x,y,(mo.height*2)+z,MT_THOK)
+		local star2 = P_SpawnMobjFromMobj(mo,-x,-y,(mo.height*2)-z,MT_THOK)
+		for _, star in ipairs({star1, star2}) do
+			if star and star.valid
+				star.target = mo
+				star.sprite = SPR_NSTR
+				star.frame = B.Wrap(leveltime/3, 0, 14)
+				star.scale = $/2
+				star.destscale = 1
+			end
+		end
+	end
 end
 
 B.TestScript = function(player, ...)
