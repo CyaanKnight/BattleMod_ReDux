@@ -2,7 +2,7 @@ local B = CBW_Battle
 local CV = B.Console
 
 local SBI_SOUND = sfx_ncchip
-local SBI_VOLUME = 140
+local SBI_VOLUME = 210
 
 B.StunBreakVFXThinker = function(mo)
 	mo.color = B.Choose(SKINCOLOR_WHITE,SKINCOLOR_YELLOW,SKINCOLOR_ROSY,SKINCOLOR_GREEN,SKINCOLOR_ORANGE,SKINCOLOR_BLUE,SKINCOLOR_PURPLE)
@@ -89,6 +89,8 @@ B.StunBreak = function(player, doguard)
 		player.tech_timer = 0
 		player.stunbreak_wait = nil
 
+		player.stunbreak_buffered = nil
+
 		if player.stunbreak_notif then
 			S_StopSoundByID(mo, SBI_SOUND)
 			player.stunbreak_notif = nil
@@ -140,6 +142,8 @@ B.StunBreak = function(player, doguard)
 			player.stunbreak_notif = nil
 		end
 
+		player.stunbreak_buffered = nil
+
 		return 
 	end
 	
@@ -148,6 +152,20 @@ B.StunBreak = function(player, doguard)
 	player.tech_type = break_type
 
 	local canAfford = (player.tech_timer >= break_tics) and (player.rings >= break_cost)
+
+	
+	if doguard then
+		if not(player.stunbreak_buffered) then
+			if (player.rings >= break_cost) then
+				S_StartSound(nil, sfx_kc50, player)
+			else
+				S_StartSound(nil, sfx_s3k8c, player)
+			end
+			player.stunbreak_buffered = true
+		end
+	else
+		player.stunbreak_buffered = nil
+	end
 	
 	-- increase timer to break out
 	player.tech_timer = $+1
@@ -162,6 +180,7 @@ B.StunBreak = function(player, doguard)
 			if canAfford then
 				S_StartSoundAtVolume(player.mo, SBI_SOUND, SBI_VOLUME)
 				player.stunbreak_notif = true
+				player.stunbreak_buffered = nil
 			end
 
 		end

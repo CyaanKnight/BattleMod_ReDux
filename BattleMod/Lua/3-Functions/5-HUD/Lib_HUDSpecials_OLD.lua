@@ -26,6 +26,7 @@ B.ActionHUD=function(v, player, cam)
 			local canBreak = (player.stunbreak_wait == 0)
 			local textcolor = "\x80"
 			local numcolor = "\x82"
+			local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 
 			if canBreak then
 				if canAfford then
@@ -47,7 +48,11 @@ B.ActionHUD=function(v, player, cam)
 				if canAfford then
 					--Can't stunbreak yet, but will be able to afford it
 					textcolor = "\x81" --Magenta Text
-					numcolor = "\x82" --Magenta Numbers
+					numcolor = "\x82" --Yellow Numbers
+					
+					if doguard then
+						textcolor = "\x83" -- Green Text
+					end
 				else
 					--Can't stunbreak, and won't be able to afford it
 					textcolor = "\x86" --Gray Text

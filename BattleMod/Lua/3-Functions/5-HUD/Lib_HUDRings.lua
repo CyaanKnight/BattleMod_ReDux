@@ -158,6 +158,8 @@ B.RingsHUD = function(v, player, cam)
 		local numcolor = "\x82"
 		local shield_name = "PARRYBT"
 		local icon_offset = -1
+
+		local doguard = B.ButtonCheck(player,player.battleconfig_guard)
 		
 
 		
@@ -178,32 +180,49 @@ B.RingsHUD = function(v, player, cam)
 			else
 				--Can stunbreak but can't afford it
 				noshake = false
-				shieldcolor = SKINCOLOR_RED
+				shieldcolor = SKINCOLOR_MAGENTA
 				textcolor = "\x86" --Gray Text
 				numcolor = "\x85" --Red Numbers
-				flags = $|V_HUDTRANSHALF
-				flags_hudtrans = flags
-				shield_name = "PRAYBT"
+				shield_name = "PARRYBT"
+
+				if doguard then
+
+				else
+					flags = $|V_HUDTRANSHALF
+					flags_hudtrans = flags
+				end
 			end
 		else
 			if canAfford then
 				--Can't stunbreak yet, but will be able to afford it
 				noshake = true
-				shieldcolor = SKINCOLOR_RED
+				shieldcolor = SKINCOLOR_MAGENTA
 				textcolor = "\x81" --Magenta Text
 				numcolor = "\x82" --Yellow Numbers
-				flags = $|V_HUDTRANSHALF
-				flags_hudtrans = flags
-				shield_name = "PRAYBT"
+				
+				shield_name = "PARRYBT"
+
+				if doguard then
+					textcolor = "\x83" -- Green Text
+				else
+					flags = $|V_HUDTRANSHALF
+					flags_hudtrans = flags
+				end
+
 			else
 				--Can't stunbreak, and won't be able to afford it
 				noshake = false
 				shieldcolor = SKINCOLOR_RED
 				textcolor = "\x86" --Gray Text
 				numcolor = "\x85" --Red Numbers
-				flags = $|V_HUDTRANSHALF
-				flags_hudtrans = flags
 				shield_name = "PRAYBT"
+
+				if doguard then
+
+				else
+					flags = $|V_HUDTRANSHALF
+					flags_hudtrans = flags
+				end
 			end
 		end
 	
