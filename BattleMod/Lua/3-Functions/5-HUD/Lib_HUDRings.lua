@@ -180,7 +180,7 @@ B.RingsHUD = function(v, player, cam)
 			else
 				--Can stunbreak but can't afford it
 				noshake = false
-				shieldcolor = SKINCOLOR_MAGENTA
+				shieldcolor = SKINCOLOR_CARBON
 				textcolor = "\x86" --Gray Text
 				numcolor = "\x85" --Red Numbers
 				shield_name = "PARRYBT"
