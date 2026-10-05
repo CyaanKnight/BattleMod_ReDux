@@ -150,30 +150,69 @@ B.RingsHUD = function(v, player, cam)
 		local cost = player.stunbreakcosttext
 		local noshake = false
 		local colormap = nil
-		if cost != nil and (player.rings >= cost) and (player.stunbreak_wait == 0) then
-			noshake = true
-			if leveltime % 3 == 0 then
-				text = "\x82" + $
-			elseif leveltime % 3 == 1 then
-				text = "\x83" + $
+		local canAfford = (cost != nil) and (player.rings >= cost)
+		local canBreak = (player.stunbreak_wait == 0)
+
+		local shieldcolor = SKINCOLOR_CARBON
+		local textcolor = "\x80"
+		local numcolor = "\x82"
+		local shield_name = "PARRYBT"
+		local icon_offset = -1
+		
+
+		
+
+		if canBreak then
+			if canAfford then
+				--Can stunbreak and afford it
+				noshake = true
+				shieldcolor = SKINCOLOR_YELLOW
+				if leveltime % 3 == 0 then
+					textcolor = "\x82" --Yellow Text
+				elseif leveltime % 3 == 1 then
+					textcolor = "\x83" --Green Text
+				else
+					textcolor = "\x87" --Orange Text
+				end
+				numcolor = "\x82" --Yellow Numbers
 			else
-				text = "\x87" + $
+				--Can stunbreak but can't afford it
+				noshake = false
+				shieldcolor = SKINCOLOR_RED
+				textcolor = "\x86" --Gray Text
+				numcolor = "\x85" --Red Numbers
+				flags = $|V_HUDTRANSHALF
+				flags_hudtrans = flags
+				shield_name = "PRAYBT"
 			end
-			if cost == 0 then
-				cost = ""
-			end
-			text = $ + " \x82 "..cost
 		else
-			if not(cost) then
-				cost = ""
+			if canAfford then
+				--Can't stunbreak yet, but will be able to afford it
+				noshake = true
+				shieldcolor = SKINCOLOR_RED
+				textcolor = "\x81" --Magenta Text
+				numcolor = "\x82" --Yellow Numbers
+				flags = $|V_HUDTRANSHALF
+				flags_hudtrans = flags
+				shield_name = "PRAYBT"
+			else
+				--Can't stunbreak, and won't be able to afford it
+				noshake = false
+				shieldcolor = SKINCOLOR_RED
+				textcolor = "\x86" --Gray Text
+				numcolor = "\x85" --Red Numbers
+				flags = $|V_HUDTRANSHALF
+				flags_hudtrans = flags
+				shield_name = "PRAYBT"
 			end
-			text = "\x86" + $ + " \x85 "..cost
-			colormap = v.getColormap(TC_RAINBOW, SKINCOLOR_CARBON)
 		end
-		patch = v.cachePatch("PARRYBT")
+	
+		patch = v.cachePatch(shield_name)
+		text = textcolor + $ + " " + numcolor + " " + cost
+		colormap = v.getColormap(TC_RAINBOW, shieldcolor)
 		local x_for_readability = x + 9 + action_offsetx - (noshake and xshake or xshake/2)
 		local y_for_readability = y - 8 + action_offsety - (noshake and yshake or yshake/2)
-		v.draw(x_for_readability-9, y_for_readability, patch, flags, colormap)
+		v.draw(x_for_readability-9, y_for_readability+icon_offset, patch, flags, colormap)
 		v.drawString(x_for_readability+3, y_for_readability, text, flags_hudtrans, "thin")
 	elseif player.tumble then
 		local x_for_readability = x + 9 + action_offsetx

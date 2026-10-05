@@ -90,7 +90,7 @@ B.StunBreak = function(player, doguard)
 		player.stunbreak_wait = nil
 
 		if player.stunbreak_notif then
-			S_StopSoundByID(mo, sfx_ncchip)
+			S_StopSoundByID(mo, SBI_SOUND)
 			player.stunbreak_notif = nil
 		end
 

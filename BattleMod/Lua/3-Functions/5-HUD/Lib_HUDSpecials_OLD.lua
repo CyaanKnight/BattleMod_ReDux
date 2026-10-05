@@ -22,20 +22,40 @@ B.ActionHUD=function(v, player, cam)
 			local patch = v.cachePatch("PARRYBT")
 			local text = "Stun Break"
 			local cost = player.stunbreakcosttext
-			local textcolor = "\x86"
-			if cost != nil and player.rings >= cost then
-				if leveltime % 3 == 0 then
-					textcolor = ""
-				elseif leveltime % 3 == 1 then
-					textcolor = "\x83"
+			local canAfford = (cost != nil) and (player.rings >= cost)
+			local canBreak = (player.stunbreak_wait == 0)
+			local textcolor = "\x80"
+			local numcolor = "\x82"
+
+			if canBreak then
+				if canAfford then
+					--Can stunbreak and afford it
+					if leveltime % 3 == 0 then
+						textcolor = "\x82" --Yellow Text
+					elseif leveltime % 3 == 1 then
+						textcolor = "\x83" --Green Text
+					else
+						textcolor = "\x87" --Orange Text
+					end
+					numcolor = "\x82" --Yellow Numbers
 				else
-					textcolor = "\x87"
+					--Can stunbreak but can't afford it
+					textcolor = "\x86" --Gray Text
+					numcolor = "\x85" --Red Numbers
+				end
+			else
+				if canAfford then
+					--Can't stunbreak yet, but will be able to afford it
+					textcolor = "\x81" --Magenta Text
+					numcolor = "\x82" --Magenta Numbers
+				else
+					--Can't stunbreak, and won't be able to afford it
+					textcolor = "\x86" --Gray Text
+					numcolor = "\x85" --Red Numbers
 				end
 			end
-			if not(cost) then
-				cost = ""
-			end
-			text = "\x82" .. cost .. textcolor .. " " .. $
+
+			text = numcolor .. cost .. textcolor .. " " .. $
 			v.draw(xoffset+1,yoffset-1,patch,flags)
 			v.drawString(xoffset+10,yoffset,text,flags,align)
 		elseif player.tumble then
