@@ -72,6 +72,7 @@ B.Action.Slide = function(mo,doaction)
 	
    //Perform dodge roll
 	if dodgeroll_trigger
+		player.dodgeroll_angle = nil
 		B.PayRings(player)
 		player.actionstate = state_dodgeroll
 		player.actiontime = 0
@@ -82,6 +83,7 @@ B.Action.Slide = function(mo,doaction)
 			local speed = mo.scale*P_RandomRange(5,10)
 			P_InstaThrust(dust,angle,speed)
 		end
+		player.dodgeroll_angle = ((player.pflags & PF_ANALOGMODE) and player.thinkmoveangle) or mo.angle
 	end
 	if player.actionstate == state_dodgeroll
 	    if P_PlayerInPain(player) or (mo.eflags&MFE_SPRUNG) then
@@ -90,7 +92,14 @@ B.Action.Slide = function(mo,doaction)
 			B.ApplyCooldown(player, cooldown2)
 			return
 		end
-		local angle = ((player.pflags & PF_ANALOGMODE) and player.thinkmoveangle) or mo.angle
+
+		local angle = player.dodgeroll_angle
+		
+		if player.actiontime <= 2 then
+			angle = ((player.pflags & PF_ANALOGMODE) and player.thinkmoveangle) or mo.angle
+			player.dodgeroll_angle = angle
+		end
+
 		player.lockaim = true
 		player.lockmove = true
 		//Cancel dodgeroll and do slide on ground
@@ -200,7 +209,7 @@ B.Action.Slide = function(mo,doaction)
 	and bouncing
 	and ((mo.eflags & MFE_JUSTHITFLOOR) or P_IsObjectOnGround(mo))
 		B.ApplyCooldown(player,cooldown)
-		player.nobombjump = true
+		/*player.nobombjump = true
 		if mo._fbomb and mo._fbomb.valid then
 			mo._fbomb.fuse = min(1, $)
 			if (mo._fbomb.fuse <= 0) then
@@ -218,7 +227,7 @@ B.Action.Slide = function(mo,doaction)
 			mo._fbomb.scale = mo.scale*5/3
 			mo._fbomb.bombtype = 0
 			mo._fbomb.fuse = 9*TICRATE
-		end
+		end*/
 		player.actiontime = 0
 		player.actionstate = 0
 	elseif player.actionstate == 1
@@ -379,7 +388,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 		plr[n1].nobombjump = true
 		B.ApplyCooldown(plr[n1],cooldown)
 		S_StartSound(mo[n1], sfx_boingf)
-		if mo._fbomb and mo._fbomb.valid then
+		/*if mo._fbomb and mo._fbomb.valid then
 			mo._fbomb.fuse = min(1, $)
 			if (mo._fbomb.fuse <= 0) then
 				P_RemoveMobj(mo._fbomb)
@@ -396,7 +405,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			mo._fbomb.scale = mo[n1].scale*5/3
 			mo._fbomb.bombtype = 0
 			mo._fbomb.fuse = 9*TICRATE
-		end
+		end*/
 	end
 
 	if not (plr[n1] and plr[n1].fangmarker) then
