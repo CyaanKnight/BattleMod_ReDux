@@ -302,6 +302,25 @@ B.Action.PikoTornado = function(mo,doaction)
 	]]
 end
 
+
+local function HammerTime(player)
+	local abil1 = player.charability
+	local abil2 = player.charability2
+	local anim1 = (player.panim == PA_ABILITY)
+	local anim2 = (player.panim == PA_ABILITY2)
+
+	local twinspin = (abil1 == CA_TWINSPIN and anim1)
+	local pikotwirl = (abil1 == CA_TWINSPIN and (player.mo.state == S_AMY_PIKOTWIRL))
+	local melee = (abil2 ==CA2_MELEE and anim2)
+
+	if twinspin or pikotwirl or melee then
+		return true
+	end
+
+	return false
+end
+
+
 B.DustDevilThinker = function(mo)
 	local owner = mo.target
 	local hurtbox = mo.tracer
@@ -494,5 +513,41 @@ B.DustDevilTouch = function(dustdevil,collide)
 		B.AddPinkShield(collide.player,dustdevil.target.player, true)
 	end
 	return true
+end
+
+B.Amy_PreCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if HammerTime(plr[n1]) then
+		plr[n1].amymarker = true
+	end
+end
+
+B.Amy_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if plr[n1] and plr[n1].amymarker then
+		plr[n1].amymarker = nil
+	end
+end
+
+B.Amy_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+
+	if not (plr[n1] and plr[n1].amymarker) then
+		return false
+	end
+
+	--If we're doing a hammer move
+
+	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2) then
+	    if atk[n2] > 1 or def[n2] > 1 then
+			--If our opponent has more than 1 def/atk on us, do nothing
+			return false
+		end
+
+		if plr[n2] then
+			--Shove
+			B.DoPlayerShove(plr[n2], mo[n1], mo[n1], 10, nil, sfx_s3k8b)
+			return nil
+		else
+			return false
+		end
+	end
 end
 

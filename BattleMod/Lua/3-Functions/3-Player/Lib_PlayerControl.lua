@@ -430,6 +430,61 @@ B.DoPlayerTumble = function(player, time, angle, thrust, force, nostunbreak, stu
 	player.tumble_nostunbreak = nostunbreak	-- used for parry
 end
 
+B.DoPlayerShove = function(player, inflictor, source, ringdmg, flashtics, sound)
+
+	if B.GuardTrigger(player.mo, inflictor, source, 0) then return true end
+
+	if (inflictor==nil) then
+		inflictor = source
+	end
+
+	if (source==nil) then
+		source = inflictor
+	end
+
+	if (ringdmg==nil) or (ringdmg<=0) then
+		ringdmg = 5
+	end
+
+	local burstrings = max(player.rings-ringdmg, 0)
+
+	if (player.rings <= ringdmg) then
+		P_DamageMobj(player.mo, inflictor, source, 0)
+		return false
+	else
+		player.rings = burstrings
+		player.powers[pw_flashing] = ((flashtics~=nil) and flashtics) or 10
+
+		--Knock rings out from the player's head
+		local top = player.mo.z+(P_MobjFlip(player.mo)*player.mo.height)
+		for i = 1, ringdmg do
+			local ring = P_SpawnMobj(player.mo.x, player.mo.y, top, MT_FLINGRING)
+			if ring and ring.valid then
+				ring.flags = $|MF_NOCLIPTHING
+				ring.extravalue1 = 10
+				ring.fuse = TICRATE*2
+				ring.angle = P_RandomRange(1, 5)*ANGLE_45
+				ring.scale = player.mo.scale
+				P_InstaThrust(ring, ring.angle, player.mo.scale*(P_RandomRange(2, 5)))
+				P_SetObjectMomZ(ring, player.mo.scale*(2+P_RandomRange(2, 5)), false)
+			end
+		end
+		if source.player then
+			source.player.score = $+10
+		end
+		player.score = max(0, $-10)
+		S_StartSound(player.mo, sound or sfx_s3kaa)
+		local score = P_SpawnMobj(player.mo.x, player.mo.y, player.mo.z + P_MobjFlip(player.mo)*(player.mo.height/2), MT_SCORE)
+		if score and score.valid then
+			score.scale = player.mo.scale
+			score.state = mobjinfo[MT_SCORE].spawnstate+11
+			if P_MobjFlip(player.mo)==-1 then
+				score.flags2 = $|MF2_OBJECTFLIP
+			end
+		end
+	end
+end
+
 B.Tumble = function(player)
 	if not (player and player.valid and player.tumble and player.mo and player.mo.valid) then
 		return

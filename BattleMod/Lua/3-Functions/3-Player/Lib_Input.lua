@@ -59,6 +59,15 @@ B.GetInputAngle = function(player, stasis_check)
 		end
 		local fw = (stasis_check and player.cmd.forwardmove) or player.realforwardmove
 		local sw = (stasis_check and player.cmd.sidemove) or player.realsidemove
+
+		if fw == nil then
+			fw = player.cmd.forwardmove
+		end
+
+		if sw == nil then
+			sw = player.cmd.sidemove
+		end
+
 		-- local pang = player.cmd.angleturn << 16--is this netsafe?
 		local analog = player.pflags&PF_ANALOGMODE
 

@@ -76,6 +76,9 @@ S["amy"] = {
 	special = Act.PikoTornado,
 	guard_frame = 1,
 	func_priority_ext = Act.PikoTornado_Priority,
+	func_precollide = B.Amy_PreCollide,
+	func_collide = B.Amy_Collide,
+	func_postcollide = B.Amy_PostCollide,
 	sprites = {}
 }
 S["fang"] = {
