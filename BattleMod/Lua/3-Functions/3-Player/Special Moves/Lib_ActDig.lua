@@ -530,16 +530,14 @@ B.Knuckles_PostCollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,a
 	end
 end
 
-addHook("MobjDeath",function(monitor,knuckles)
-	if monitor.valid and monitor.flags & MF_MONITOR
-		if knuckles and knuckles.valid
-			if not knuckles.player return end
-			if knuckles.player.kdive
-				B.ResetPlayerProperties(knuckles.player,true,false)
-				knuckles.state = S_PLAY_FALL
-				knuckles.player.kdive = false
-				knuckles.player.kdunked = true
-			end
+B.KnucklesDig_MonitorBounce = function(monitor, knuckles)
+	if knuckles and knuckles.valid
+		if not knuckles.player return end
+		if knuckles.player.kdive
+			B.ResetPlayerProperties(knuckles.player,true,false)
+			knuckles.state = S_PLAY_FALL
+			knuckles.player.kdive = false
+			knuckles.player.kdunked = true
 		end
 	end
-end)
+end

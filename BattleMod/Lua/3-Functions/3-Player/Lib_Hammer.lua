@@ -520,3 +520,15 @@ B.ChargeHammer = function(player)
 	player.charability2 = CA2_NONE //Make Amy vulnerable during holding frames
 	return true
 end
+
+local twinning = function(player)
+    return (B.GetSkinVarsFlags(player) & SKINVARS_ROSY) and ((player.charability == CA_TWINSPIN) or (player.charability2 == CA2_MELEE)) and
+           (player.panim == PA_ABILITY) and (player.mo.state == S_PLAY_TWINSPIN) and
+           (player.powers[pw_strong] & STR_TWINSPIN) and player.mo.melee_hammertwirl
+end
+
+B.AmyTwinSpin_MonitorBounce = function(monitor, amy)
+	if monitor and monitor.valid and not(monitor.player) and amy and amy.valid and amy.player and twinning(amy.player) then
+        amy.player.pflags = $ & ~PF_THOKKED
+    end
+end
