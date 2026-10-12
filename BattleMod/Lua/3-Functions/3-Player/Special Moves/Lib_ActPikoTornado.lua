@@ -89,7 +89,7 @@ B.Action.PikoTornado = function(mo,doaction)
 				player.actiontext = "Piko Wave"
 			end
 		else
-			player.actiontext = "Tornado Jump"
+			player.actiontext = "Piko Spin"
 			if mo.tornadocollide and mo.tornadocollide == leveltime
 				local colors = {[0]="\x81", [1]="\x89", [2]="\x8E"} --magenta, purple, rosy
 				player.actiontext = colors[leveltime % 3] .. $
@@ -262,7 +262,7 @@ B.Action.PikoTornado = function(mo,doaction)
 		local nearground = B.NearGround(mo, nil, nil, mo.momz)
 		if nearground or player.actiontime > TICRATE*3/2 or player.powers[pw_carry] then
 			if (nearground or (player.cmd.buttons & BT_SPIN)) and not (player.powers[pw_carry]) then
-				player.melee_state = st_release
+				--player.melee_state = st_release
 				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
@@ -278,7 +278,7 @@ B.Action.PikoTornado = function(mo,doaction)
 	if player.actionstate == air_special+1
 		local activeframes = player.actiontime < TICRATE-(TICRATE/3)
 		local ihatedustdevils = mo.momz*P_MobjFlip(mo) > mo.scale*10
-		if activeframes and not ihatedustdevils then 
+		/*if activeframes and not ihatedustdevils then 
 			if P_IsObjectOnGround(mo) then
 				mo.frame = 0
 				mo.sprite2 = SPR2_MLEL
@@ -287,7 +287,7 @@ B.Action.PikoTornado = function(mo,doaction)
 				player.actiontime = $-1
 			end
 			return 
-		end
+		end*/
 		//Neutral
 		--B.ApplyCooldown(player,cooldown)
 		player.actionstate = 0
@@ -537,7 +537,7 @@ B.Amy_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thru
 
 	if (hurt != 1 and n1 == 1) or (hurt != -1 and n1 == 2) then
 	    if atk[n2] > 1 or def[n2] > 1 then
-			--If our opponent has more than 1 def/atk on us, do nothing
+			--If our opponent has more than 1 def/atk on us, do nothing extra
 			return false
 		end
 
