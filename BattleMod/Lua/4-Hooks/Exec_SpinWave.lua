@@ -143,7 +143,7 @@ addHook("MobjDamage", function(mo, inflictor, source, damage, damagetype) //spin
 		end
 	end
 
-end, MT_NULL)
+end, MT_PLAYER)
 
 //---------------------------------------------------------------//
 local function SpinWaveObjCollide(mo, mobj)
