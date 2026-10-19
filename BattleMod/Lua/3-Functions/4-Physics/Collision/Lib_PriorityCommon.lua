@@ -46,8 +46,8 @@ B.Priority_Ability = function(player)
 	local spinjump = (pflags&PF_JUMPED and not(pflags&PF_NOJUMPDAMAGE))
 	local spinning = pflags&PF_SPINNING
 	
-	local super = (player.powers[pw_super])
 	local invstar = (player.powers[pw_invulnerability])
+	local super = (player.powers[pw_super]) or (invstar and player.mo.battle_super)
 	local homing = (player.homing)
 	local bubble = (shield==SH_BUBBLEWRAP)
 	local flame = (shield==SH_FLAMEAURA)

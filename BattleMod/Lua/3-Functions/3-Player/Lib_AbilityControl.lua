@@ -410,22 +410,6 @@ B.tailsthrow = function(player)
 	end
 end
 
-B.sneakertrail = function(player)
-	if player.powers[pw_sneakers] and player.mo and player.speed > 30*player.mo.scale and leveltime%3 then
-		local speedtrail = P_SpawnGhostMobj(player.mo)
-		if speedtrail.tracer then
-			speedtrail.tracer.colorized = true
-			speedtrail.tracer.color = player.mo.color
-			speedtrail.tracer.fuse = 3
-			speedtrail.tracer.blendmode = AST_ADD
-		end
-		speedtrail.colorized = true
-		speedtrail.color = player.mo.color
-		speedtrail.fuse = 3
-		speedtrail.blendmode = AST_ADD
-    end
-end
-
 B.invinciblespark = function(player)
 	local mo = player.mo
 	if not(mo and mo.valid) then
@@ -458,20 +442,6 @@ B.invinciblespark = function(player)
 	end
 end
 
-B.semisuper = function(player)
-	local mo = player.mo
-	if not(mo and mo.valid) then
-		return
-	end
-	
-	if player.powers[pw_sneakers] and player.powers[pw_invulnerability] and S[player.skinvars].supersprites then
-		mo.semisuper = true
-		mo.eflags = $|MFE_FORCESUPER
-	elseif mo.semisuper then
-		mo.eflags = $ &~ MFE_FORCESUPER
-		mo.semisuper = false
-	end
-end
 
 B.CharAbilityControl = function(player)
 	B.ArmaCharge(player)
@@ -485,9 +455,7 @@ B.CharAbilityControl = function(player)
 	B.exhaust(player)
 	B.flashingnerf(player)
 	B.tailsthrow(player)
-	B.sneakertrail(player)
 	B.invinciblespark(player)
-	B.semisuper(player)
 end
 
 B.MidAirAbilityAllowed = function(player)

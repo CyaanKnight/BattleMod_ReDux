@@ -224,7 +224,7 @@ G.Parry = function(target, inflictor, source, damage, damagetype)
 		end
 		//Affect attacker
 		if inflictor.player
-			if inflictor.player.powers[pw_invulnerability]
+			if inflictor.player.powers[pw_invulnerability] and not(inflictor.battle_super)
 				inflictor.player.powers[pw_invulnerability] = 0
 				P_RestoreMusic(inflictor.player)
 			end

@@ -108,6 +108,7 @@ addHook("ThinkFrame",function()
 		B.PlayerThinkFrame(player)
 		F.UpdateCaps(player)
 		B.HummingTop_MainHook(player)
+		B.BattleSuper_ThinkFrame(player)
 	end
 	if gametype == GT_BATTLECTF then
 		F.CustomCaptureSFX()
@@ -126,6 +127,7 @@ addHook("PostThinkFrame",function()
 	if not(B.PreRoundWait())
 		for player in players.iterate
 			B.PlayerPostThinkFrame(player)
+			B.BattleSuper_PostThinkFrame(player)
 		end
 	end
 	A.UpdateSpawnLives()

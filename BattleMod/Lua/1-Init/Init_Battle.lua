@@ -162,6 +162,7 @@ rawset(_G,"SKINVARS_GLIDESOUND",	1<<5)
 rawset(_G,"SKINVARS_DASHMODENERF",	1<<6)
 rawset(_G,"SKINVARS_HUMMINGTOP",	1<<7)
 rawset(_G,"SKINVARS_RECURL",		1<<8)
+rawset(_G,"SKINVARS_NOSUPERSPRITES",1<<9)
 
 
 -- I hate srb2

@@ -79,6 +79,7 @@ F.TouchFlag = function(mo, pmo)
 	if player.guard
 	or player.airdodge > 0
 	or player.actionstate
+	or player.battle_super
 		if P_IsObjectOnGround(mo) and not mo.jostletimer
 			mo.jostletimer = 16
 			S_StartSound(mo, sfx_s3k6d)
