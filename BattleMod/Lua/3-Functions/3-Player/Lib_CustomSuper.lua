@@ -151,6 +151,8 @@ function B.BattleSuper_ThinkFrame(player)
 
         if (mo.battle_superstate == SS_MID) or (mo.battle_superstate == SS_SUPER) then
 
+            P_PlayerFlagBurst(player)
+
             if not(B.GetSkinVarsFlags(player)&SKINVARS_NOSUPERSPRITES) then
                 mo.eflags = $|MFE_FORCESUPER
             end

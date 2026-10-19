@@ -71,7 +71,10 @@ F.TouchFlag = function(mo, pmo)
 	if (mo.intangibletime == nil) or mo.intangibletime > 0 then
 		return true
 	end
-	if not mo.fuse
+	if not mo.fuse then
+		if pmo.battle_super then
+			return true
+		end
 		return
 	end
 	local angle = R_PointToAngle2(pmo.x - pmo.momx, pmo.y - pmo.momy, mo.x, mo.y)
@@ -79,7 +82,7 @@ F.TouchFlag = function(mo, pmo)
 	if player.guard
 	or player.airdodge > 0
 	or player.actionstate
-	or player.battle_super
+	or pmo.battle_super
 		if P_IsObjectOnGround(mo) and not mo.jostletimer
 			mo.jostletimer = 16
 			S_StartSound(mo, sfx_s3k6d)
