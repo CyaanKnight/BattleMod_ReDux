@@ -260,9 +260,13 @@ B.Action.PikoTornado = function(mo,doaction)
 		end
 		//Neutral
 		local nearground = B.NearGround(mo, nil, nil, mo.momz)
-		if nearground or player.actiontime > TICRATE*3/2 or player.powers[pw_carry] then
-			if (nearground or (player.cmd.buttons & BT_SPIN)) and not (player.powers[pw_carry]) then
-				--player.melee_state = st_release
+		local past_buffer = (player.actiontime > TICRATE*3/2)
+		local carry = player.powers[pw_carry]
+		local spin = B.PlayerButtonPressed(player,BT_SPIN,true,true)
+		local jump = B.PlayerButtonPressed(player,BT_JUMP,true,true)
+		if nearground or past_buffer or carry then
+			if (nearground and (spin or jump)) and not(carry) then
+				player.melee_state = st_release
 				player.actionstate = air_special+1
 			else
 				mo.state = S_PLAY_FALL
@@ -278,16 +282,17 @@ B.Action.PikoTornado = function(mo,doaction)
 	if player.actionstate == air_special+1
 		local activeframes = player.actiontime < TICRATE-(TICRATE/3)
 		local ihatedustdevils = mo.momz*P_MobjFlip(mo) > mo.scale*10
-		/*if activeframes and not ihatedustdevils then 
+		if activeframes and not ihatedustdevils then 
 			if P_IsObjectOnGround(mo) then
 				mo.frame = 0
 				mo.sprite2 = SPR2_MLEL
 				player.powers[pw_nocontrol] = max($,2)
+				player.canguard = false
 			else
 				player.actiontime = $-1
 			end
 			return 
-		end*/
+		end
 		//Neutral
 		--B.ApplyCooldown(player,cooldown)
 		player.actionstate = 0
