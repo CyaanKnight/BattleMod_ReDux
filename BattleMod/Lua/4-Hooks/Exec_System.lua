@@ -43,12 +43,7 @@ addHook("MapChange",function(map)
 	F.BlueFlag = nil
 	F.RedFlag_oldscore = 0
 	F.BlueFlag_oldscore = 0
-	B.GetTeamInfo(map, true)
-	B.GetTeamInfo(map)
-	skincolor_redteam = B.RedTeam_Info.skincolor
-	skincolor_blueteam = B.BlueTeam_Info.skincolor
-	skincolor_redring = B.RedTeam_Info.ringcolor or B.RedTeam_Info.skincolor
-	skincolor_bluering = B.BlueTeam_Info.ringcolor or B.BlueTeam_Info.skincolor
+	B.TeamColors(map)
 	--F.RedScore = 0
     --F.BlueScore = 0
 	--F.RedFlagPos = {x=0,y=0,z=0} -- Reset flag coords!
@@ -72,7 +67,15 @@ addHook("MapChange",function(map)
 	PR.ResetAll() //Re-init on each mapchange
 end)
 
+local first_shuffle = false
+
 addHook("MapLoad",function(map)
+
+	if not(first_shuffle) then
+		B.TeamColors(map)
+		first_shuffle = true
+	end
+
 	F.GetFlagPos()
 	B.ApplyGametypeCVars()
 	I.GetMapHeader(map)

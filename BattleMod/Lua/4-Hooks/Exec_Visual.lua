@@ -14,9 +14,9 @@ addHook("MobjThinker", B.TargetDummyThinker, MT_TARGETDUMMY)
 
 local function monitorColor(mo)
 	if mo.type == MT_RING_REDBOX then
-		mo.color = B.RedTeam_Info.monitorcolor or B.RedTeam_Info.skincolor
+		mo.color = B.GetMonitorColor(1)
 	elseif mo.type == MT_RING_BLUEBOX then
-		mo.color = B.BlueTeam_Info.monitorcolor or B.BlueTeam_Info.skincolor
+		mo.color = B.GetMonitorColor(2)
 	end
 end
 

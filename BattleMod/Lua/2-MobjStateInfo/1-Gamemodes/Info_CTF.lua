@@ -4,16 +4,7 @@ sfxinfo[freeslot('sfx_flgwht')].caption = "\x82".."ENEMY FLAG LOST".."\x80"
 freeslot('MT_CREDFLAG', 'MT_CBLUEFLAG')
 freeslot('S_CREDFLAG', 'S_CBLUEFLAG')
 
-freeslot(
-        "SPR_SONICFLAG",
-        "SPR_KNUCKLESFLAG",
-        "SPR_TAILSFLAG",
-        "SPR_AMYFLAG",
-        "SPR_FANGFLAG",
-		"SPR_METALSONFLAG",
-        "SPR_EGGFLAG",
-        "SPR_CGOTFLAG"
-)
+freeslot("SPR_CGOTFLAG")
 
 --We gotta make our own
 states[freeslot("S_CGOTFLAG")] = {

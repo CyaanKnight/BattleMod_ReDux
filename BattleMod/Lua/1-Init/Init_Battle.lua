@@ -35,8 +35,9 @@ B.HUDMain = true
 B.HUDAlt = true
 B.Timeout = 0
 B.HUDRoulette = {}
-B.RedTeam_Info = {}
-B.BlueTeam_Info = {}
+B.RightTeam_Info = {}
+B.LeftTeam_Info = {}
+B.RandomTeamBlacklist = {}
 
 B.GametypeIDtoIdentifier = {}
 
@@ -51,10 +52,22 @@ B.AddBattleGametype = function(tabl)
 		defaultstartrings = tabl.defaultstartrings
 		tabl.defaultstartrings = nil
 	end
+
+	local randomteams = true
+
+	if tabl.norandomteams then
+		randomteams = false
+	end
+
+	tabl.norandomteams = nil
 	G_AddGametype(tabl)
 	local id = _G["GT_"..tabl.identifier:upper()]
 
 	B.GametypeIDtoIdentifier[id] = tabl.identifier:lower()
+
+	if not(randomteams) then
+		B.RandomTeamBlacklist[id] = true
+	end
 
 	local pointlimit
 	local timelimit
@@ -294,6 +307,7 @@ B.AddBattleGametype({
 	defaulttimelimit = 8,
 	headerleftcolor = 37,
 	headerrightcolor = 150,
+	norandomteams = true,
 	description = "Combine melee and special moves to capture the enemy flag while protecting your own. Master the slipstream to catch up to enemy flagrunners!"
 })
 
@@ -309,6 +323,7 @@ B.AddBattleGametype({
 	defaulttimelimit = 5,
     headerleftcolor = 37,
     headerrightcolor = 150,
+	norandomteams = true,
     description = 'Team up to send the Phantom Ruby packing! First to 5 wins!'
 })
 

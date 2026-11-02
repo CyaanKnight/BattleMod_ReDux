@@ -541,37 +541,40 @@ B.DoFirework = function(mo)
 	end
 end
 
-B.RedTeam_Info = {
-	flagsprite = SPR_KNUCKLESFLAG,
-	skincolor = SKINCOLOR_RED,
-	flagcolor = SKINCOLOR_RED,
-	ringcolor = SKINCOLOR_RED,
-	monitorcolor = SKINCOLOR_RED
-}
+B.RightTeam_Info = {}
 
-B.BlueTeam_Info = {
-	flagsprite = SPR_SONICFLAG,
-	skincolor = SKINCOLOR_BLUE,
-	flagcolor = SKINCOLOR_BLUE,
-	ringcolor = SKINCOLOR_BLUE,
-	monitorcolor = SKINCOLOR_BLUE
-}
+B.LeftTeam_Info = {}
 
 F.FlagSkin = function(mo)
-	local red = ((mo.type == MT_REDFLAG) and true) or false
-	local blue = ((mo.type == MT_BLUEFLAG) and true) or false
+	local right = ((mo.type == MT_REDFLAG) and true) or false
+	local left = ((mo.type == MT_BLUEFLAG) and true) or false
 
-	local info = (red and B.RedTeam_Info) or B.BlueTeam_Info
+	local ctfteam
+
+	if right then
+		ctfteam = 1
+	elseif left then
+		ctfteam = 2
+	else
+		error("This function should only run for flag objects!")
+	end
+
+	local info = B.GetTeamInfo(ctfteam)
+
+	if info.func_flag then
+		info.func_flag(mo)
+		return
+	end
 
 	mo.frame = 0
 
-	if red then
-		mo.frame = 1
-	else
+	if left then
 		mo.frame = 0
+	else
+		mo.frame = 1
 	end
-	mo.sprite = info.flagsprite or ((red and SPR_KNUCKLESFLAG) or SPR_SONICFLAG)
-	mo.color = info.flagcolor or info.skincolor
+	mo.sprite = B.GetFlagSprite(ctfteam)
+	mo.color = B.GetFlagColor(ctfteam)
 end
 
 
@@ -753,24 +756,8 @@ F.FlagPreThinker = function()
 	end
 end
 
-local textmapToEsc = {
-	[0] = "\x80",
-	[V_MAGENTAMAP] = "\x81",
-	[V_YELLOWMAP] = "\x82",
-	[V_GREENMAP] = "\x83",
-	[V_BLUEMAP] = "\x84",
-	[V_REDMAP] = "\x85",
-	[V_GRAYMAP] = "\x86",
-	[V_ORANGEMAP] = "\x87",
-	[V_SKYMAP] = "\x88",
-	[V_PURPLEMAP] = "\x89",
-	[V_AQUAMAP] = "\x8A",
-	[V_PERIDOTMAP] = "\x8B",
-	[V_AZUREMAP] = "\x8C",
-	[V_BROWNMAP] = "\x8D",
-	[V_ROSYMAP] = "\x8E",
-	[V_INVERTMAP] ="\x8F"
-}
+
+
 
 -- Dictates what happens when you touch the flag
 F.FlagTouchSpecial = function(special, toucher)
@@ -793,19 +780,16 @@ F.FlagTouchSpecial = function(special, toucher)
 
 		
 
-		local binfo = B.BlueTeam_Info
-		local rinfo = B.RedTeam_Info
+		local lcolor = B.GetFlagColor(2)
+		local rcolor = B.GetFlagColor(1)
 
-		local bcolor = binfo.skincolor
-		local rcolor = rinfo.skincolor
+		local lcolor_chat = B.GetChatEsc(B.GetChatMap(lcolor))
+		local rcolor_chat = B.GetChatEsc(B.GetChatMap(rcolor))
 
-		local bcolor_chat = (pcall(do return skincolors[bcolor].chatcolor end) and textmapToEsc[skincolors[bcolor].chatcolor]) or textmapToEsc[V_BLUEMAP]
-		local rcolor_chat = (pcall(do return skincolors[rcolor].chatcolor end) and textmapToEsc[skincolors[rcolor].chatcolor]) or textmapToEsc[V_REDMAP]
+		local lname = B.GetFlagName(2)
+		local rname = B.GetFlagName(1)
 
-		local bname = binfo.flagname and binfo.flagname:upper() or ((pcall(do return R_GetNameByColor(bcolor) end)) and R_GetNameByColor(bcolor):upper().." FLAG") or "BLUE FLAG"
-		local rname = rinfo.flagname and rinfo.flagname:upper() or ((pcall(do return R_GetNameByColor(rcolor) end)) and R_GetNameByColor(rcolor):upper().." FLAG") or "RED FLAG"
-
-		local pcolor = p.ctfteam == 1 and rcolor_chat or bcolor_chat
+		local pcolor = p.ctfteam == 1 and rcolor_chat or lcolor_chat
 
 		-- If object is valid and player doesn't have tossdelay
 		if special.valid and not p.tossdelay then
@@ -1030,10 +1014,18 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 
 		
 
-		local blue = ((p.ctfteam == 1) and true) or false
-		local red = not(blue)
+		local left = ((p.ctfteam == 1) and true) or false
+		local right = not(left)
 
-		local info = (red and B.RedTeam_Info) or B.BlueTeam_Info
+		local ctfteam
+
+		if left then
+			ctfteam = 1
+		elseif right then
+			ctfteam = 2
+		else
+			continue
+		end
 
 		-- if we're here, at least one of the conditions met, so let's create a generic indicator! (if there isn't any)
 		local zfloatintensity = pmo.scale*6 --lets make things nore lively, why not?
@@ -1050,7 +1042,7 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			icon.tics = 2
 			icon.colorized = false
 
-			icon.color = (red and skincolor_redteam) or skincolor_blueteam
+			icon.color = B.GetFlagColor(ctfteam)
 			
 			-- then, update it based on which condition was met
 			if conditions[1] then -- flag
@@ -1077,29 +1069,41 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			pmo.flag_indicator.tics = max($,2)
 		end
 
+		local info = B.GetTeamInfo(ctfteam)
+		local custom = false
+
+		if info.func_gotflag then
+			custom = true
+		end
+
 		-- finally, update the indicator's position
 		pmo.flag_indicator.eflags = (pmo.eflags&MFE_VERTICALFLIP) and $|MFE_VERTICALFLIP or $&~MFE_VERTICALFLIP
 		P_MoveOrigin(pmo.flag_indicator, pmo.x,pmo.y,pmo.z+zoffset)
 		if pmo.flag_indicator.flag and pmo.flag_indicator.flag.valid then
-			local icon = pmo.flag_indicator
-			if icon.flag and icon.flag.valid then
-				icon.flag.renderflags = $|RF_ABSOLUTEOFFSETS
-				icon.flag.spritexoffset = 23*FRACUNIT
-				icon.flag.spriteyoffset = 48*FRACUNIT
-				icon.flag.fuse = 2
-				icon.flag.frame = 0
-				icon.flag.sprite = info.flagsprite
-				icon.flag.frame = ((blue and 2) or 3)|FF_FULLBRIGHT
-				icon.flag.color = info.flagcolor or info.skincolor
-				icon.flag.scale = icon.scale
-				B.ApplyFlip(pmo, icon.flag)
+
+			if custom then
+				info.func_gotflag(p, pmo.flag_indicator, pmo.flag_indicator.flag)
+			else
+				local icon = pmo.flag_indicator
+				if icon.flag and icon.flag.valid then
+					icon.flag.renderflags = $|RF_ABSOLUTEOFFSETS
+					icon.flag.spritexoffset = 23*FRACUNIT
+					icon.flag.spriteyoffset = 48*FRACUNIT
+					icon.flag.fuse = 2
+					icon.flag.frame = 0
+					icon.flag.sprite = B.GetFlagSprite(ctfteam)
+					icon.flag.frame = ((left and 2) or 3)|FF_FULLBRIGHT
+					icon.flag.color = B.GetFlagColor(ctfteam)
+					icon.flag.scale = icon.scale
+					B.ApplyFlip(pmo, icon.flag)
+				end
+				B.ApplyFlip(pmo, icon)
+				P_MoveOrigin(pmo.flag_indicator.flag, pmo.x,pmo.y,pmo.z+zoffset)
 			end
-			B.ApplyFlip(pmo, icon)
-			P_MoveOrigin(pmo.flag_indicator.flag, pmo.x,pmo.y,pmo.z+zoffset)
 		end
 
 		-- players can see their own indicators, so let's make it less visually obstructing for them
-		if (consoleplayer and p == consoleplayer) and not(splitscreen) then
+		if (displayplayer and p == displayplayer) or (secondarydisplayplayer and p == secondarydisplayplayer) then
 			pmo.flag_indicator.scale = pmo.scale * 2/3
 			pmo.flag_indicator.frame = $ | FF_TRANS30
 			if pmo.flag_indicator.flag and pmo.flag_indicator.flag.valid then
@@ -1351,7 +1355,7 @@ end
 F.CustomCaptureSFX = function()
 	for i = 1,2 do
 
-		local flag = ({F.BlueFlag, F.RedFlag})[i]
+		local flag = ({F.RedFlag, F.BlueFlag})[i]
 		local inv_team = ({2, 1})[i]
 
 		if flag and flag.valid and flag.player then --If i team's flag is being held...
@@ -1368,8 +1372,8 @@ F.CustomCaptureSFX = function()
 			end
 		end
 
-		local flag_player = ({F.BlueFlag_player, F.RedFlag_player})[i]
-		local old_score = ({F.BlueFlag_oldscore, F.RedFlag_oldscore})[i]
+		local flag_player = ({F.RedFlag_player, F.BlueFlag_player})[i]
+		local old_score = ({F.RedFlag_oldscore, F.BlueFlag_oldscore})[i]
 		local new_score = ({redscore, bluescore})[i]
 
 		--If the current score of our team is greater than the score that was initially saved
@@ -1390,16 +1394,17 @@ F.CustomCaptureSFX = function()
 					--Play our sound
 				end
 
-				local info = {B.BlueTeam_Info, B.RedTeam_Info}
+				local ctfteam = (inv_team==1 and 1) or 2
+				local inv_side = i
 
-				local color = info[i].skincolor
-				local pcolor = info[inv_team].skincolor
+				local color = B.GetTeamColor(ctfteam)
+				local pcolor = B.GetTeamColor(inv_side)
 
-				local color_chat = (pcall(do return skincolors[color].chatcolor end) and textmapToEsc[skincolors[color].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
+				local color_chat = B.GetChatEsc(B.GetChatMap(color))
 
-				local pcolor_chat = (pcall(do return skincolors[pcolor].chatcolor end) and textmapToEsc[skincolors[pcolor].chatcolor]) or textmapToEsc[(i==1 and V_BLUEMAP) or V_REDMAP]
-
-				local flagname = info[i].flagname and info[i].flagname:upper() or ((pcall(do return R_GetNameByColor(color) end)) and R_GetNameByColor(color):upper().." FLAG") or (i==1 and "BLUE") or "RED"+" FLAG"
+				local pcolor_chat = B.GetChatEsc(B.GetChatMap(pcolor))
+				
+				local flagname = B.GetFlagName(ctfteam)
 				local pname = flag_player.name
 				F.GameState.CaptureHUDTimer = 5*TICRATE
 				F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""

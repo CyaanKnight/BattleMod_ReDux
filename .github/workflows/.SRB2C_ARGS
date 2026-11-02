@@ -1,1 +1,1 @@
--skipintro -server +downloading off +color blue +skin sonic +battle_preround 0 +wait 1 +"map bz -g 16 -f" +wait 1 +changeteam 2
+-skipintro -server +downloading off +color blue +skin sonic +battle_preround 0 +wait 1 +"map bz -g 16 -f" +wait 1 +changeteam 2 +hidetime 0

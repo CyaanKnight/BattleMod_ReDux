@@ -191,9 +191,46 @@ function B.BattleSuper_PostThinkFrame(player)
 
         -- Cycle Super color
         if (mo.battle_superstate == SS_MID) or (mo.battle_superstate == SS_SUPER) then
-            if not(mo.battle_nosupercolor) then
-                local color = mo.battle_supercolor or skins[mo.skin].supercolor
-                --mo.color = color + abs( ( (mo.battle_super >>1 % 9) - 4))
+            local teams = G_GametypeHasTeams()
+
+            local skin_supercolor  = skins[mo.skin].supercolor
+            local custom_supercolor = player.battle_supercolor
+
+            local supercolor = player.skincolor
+            local static = true
+            local nocolor = false
+
+            if teams then
+                local team_supercolor = B.GetTeamSuperColor(player.ctfteam)
+                if team_supercolor then
+                    supercolor = team_supercolor
+                    if (B.GetTeamInfo(player.ctfteam)).static_supercolor then
+                        static = true
+                    else
+                        static = false
+                    end
+                else
+                    nocolor = true
+                end
+            else
+                if custom_supercolor then
+                    static = player.static_supercolor
+                    supercolor = custom_supercolor
+                elseif skin_supercolor
+                    static = false
+                    supercolor = skin_supercolor
+                else
+                    nocolor = true
+                end
+            end
+
+            
+            if not(nocolor) then
+                if static then
+                    mo.color = supercolor
+                else
+                    mo.color = supercolor + abs( ( (mo.battle_super >> 1) % 9) - 4)
+                end
             end
         end
     end
