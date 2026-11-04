@@ -429,7 +429,7 @@ function B.GetFlagName(ctfteam)
 		info = B.LeftTeam_Info
 		name = "BLUE"
 	else
-		error("string must be either 'left' or 'right'")
+		error("ctfteam must be either 1 or 2!")
 		return nil
 	end
 
