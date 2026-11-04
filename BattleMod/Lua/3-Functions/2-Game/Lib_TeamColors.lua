@@ -155,6 +155,8 @@ function B.AddTeamChar(name, info)
     assert(info.flagsprite, "flagsprite must be set!")
     assert(info.skincolor, "skincolor must be set!")
 
+	info.name = name
+
     B.TeamChars[name] = info
 
     dprint("Added TeamChar '"..name.."'")
@@ -205,8 +207,22 @@ function B.SetMatchup(matchup, noflip)
         end
     end
 
-    B.LeftTeam_Info = B.TeamChars[left]
-    B.RightTeam_Info = B.TeamChars[right]
+	B.LeftTeam_Info = {}
+    B.RightTeam_Info = {}
+
+	local characters = {B.TeamChars[left], B.TeamChars[right]}
+
+	for i = 1, #characters do
+		local teamChar = characters[i]
+
+		for k, v in pairs(teamChar) do
+			if i == 1 then
+				B.LeftTeam_Info[k] = v
+			elseif i == 2 then
+				B.RightTeam_Info[k] = v
+			end
+		end
+	end
 
     if matchup.overrides then
 
@@ -231,13 +247,17 @@ function B.GetRandomMatchup()
 end
 
 function B.SetRandomTeams()
-    B.SetMatchup(B.GetMatchup("sonic", "knuckles"), true)
-
 	if not(B.RandomTeamBlacklist[gametype]) then
 		dprint("Setting teams to random matchup")
+		B.LeftTeam_Info = {}
+		B.RightTeam_Info = {}
 		B.SetMatchup(B.GetRandomMatchup())
 	end
 end
+
+COM_AddCommand("bro", do
+	print(B.LeftTeam_Info.name+"|"+B.RightTeam_Info.name)
+end)
 
 
 function B.VerifyColor(color)
@@ -508,6 +528,8 @@ function B.MapHasTeamInfo(mapnum)
 			end
 		end
 	end
+
+	return false
 end
 
 function B.SetMapTeams(mapnum)
@@ -579,7 +601,10 @@ function B.SetMapTeams(mapnum)
 end
 
 function B.TeamColors(map)
+	B.SetMatchup(B.GetMatchup("sonic", "knuckles"), true)
 	if B.MapHasTeamInfo(map) then
+		B.RightTeam_Info = {}
+		B.LeftTeam_Info = {}
 		B.SetMatchup(B.GetMatchup("sonic", "knuckles"), true)
 		B.SetMapTeams(map)
 	else
