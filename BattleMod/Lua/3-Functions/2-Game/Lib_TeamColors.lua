@@ -565,10 +565,19 @@ function B.SetMapTeams(mapnum)
 					end
 				elseif field == "flagsprite" then
 					value = _G[headerval:upper()]
-				elseif field == "skincolor" or
-				field == "flagcolor" or
-				field == "ringcolor" or
-				field == "monitorcolor" then
+				elseif field == "skincolor" then
+					local NameToColor = R_GetColorByName(headerval:lower())
+					
+					if NameToColor then
+						value = NameToColor
+					elseif _G[headerval:upper()] then
+						value = _G[headerval:upper()]
+					end
+
+					B.SetTeamInfoVar(ctfteam, "flagcolor", value)
+					B.SetTeamInfoVar(ctfteam, "ringcolor", value)
+					B.SetTeamInfoVar(ctfteam, "monitorcolor", value)
+				elseif field == "flagcolor" or field == "ringcolor" or field == "monitorcolor" then
 					local NameToColor = R_GetColorByName(headerval:lower())
 					
 					if NameToColor then
