@@ -36,7 +36,8 @@ local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
-local dashslice_buildup = 8
+local dashslice_buildup = 12
+local dashslice_cost = 15
 
 local charged_meteroverride = 35552
 
@@ -652,7 +653,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	if slashtrigger then
 		--Next state
 
-		B.PayRings(player,player.actionrings)
+		B.PayRings(player,dashslice_cost)
 		player.exhaustmeter = FRACUNIT
 		player.actionstate = state_dashslicerprep
 		if player.actiontime >= threshold2
@@ -674,6 +675,15 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		mo.sprite2 = SPR2_DASH
 		local pos = mo.energyattack_stasis
 		P_MoveOrigin(mo, mo.x, mo.y, pos)
+
+		-- move backwards when slicer is preparing (holding back will push you further)
+		local move = sliceAngle(player, player.realforwardmove, player.realsidemove, player.realangleturn<<16)
+		local spd = FixedMul((min(3, 1+player.actiontime) * FRACUNIT)/B.WaterFactor(mo),mo.scale)
+		if twodlevel or mo.flags2&MF2_TWOD then
+			spd = $*3/4
+		end
+		P_Thrust(mo, move, -spd)
+
 		if player.actiontime >= dashslice_buildup then
 			S_StopSoundByID(mo, sfx_hclwt)
 			S_StopSoundByID(mo, sfx_hclwe)
@@ -704,7 +714,7 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		end
 		P_SpawnGhostMobj(mo)
 		--print(player.actiontime)
-		local spd = FixedMul((min(12, 10+player.actiontime) * FRACUNIT)/B.WaterFactor(mo),mo.scale)
+		local spd = FixedMul((min(14, 12+player.actiontime) * FRACUNIT)/B.WaterFactor(mo),mo.scale)
 		if twodlevel or mo.flags2&MF2_TWOD then
 			spd = $*3/4
 		end
