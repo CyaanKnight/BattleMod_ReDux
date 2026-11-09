@@ -669,10 +669,11 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 	end
 	
 	if (player.actionstate == state_dashslicerprep) then
-		player.actiontext = "Dash Slicer Claw"
-		mo.state = S_PLAY_DASH
+		mo.state = S_PLAY_WALK
 		mo.frame = 0
-		mo.sprite2 = SPR2_DASH
+		mo.sprite = SPR_PLAY
+		mo.sprite2 = SPR2_MSC2
+		player.actiontext = "Dash Slicer Claw"
 		local pos = mo.energyattack_stasis
 		P_MoveOrigin(mo, mo.x, mo.y, pos)
 
