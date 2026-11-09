@@ -201,9 +201,6 @@ local function drawFlagfromP(v)
 	local held = v.cachePatch("NONICON3")
 	-- Thanks, "scores" -- I can't fucking use the player from the parameters
 	for player in players.iterate do
-
-		
-
 		-- If blue flag isn't at base
 		if (player.gotflag & GF_BLUEFLAG) then
 			local BNON_X = BASEVIDWIDTH/2 - SEP - (held.width / 2)
@@ -214,7 +211,7 @@ local function drawFlagfromP(v)
 		if (player.gotflag & GF_REDFLAG) then 
 			local RNON_X = BASEVIDWIDTH/2 + SEP - (held.width / 2)
 			local RNON_Y = YPOS
-			v.drawScaled(RNON_X*FRACUNIT, (RNON_Y+yoff)*FRACUNIT, FRACUNIT, held, patch_flags, bcol)
+			v.drawScaled(RNON_X*FRACUNIT, (RNON_Y+yoff)*FRACUNIT, FRACUNIT, held, patch_flags, lcol)
 		end
 
 

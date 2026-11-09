@@ -1011,18 +1011,17 @@ F.DrawIndicator = function() --TODO: move this out of Lib_ModeCTF, probably
 			continue
 		end
 
+		-- it's weird that we're not looking at p.gotflag's variable, but this is fine.
 
-		
-
-		local left = ((p.ctfteam == 1) and true) or false
-		local right = not(left)
+		local left = (p.ctfteam == 1)
+		local right = (p.ctfteam == 2)
 
 		local ctfteam
 
-		if left then
-			ctfteam = 1
-		elseif right then
-			ctfteam = 2
+		if left then -- if we're left
+			ctfteam = 2 -- then we have right's flag
+		elseif right then -- if we're right
+			ctfteam = 1 -- then we have left's flag
 		else
 			continue
 		end
