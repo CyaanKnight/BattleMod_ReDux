@@ -425,7 +425,7 @@ function B.GetFlagName(ctfteam)
 	if ctfteam == 1 then
 		info = B.LeftTeam_Info
 		name = "BLUE"
-	elseif ctfteam == 1 then
+	elseif ctfteam == 2 then
 		info = B.RightTeam_Info
 		name = "RED"
 	else
