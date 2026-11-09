@@ -683,7 +683,16 @@ B.Action.EnergyAttack = function(mo,doaction,throwring,tossflag)
 		if twodlevel or mo.flags2&MF2_TWOD then
 			spd = $*3/4
 		end
-		P_Thrust(mo, move, -spd)
+		P_Thrust(mo, move, -spd) 
+
+		-- make metal flash when prepping
+		if not (player.actiontime % 3) then
+			local flashghost = P_SpawnGhostMobj(mo)
+			flashghost.type = MT_OVERLAY
+			flashghost.frame = (mo.frame & FF_FRAMEMASK)
+			flashghost.blendmode = AST_SUBTRACT
+			flashghost.tics = 2
+		end
 
 		if player.actiontime >= dashslice_buildup then
 			S_StopSoundByID(mo, sfx_hclwt)
