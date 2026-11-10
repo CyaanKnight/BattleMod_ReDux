@@ -542,7 +542,7 @@ F.CapHUD = function(v)
 	end
 
 	local rcol = B.GetTeamColor(1)
-	local bcol = B.GetTeamColor(2)
+	local lcol = B.GetTeamColor(2)
 	
 	--An attempt to look exactly like the hardcode cecho
 	if not(F.GameState.CaptureHUDTimer) then --... Except for the text easing in.
@@ -554,8 +554,8 @@ F.CapHUD = function(v)
 		end
 		local name = F.GameState.CaptureHUDName
 		local team = F.GameState.CaptureHUDTeam
-		local red = B.GetChatEsc(B.GetChatMap(rcolor))
-		local blue = B.GetChatEsc(B.GetChatMap(lcolor))
+		local red = B.GetChatEsc(B.GetChatMap(rcol))
+		local blue = B.GetChatEsc(B.GetChatMap(lcol))
 
 		local redname = B.GetFlagName(1)
 		local bluename = B.GetFlagName(2)
