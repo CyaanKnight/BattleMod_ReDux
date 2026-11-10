@@ -1,7 +1,7 @@
 local B = CBW_Battle
 
-B.AddTeamChar("lanolin", {
-    flagsprite = freeslot("SPR_LANOLINFLAG"),
-    skincolor = SKINCOLOR_WHITE,
-    supercolor = SKINCOLOR_SUPERSILVER1
+B.AddTeamChar("sage", {
+    flagsprite = freeslot("SPR_SAGEFLAG"),
+    skincolor = SKINCOLOR_CRIMSON,
+    supercolor = SKINCOLOR_SUPERRED1
 })
