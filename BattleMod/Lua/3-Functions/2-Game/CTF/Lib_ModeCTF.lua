@@ -31,7 +31,10 @@ F.NOTICE_TIME = TICRATE*3 -- TODO: uhh.. make it a local variable probably lol
 F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
 F.DC_ColorSwitch = true -- When true flips color text to red, when false flips to white. Used to create a flickering effect
 
-
+-- feel free to replace this with another method
+F.IsCTFMode = function()
+	return (gametype == GT_CTF or gametype == GT_BATTLECTF)
+end
 
 F.TrackRed = function(mo)
 	F.RedFlag = mo
@@ -460,7 +463,7 @@ end
 F.GetFlagPos = function()
 	-- Reset all flag variables
 	--resetFlagvars()
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	-- Find flag coordinates in the map, and save them; They will be used to spawn the flag
 	local flagpositions = F.GetFlagPosAsTables()
@@ -471,7 +474,7 @@ end
 -- Makes an injured or dead player lose possession of the flag.
 -- if `toss` is nonzero, it indicates tossing the flag.
 F.PlayerFlagBurst = function(p, toss, suicideflagdrop)
-		if gametype ~= GT_BATTLECTF then return end
+		if not F.IsCTFMode() then return end
 		if not p.gotflag and not suicideflagdrop then 
 		return end -- player MUST have a flag for this to occur!
 		// make sure we drop flag if played died by suicide
@@ -630,7 +633,7 @@ local function capFlag(flag_player, flag)
 	local flagname = B.GetFlagName(inv_team)
 	local pname = flag_player.name
 	F.GameState.CaptureHUDTimer = 5*TICRATE
-	F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
+	F.GameState.CaptureHUDName = (F.IsCTFMode() and flag_player.name) or ""
 	F.GameState.CaptureHUDTeam = flag_player.ctfteam
 
 	if flag_player.mo and flag_player.mo.valid then
@@ -741,7 +744,7 @@ table.insert(hudobjs, {
 	rings = nil,
 	func = function(v, player, cam, obj)
 		local invctf_flag = ({F.BlueFlag, F.RedFlag})[player.ctfteam]
-		local bool = invctf_flag and invctf_flag.valid and ((gametype == GT_BATTLECTF) and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
+		local bool = invctf_flag and invctf_flag.valid and (F.IsCTFMode() and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
 		local animtimer = (invctf_flag and invctf_flag.valid) and (invctf_flag.hud_timer) or 1
 
 		if bool then
@@ -778,7 +781,7 @@ table.insert(hudobjs, {
 })
 
 F.FlagPreThinker = function()
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	for p in players.iterate do
 		if p and p.mo and p.mo.valid then
 
@@ -817,7 +820,7 @@ end
 -- Dictates what happens when you touch the flag
 F.FlagTouchSpecial = function(special, toucher)
 	-- Ensure that the gametype is custom ctf first!
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	if F.TouchFlag(special, toucher) then return true end --don't interact with flag if true!
 
 	if special and toucher and toucher.player then
@@ -912,7 +915,7 @@ F.FlagTouchSpecial = function(special, toucher)
 end
 
 F.FlagSpawn = function(mo)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	if mo and mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG then
 		mo.shadowscale = mo.scale --set flag shadow
 
@@ -924,7 +927,7 @@ end
 -- Respawns the flag if it was tossed in a deathpit
 F.RespawnFlag = function(mo)
 	-- Ensure that the gametype is custom ctf first!
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	-- re-spawn the flags
 	if mo.type == MT_CREDFLAG then spawnFlag(1)
@@ -933,7 +936,7 @@ F.RespawnFlag = function(mo)
 end
 F.FlagRemoved = function(mo)
 	if gamestate ~= GS_LEVEL then return end
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	local globalFlag = ({[MT_CREDFLAG]=F.RedFlag, [MT_CBLUEFLAG]=F.BlueFlag})[mo.type]
 	-- If the flag was removed because it wasn't grabbed, then respawn it (it presumably fell in a pit or was returned by a player)
@@ -1032,7 +1035,7 @@ local function returnFlagcheck(mo)
 end
 
 F.FlagMobjThinker = function(mo)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	if mo then
 		F.FlagSkin(mo)
@@ -1205,7 +1208,7 @@ end)
 --// rev: Updates player flag captures. e.g. If a player captures a flag, their flag cap goes up by 1.
 --// NOTE: Caps reset when the map changes, in-game time resets when map changes/player spectates (see MapChange, Exec_system)
 F.UpdateCaps = function(p)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
     if not (p and p.mo) then return end
 
     --// Keep track of whether player doesn't have flag anymore and if their team's score just went up.
@@ -1227,7 +1230,7 @@ F.UpdateCaps = function(p)
 end
 
 --F.UpdateScore = function(mo)
---	if gametype ~= GT_BATTLECTF then return end
+--	if not F.IsCTFMode() then return end
 --	redscore = F.RedScore
 --	bluescore = F.BlueScore
 --end
@@ -1395,7 +1398,7 @@ F.DelayCapActivateIndicator = function()
 		F.DelayCap = true
 	end
 	if (F.DC_NoticeTimer >= F.NOTICE_TIME) or (F.DC_NoticeTimer < 0) or
-		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
+		((not F.IsCTFMode()) and not(B.DiamondGametype() or B.RubyGametype()))
 	then 
 		return 
 	end

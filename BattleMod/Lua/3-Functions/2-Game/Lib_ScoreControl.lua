@@ -46,7 +46,7 @@ B.UpdateScore = function()
 	--[[
 	/*
 	if G_GametypeHasTeams() then
-		if gametype ~= GT_BATTLECTF then
+		if not F.IsCTFMode() then
 			redscore = $+B.RedScore
 			bluescore = $+B.BlueScore
 		else

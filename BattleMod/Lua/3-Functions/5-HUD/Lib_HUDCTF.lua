@@ -52,7 +52,7 @@ end
 F.CompassHUD = function(v, player, cam)
 	if not (B.HUDMain) then return end
 	if B.Console.FindVarString("battleconfig_hud", {"New", "Minimal"}) then return end
-	if gametype ~= GT_BATTLECTF then return end -- Gametype Gateway
+	if not F.IsCTFMode() then return end -- Gametype Gateway
 	--if not hud.enabled("teamscores") then return end -- Gateway.
 	
 	local redflag = F.RedFlag
@@ -340,7 +340,7 @@ local function cctf_hud(v, p, cam)
 	local border = "TEAM_"
 	local flags = false
 
-	if gametype == GT_BATTLECTF then
+	if F.IsCTFMode() then
 		flags = true
 	elseif B.RubyGametype() then
 		icon_scale = $+(FRACUNIT/6)
@@ -420,7 +420,7 @@ end
 -- Draws flag next to players' icons, shows the flag power-up icon, etc.
 F.RankingHUD = function(v)
 	-- Ensure that the gametype is custom ctf!
-	--if gametype ~= GT_BATTLECTF then return end
+	--if not F.IsCTFMode() then return end
 	if not (B.BattleGametype() and G_GametypeHasTeams()) then return end
 
 	ranking = true
@@ -537,7 +537,7 @@ end
 
 local lerpamt = FRACUNIT
 F.CapHUD = function(v)
-	if (gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()) then
+	if (not F.IsCTFMode()) and not(B.DiamondGametype() or B.RubyGametype()) then
 		return
 	end
 
@@ -592,7 +592,7 @@ end
 
 F.DelayCapNotice = function(v, p, cam)
 	if 	(F.DC_NoticeTimer >= F.NOTICE_TIME) or (F.DC_NoticeTimer < 0) or
-		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
+		((not F.IsCTFMode()) and not(B.DiamondGametype() or B.RubyGametype()))
 	then
 		return
 	end
@@ -622,7 +622,7 @@ F.DelayCapNotice = function(v, p, cam)
 end
 
 F.DelayCapBar = function(v) --, p, cam)
-	if (gametype ~= GT_BATTLECTF) and not F.DelayCap and not(B.DiamondGametype() or B.RubyGametype()) then return end
+	if (not F.IsCTFMode()) and not F.DelayCap and not(B.DiamondGametype() or B.RubyGametype()) then return end
 	
 	if consoleplayer then
 		local slowcaps = {nil, nil}

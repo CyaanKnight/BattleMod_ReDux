@@ -219,7 +219,7 @@ B.BattleTagPointers = function(mo)
 			P_RemoveMobj(mo)
 		end
 		return false
-	elseif (gametype == GT_BATTLECTF) then
+	elseif (F.IsCTFMode()) then
 		arrowscale = ARROW_INVERTSCALE
 
 
