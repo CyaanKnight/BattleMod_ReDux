@@ -619,16 +619,15 @@ local function capFlag(flag_player, flag)
 
 	local inv_team = (flag_player.ctfteam==1 and 2) or 1  
 	local ctfteam = (inv_team==1 and 2) or 1
-	local inv_side = (inv_team==1 and 1) or 2
 
 	local color = B.GetTeamColor(ctfteam)
-	local pcolor = B.GetTeamColor(inv_side)
+	local pcolor = B.GetTeamColor(inv_team)
 
 	local color_chat = B.GetChatEsc(B.GetChatMap(color))
 
 	local pcolor_chat = B.GetChatEsc(B.GetChatMap(pcolor))
 	
-	local flagname = B.GetFlagName(inv_side)
+	local flagname = B.GetFlagName(inv_team)
 	local pname = flag_player.name
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
