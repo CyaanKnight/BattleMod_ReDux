@@ -33,6 +33,7 @@ addHook("MobjSpawn", function(mo)
 	mo.type = FAKEFLAG_B
 end, REALFLAG_B)
 addHook("ThinkFrame",F.TrackPlayers)
+addHook("ThinkFrame",F.CaptureThink)
 
 addHook("MobjThinker",B.Arena.RingLoss, MT_FLINGRING)
 

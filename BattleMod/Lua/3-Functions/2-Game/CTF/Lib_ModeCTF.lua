@@ -43,7 +43,20 @@ F.TrackBlue = function(mo)
 	F.BlueFlag = mo
 end
 
--- Also tracks flag captures.
+F.IsFlagAtBase = function(team)
+	local r = F.RedFlag -- 1
+	local b = F.BlueFlag -- 2
+
+	if (team == 1) and (r and r.valid and r.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(r) == 1 then
+		return true
+	elseif (team == 2) and (b and b.valid and b.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(b) == 2 then
+		return true
+	end
+
+	return false
+end
+
+
 F.TrackPlayers = function()
 	/*local counter = 0
 	for mo in mobjs.iterate() do
@@ -52,23 +65,30 @@ F.TrackPlayers = function()
 		end
 	end
 	print(counter)*/
-	for p in players.iterate
-		if p.valid and p.mo and p.mo.valid and p.gotflag
-			if p.ctfteam == 1
+	for p in players.iterate do
+		if p.valid and p.mo and p.mo.valid and p.gotflag then
+			if p.ctfteam == 1 then
 				/*if F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.player) then
 					P_RemoveMobj(F.BlueFlag)
 					F.BlueFlag = nil
 				end*/
 				F.BlueFlag = p.mo
-			elseif p.ctfteam == 2
+			elseif p.ctfteam == 2 then
 				/*if F.RedFlag and F.RedFlag.valid and not(F.RedFlag.player) then
 					P_RemoveMobj(F.RedFlag)
 					F.RedFlag = nil
 				end*/
 				F.RedFlag = p.mo
 			end
-			
-			if P_IsObjectOnGround(p.mo) and (B.MobjTouchingFlagBase(p.mo) == p.ctfteam) then
+		end
+	end
+end
+
+F.CaptureThink = function()
+	for p in players.iterate do
+		if p.valid and p.mo and p.mo.valid and p.gotflag then
+			if P_IsObjectOnGround(p.mo) and (B.MobjTouchingFlagBase(p.mo) == p.ctfteam) 
+			and F.IsFlagAtBase(p.ctfteam) then
 				F.CaptureFlag(p, p.ctfteam)
 				
 				if (p.ctfteam == 1) then
