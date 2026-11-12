@@ -616,7 +616,7 @@ local function capFlag(flag_player, flag)
 			loss = false
 			--Success!
 		end
-		S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
+		S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, plr)
 		--Play our sound
 	end
 
