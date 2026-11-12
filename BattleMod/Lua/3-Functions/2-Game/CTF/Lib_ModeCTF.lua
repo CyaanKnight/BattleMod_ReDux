@@ -43,20 +43,6 @@ F.TrackBlue = function(mo)
 	F.BlueFlag = mo
 end
 
-F.IsFlagAtBase = function(team)
-	local r = F.RedFlag -- 1
-	local b = F.BlueFlag -- 2
-
-	if (team == 1) and (r and r.valid and r.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(r) == 1 then
-		return true
-	elseif (team == 2) and (b and b.valid and b.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(b) == 2 then
-		return true
-	end
-
-	return false
-end
-
-
 F.TrackPlayers = function()
 	/*local counter = 0
 	for mo in mobjs.iterate() do
