@@ -617,6 +617,7 @@ local function capFlag(flag_player, flag)
 		--Play our sound
 	end
 
+	local inv_team = (flag_player.ctfteam==1 and 2) or 1  
 	local ctfteam = (inv_team==1 and 2) or 1
 	local inv_side = (inv_team==1 and 1) or 2
 
@@ -627,7 +628,7 @@ local function capFlag(flag_player, flag)
 
 	local pcolor_chat = B.GetChatEsc(B.GetChatMap(pcolor))
 	
-	local flagname = B.GetFlagName(ctfteam)
+	local flagname = B.GetFlagName(inv_side)
 	local pname = flag_player.name
 	F.GameState.CaptureHUDTimer = 5*TICRATE
 	F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
@@ -650,9 +651,9 @@ local function capFlag(flag_player, flag)
 	end	
 
 	if pname then
-		print(pcolor_chat+pname+"\x80"+" CAPTURED THE "+color_chat+flagname+"\x80"+".")
+		print(color_chat+pname+"\x80"+" CAPTURED THE "+pcolor_chat+flagname+"\x80"+".")
 	else
-		print("THE"+color_chat+flagname+"\x80"+" WAS "+pcolor_chat+"CAPTURED"+"\x80"+".")
+		print("THE"+pcolor_chat+flagname+"\x80"+" WAS "+color_chat+"CAPTURED"+"\x80"+".")
 	end
 
 	if flag_player == F.BlueFlag_player then
