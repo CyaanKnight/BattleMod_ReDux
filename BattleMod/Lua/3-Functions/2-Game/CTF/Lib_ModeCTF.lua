@@ -74,7 +74,7 @@ F.CaptureThink = function()
 	for p in players.iterate do
 		if p.valid and p.mo and p.mo.valid and p.gotflag then
 			if P_IsObjectOnGround(p.mo) and (B.MobjTouchingFlagBase(p.mo) == p.ctfteam) 
-			and F.IsFlagAtBase(p.ctfteam) then
+			and F.IsFlagAtBase2(p.ctfteam) then
 				F.CaptureFlag(p, p.ctfteam)
 				
 				if (p.ctfteam == 1) then
@@ -1190,6 +1190,20 @@ F.IsFlagAtBase = function(fteam)
 		end
 		return false
 	end
+end
+
+-- alternative method
+F.IsFlagAtBase2 = function(team)
+	local r = F.RedFlag -- 1
+	local b = F.BlueFlag -- 2
+
+	if (team == 1) and (r and r.valid and r.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(r) == 1 then
+		return true
+	elseif (team == 2) and (b and b.valid and b.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(b) == 2 then
+		return true
+	end
+
+	return false
 end
 
 -- Remove stuff from player if they quit
