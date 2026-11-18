@@ -1,6 +1,7 @@
 local B = CBW_Battle
 local A = B.Arena
 local CV = B.Console
+local F = B.CTF
 
 local notice = "\x83".."NOTICE: \x80"
 B.JoinCheck = function(player,team,fromspectators,autobalance,scramble)
@@ -123,7 +124,7 @@ local function autobalance_team(team, amount)
 		end
 
 		--// 1. Flag caps
-		if 	(gametype == GT_CTF or gametype == GT_BATTLECTF) and p1.flagscore == p2.flagscore then
+		if F.IsCTFMode() and p1.flagscore == p2.flagscore then
 
 			--// 2. Score
 	    	if 	p1.score == p2.score then 

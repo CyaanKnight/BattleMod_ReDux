@@ -423,11 +423,11 @@ function B.GetFlagName(ctfteam)
 	local name
 
 	if ctfteam == 1 then
-		info = B.LeftTeam_Info
-		name = "BLUE"
-	elseif ctfteam == 2 then
 		info = B.RightTeam_Info
 		name = "RED"
+	elseif ctfteam == 2 then
+		info = B.LeftTeam_Info
+		name = "BLUE"
 	else
 		error("string must be either 'left' or 'right'")
 		return nil
@@ -440,8 +440,12 @@ function B.GetFlagName(ctfteam)
 		name = R_GetNameByColor(B.GetFlagColor(ctfteam)):upper()
 	end
 
-	if info.fullname then
-		-- Use the name as-is
+	-- This is placed after the team gets renamed into a custom one.
+	local len = name:len()
+	local appendsflag = (len >= 4 and name:sub(len-3, len):upper() == "FLAG") -- checks if the flag name already has "flag" at the end of its name
+
+	if info.fullname or appendsflag then
+		return name -- Use the name as-is
 	else
 		name = $+" FLAG"
 	end

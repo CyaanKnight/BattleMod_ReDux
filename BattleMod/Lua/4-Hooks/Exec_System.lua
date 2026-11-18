@@ -113,9 +113,6 @@ addHook("ThinkFrame",function()
 		B.HummingTop_MainHook(player)
 		B.BattleSuper_ThinkFrame(player)
 	end
-	if gametype == GT_BATTLECTF then
-		F.CustomCaptureSFX()
-	end
 	B.TitleTicker()
 	B.Autobalance()
 	

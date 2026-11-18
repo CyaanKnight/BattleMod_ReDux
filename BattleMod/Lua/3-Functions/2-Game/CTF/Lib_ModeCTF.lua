@@ -31,7 +31,10 @@ F.NOTICE_TIME = TICRATE*3 -- TODO: uhh.. make it a local variable probably lol
 F.DC_NoticeTimer = F.NOTICE_TIME+1 --inactive by default; this variable is used both for the HUD and to flash bases!
 F.DC_ColorSwitch = true -- When true flips color text to red, when false flips to white. Used to create a flickering effect
 
-
+-- feel free to replace this with another method
+F.IsCTFMode = function()
+	return (gametype == GT_CTF or gametype == GT_BATTLECTF)
+end
 
 F.TrackRed = function(mo)
 	F.RedFlag = mo
@@ -39,6 +42,7 @@ end
 F.TrackBlue = function(mo)
 	F.BlueFlag = mo
 end
+
 F.TrackPlayers = function()
 	/*local counter = 0
 	for mo in mobjs.iterate() do
@@ -47,20 +51,37 @@ F.TrackPlayers = function()
 		end
 	end
 	print(counter)*/
-	for p in players.iterate
-		if p.valid and p.mo and p.mo.valid and p.gotflag
-			if p.ctfteam == 1
+	for p in players.iterate do
+		if p.valid and p.mo and p.mo.valid and p.gotflag then
+			if p.ctfteam == 1 then
 				/*if F.BlueFlag and F.BlueFlag.valid and not(F.BlueFlag.player) then
 					P_RemoveMobj(F.BlueFlag)
 					F.BlueFlag = nil
 				end*/
 				F.BlueFlag = p.mo
-			elseif p.ctfteam == 2
+			elseif p.ctfteam == 2 then
 				/*if F.RedFlag and F.RedFlag.valid and not(F.RedFlag.player) then
 					P_RemoveMobj(F.RedFlag)
 					F.RedFlag = nil
 				end*/
 				F.RedFlag = p.mo
+			end
+		end
+	end
+end
+
+F.CaptureThink = function()
+	for p in players.iterate do
+		if p.valid and p.mo and p.mo.valid and p.gotflag then
+			if P_IsObjectOnGround(p.mo) and (B.MobjTouchingFlagBase(p.mo) == p.ctfteam) 
+			and F.IsFlagAtBase2(p.ctfteam) then
+				F.CaptureFlag(p, p.ctfteam)
+				
+				if (p.ctfteam == 1) then
+					redscore = $ + 1
+				elseif (p.ctfteam == 2) then
+					bluescore = $ + 1
+				end
 			end
 		end
 	end
@@ -117,7 +138,7 @@ end
 
 
 F.FlagIntangible = function(mo)
-	if mo.type == MT_REDFLAG and not (R.RedGoal and R.RedGoal.valid) then
+	if mo.type == MT_CREDFLAG and not (R.RedGoal and R.RedGoal.valid) then
 		R.RedGoal = $ or mo
 	elseif not (R.BlueGoal and R.BlueGoal.valid) then
 		R.BlueGoal = $ or mo
@@ -128,14 +149,14 @@ F.FlagIntangible = function(mo)
 			if mo.state ~= S_RUBYPORTAL then
 				mo.state = S_RUBYPORTAL
 				mo.renderflags = $|RF_NOCOLORMAPS|RF_FULLBRIGHT
-				mo.color = ({skincolor_redteam, skincolor_blueteam})[({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type]]
+				mo.color = ({skincolor_redteam, skincolor_blueteam})[({[MT_CREDFLAG]=1, [MT_CBLUEFLAG]=2})[mo.type]]
 			end
 			local prohibit = false
 			if R.ID and R.ID.valid and R.ID.target and R.ID.target.valid and R.ID.target.player then
 				if displayplayer and displayplayer.mo and displayplayer.valid then
 					local sameteam_p1 = B.MyTeam(displayplayer, R.ID.target.player)
 					local hasruby = displayplayer.gotcrystal
-					if hasruby and (sameteam_p1) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == displayplayer.ctfteam) then
+					if hasruby and (sameteam_p1) and (({[MT_CREDFLAG]=1, [MT_CBLUEFLAG]=2})[mo.type] == displayplayer.ctfteam) then
 						prohibit = true
 					end
 				end
@@ -143,7 +164,7 @@ F.FlagIntangible = function(mo)
 				if splitscreen then
 					local sameteam_p2 = B.MyTeam(secondarydisplayplayer, R.ID.target.player)
 					local hasruby = secondarydisplayplayer.gotcrystal
-					if (sameteam_p2) and (({[MT_REDFLAG]=1, [MT_BLUEFLAG]=2})[mo.type] == secondarydisplayplayer.ctfteam) then
+					if (sameteam_p2) and (({[MT_CREDFLAG]=1, [MT_CBLUEFLAG]=2})[mo.type] == secondarydisplayplayer.ctfteam) then
 						prohibit = true
 					end
 				end
@@ -197,7 +218,7 @@ F.FlagIntangible = function(mo)
 				mo.hud_timer = 0
 				for p in players.iterate do
 					if not(p.mo and p.mo.valid) then continue end
-					if ({[MT_REDFLAG]=2, [MT_BLUEFLAG]=1})[mo.type] ~= p.ctfteam then continue end
+					if ({[MT_CREDFLAG]=2, [MT_CBLUEFLAG]=1})[mo.type] ~= p.ctfteam then continue end
 					p.mo.btagpointer2 = P_SpawnMobjFromMobj(p.mo, 0, 0, 0, MT_BTAG_POINTER)
 					if p.mo.btagpointer2 and p.mo.btagpointer2.valid then
 						p.mo.btagpointer2.tracer = p.mo
@@ -240,7 +261,7 @@ F.FlagIntangible = function(mo)
 		mo.flagtossed = false
 		mo.flagdropped = false
 		/*local vfx = P_SpawnGhostMobj(mo)
-		vfx.color = ({[MT_REDFLAG]=skincolor_redteam,[MT_BLUEFLAG]=skincolor_blueteam})[mo.type]
+		vfx.color = ({[MT_CREDFLAG]=skincolor_redteam,[MT_CBLUEFLAG]=skincolor_blueteam})[mo.type]
 		vfx.state = S_PITY1
 		vfx.destscale = mo.scale*4
 		vfx.scalespeed = $*2
@@ -448,7 +469,7 @@ end
 F.GetFlagPos = function()
 	-- Reset all flag variables
 	--resetFlagvars()
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	-- Find flag coordinates in the map, and save them; They will be used to spawn the flag
 	local flagpositions = F.GetFlagPosAsTables()
@@ -459,7 +480,7 @@ end
 -- Makes an injured or dead player lose possession of the flag.
 -- if `toss` is nonzero, it indicates tossing the flag.
 F.PlayerFlagBurst = function(p, toss, suicideflagdrop)
-		if gametype ~= GT_BATTLECTF then return end
+		if not F.IsCTFMode() then return end
 		if not p.gotflag and not suicideflagdrop then 
 		return end -- player MUST have a flag for this to occur!
 		// make sure we drop flag if played died by suicide
@@ -545,9 +566,9 @@ B.RightTeam_Info = {}
 
 B.LeftTeam_Info = {}
 
-F.FlagSkin = function(mo)
-	local right = ((mo.type == MT_REDFLAG) and true) or false
-	local left = ((mo.type == MT_BLUEFLAG) and true) or false
+F.FlagSkin = function(mo, team)
+	local right = (mo.type == MT_REDFLAG) or (mo.type == MT_CREDFLAG) or (team == "right")
+	local left = (mo.type == MT_BLUEFLAG) or (mo.type == MT_CBLUEFLAG) or (team == "left")
 
 	local ctfteam
 
@@ -582,33 +603,75 @@ end
 -- This function is meant to be used only once, so make sure you have a set condition before you use this function!!!
 -- @p 	: the player who committed this action
 -- @flag: 1 = red, 2 = blue
-local function capFlag(p, flag)
-	p.gotflag = 0
+local function capFlag(flag_player, flag)
+	flag_player.gotflag = 0
 	
 	if flag == 1 then F.RedScore = $+1 elseif flag == 2 then F.BlueScore = $+1 end
 	spawnFlag(flag == 1 and 2 or 1) --respawn opposite team flag
-	P_AddPlayerScore(p, FLG_SCORE)
-	
-	--sounds
-	local friendly = (splitscreen or (consoleplayer and consoleplayer.ctfteam == p.ctfteam))
-	if friendly then S_StartSoundAtVolume(nil, B.LongSound(p, sfx_flgcap, false), (B.LongSound(p, nil, nil, nil, true)).volume or 255) else S_StartSoundAtVolume(nil, B.LongSound(p, sfx_lose, true, true), (B.LongSound(p, nil, nil, nil, true)).volume or 255) end
-	--hud
-	F.GameState.CaptureHUDTimer = 5*TICRATE
-	F.GameState.CaptureHUDName = p.name
-	F.GameState.CaptureHUDTeam = p.ctfteam
-	--vfx
+	P_AddPlayerScore(flag_player, FLG_SCORE)
+
 	local mo = flag==1 and F.BlueFlag or F.RedFlag
+	for plr in players.iterate() do
+		if splitscreen and players and players[1] and plr == players[1] then --If we're player 2 in splitscreen, skip it
+			return
+		end
+		local sfx = sfx_lose
+		local loss = true
+		if (plr.ctfteam == flag_player.ctfteam) or plr.spectator or splitscreen then --If it's a splitscreen game, or we're a spectator, or we're on the flagrunner's team
+			sfx = sfx_flgcap 
+			loss = false
+			--Success!
+		end
+		S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, plr)
+		--Play our sound
+	end
+
+	local inv_team = (flag_player.ctfteam==1 and 2) or 1  
+	local ctfteam = (inv_team==1 and 2) or 1
+
+	local color = B.GetTeamColor(ctfteam)
+	local pcolor = B.GetTeamColor(inv_team)
+
+	local color_chat = B.GetChatEsc(B.GetChatMap(color))
+
+	local pcolor_chat = B.GetChatEsc(B.GetChatMap(pcolor))
+	
+	local flagname = B.GetFlagName(inv_team)
+	local pname = flag_player.name
+	F.GameState.CaptureHUDTimer = 5*TICRATE
+	F.GameState.CaptureHUDName = (F.IsCTFMode() and flag_player.name) or ""
+	F.GameState.CaptureHUDTeam = flag_player.ctfteam
+
+	if flag_player.mo and flag_player.mo.valid then
+		B.DoFirework(flag_player.mo)
+	end
+
+	--vfx
 	if mo and mo.valid then
 		local vfx = P_SpawnMobj(mo.x,mo.y,mo.z,MT_THOK)
 		if vfx and vfx.valid then
-			vfx.sprite = flag==1 and SPR_BFLG or SPR_RFLG
+			F.FlagSkin(vfx, flag==1 and "left" or "right")
+			vfx.alpha = FU/2
 			vfx.destscale = vfx.scale*4
 			vfx.fuse = $*2
 		end
 		B.DoFirework(mo)
+	end	
+
+	if pname then
+		print(color_chat+pname+"\x80"+" CAPTURED THE "+pcolor_chat+flagname+"\x80"+".")
+	else
+		print("THE"+pcolor_chat+flagname+"\x80"+" WAS "+color_chat+"CAPTURED"+"\x80"+".")
 	end
-	
+
+	if flag_player == F.BlueFlag_player then
+		F.BlueFlag_player = nil
+	elseif flag_player == F.RedFlag_player then
+		F.RedFlag_player = nil
+	end
 end
+
+F.CaptureFlag = capFlag
 
 local SLOWCAPPINGALLY_SFX  = sfx_s3kc3s
 local SLOWCAPPINGENEMY_SFX = sfx_s3k72
@@ -687,8 +750,9 @@ table.insert(hudobjs, {
 	rings = nil,
 	func = function(v, player, cam, obj)
 		local invctf_flag = ({F.BlueFlag, F.RedFlag})[player.ctfteam]
-		local bool = invctf_flag and invctf_flag.valid and ((gametype == GT_BATTLECTF) and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
-		local animtimer = (invctf_flag and invctf_flag.hud_timer) or 1
+		local bool = invctf_flag and invctf_flag.valid and (F.IsCTFMode() and (player.ctfteam != 0) and (invctf_flag.hud_timer != nil))
+		local animtimer = (invctf_flag and invctf_flag.valid) and (invctf_flag.hud_timer) or 1
+
 		if bool then
 			local mult = ((player.ctfteam == 2) and 1) or -1
 			local prefix = ((player.ctfteam == 2) and "R") or "B"
@@ -723,7 +787,7 @@ table.insert(hudobjs, {
 })
 
 F.FlagPreThinker = function()
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	for p in players.iterate do
 		if p and p.mo and p.mo.valid then
 
@@ -762,14 +826,14 @@ end
 -- Dictates what happens when you touch the flag
 F.FlagTouchSpecial = function(special, toucher)
 	-- Ensure that the gametype is custom ctf first!
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	if F.TouchFlag(special, toucher) then return true end --don't interact with flag if true!
 
 	if special and toucher and toucher.player then
 		local p = toucher.player
 		local pteam = p.ctfteam
 
-		if special.type == MT_REDFLAG or special.type == MT_BLUEFLAG then
+		if special.type == MT_CREDFLAG or special.type == MT_CBLUEFLAG then
 			-- Under these conditions, do NOT interact with the flag.
 			if      p.powers[pw_flashing] or
 				P_PlayerInPain(p) or
@@ -794,7 +858,7 @@ F.FlagTouchSpecial = function(special, toucher)
 		-- If object is valid and player doesn't have tossdelay
 		if special.valid and not p.tossdelay then
 			-- Only interact with if you're on blu
-			if special.type == MT_REDFLAG then 
+			if special.type == MT_CREDFLAG then 
 				if pteam == 2  then -- Opposite team of flag, so grab it
 					p.gotflag = GF_REDFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
@@ -819,7 +883,7 @@ F.FlagTouchSpecial = function(special, toucher)
 					return true
 				end
 			-- Only interact with if you're on red
-			elseif special.type == MT_BLUEFLAG then
+			elseif special.type == MT_CBLUEFLAG then
 				if pteam == 1 then -- Opposite team of flag, so grab it
 					p.gotflag = GF_BLUEFLAG
 					if splitscreen or (displayplayer and p == displayplayer)
@@ -827,7 +891,7 @@ F.FlagTouchSpecial = function(special, toucher)
 					else
 						S_StartSound(p.mo, sfx_lvpass)
 					end
-					print(pcolor+p.name+"\x80 picked up the "+bcolor_chat+bname+"\x80"+"!")
+					print(pcolor+p.name+"\x80 picked up the "+lcolor_chat+lname+"\x80"+"!")
 					special.wasgrabbed = true
 					if special and special.valid then
 						P_KillMobj(special)
@@ -839,7 +903,7 @@ F.FlagTouchSpecial = function(special, toucher)
 					P_RemoveMobj(special)
 					local sfx_fr = p.ctfteam == 2 and sfx_hoop1 or sfx_hoop3
 					S_StartSound(nil, sfx_fr)
-					print(pcolor+p.name+"\x80 returned the "+bcolor_chat+bname+"\x80 to base.")
+					print(pcolor+p.name+"\x80 returned the "+lcolor_chat+lname+"\x80 to base.")
 					P_AddPlayerScore(p, RET_SCORE)
 					return true
 				end
@@ -848,8 +912,8 @@ F.FlagTouchSpecial = function(special, toucher)
 
 		-- Dumb condition: prevent same team players from grabbing their own flag
 		-- TODO: maybe there's a better way, idk..
-		if      special.valid and ((special.type == MT_REDFLAG and pteam == 1) or
-			(special.type == MT_BLUEFLAG and pteam == 2))
+		if      special.valid and ((special.type == MT_CREDFLAG and pteam == 1) or
+			(special.type == MT_CBLUEFLAG and pteam == 2))
 		then
 			return true 
 		end
@@ -857,7 +921,7 @@ F.FlagTouchSpecial = function(special, toucher)
 end
 
 F.FlagSpawn = function(mo)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 	if mo and mo.type == MT_CREDFLAG or mo.type == MT_CBLUEFLAG then
 		mo.shadowscale = mo.scale --set flag shadow
 
@@ -869,7 +933,7 @@ end
 -- Respawns the flag if it was tossed in a deathpit
 F.RespawnFlag = function(mo)
 	-- Ensure that the gametype is custom ctf first!
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	-- re-spawn the flags
 	if mo.type == MT_CREDFLAG then spawnFlag(1)
@@ -878,7 +942,7 @@ F.RespawnFlag = function(mo)
 end
 F.FlagRemoved = function(mo)
 	if gamestate ~= GS_LEVEL then return end
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	local globalFlag = ({[MT_CREDFLAG]=F.RedFlag, [MT_CBLUEFLAG]=F.BlueFlag})[mo.type]
 	-- If the flag was removed because it wasn't grabbed, then respawn it (it presumably fell in a pit or was returned by a player)
@@ -977,7 +1041,7 @@ local function returnFlagcheck(mo)
 end
 
 F.FlagMobjThinker = function(mo)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
 
 	if mo then
 		F.FlagSkin(mo)
@@ -1128,6 +1192,20 @@ F.IsFlagAtBase = function(fteam)
 	end
 end
 
+-- alternative method
+F.IsFlagAtBase2 = function(team)
+	local r = F.RedFlag -- 1
+	local b = F.BlueFlag -- 2
+
+	if (team == 1) and (r and r.valid and r.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(r) == 1 then
+		return true
+	elseif (team == 2) and (b and b.valid and b.type ~= MT_PLAYER) and B.MobjTouchingFlagBase(b) == 2 then
+		return true
+	end
+
+	return false
+end
+
 -- Remove stuff from player if they quit
 F.RemoveOnQuit = function(p, reason)
 	if p and p.mo and p.mo.flag_indicator then
@@ -1150,7 +1228,7 @@ end)
 --// rev: Updates player flag captures. e.g. If a player captures a flag, their flag cap goes up by 1.
 --// NOTE: Caps reset when the map changes, in-game time resets when map changes/player spectates (see MapChange, Exec_system)
 F.UpdateCaps = function(p)
-	if gametype ~= GT_BATTLECTF then return end
+	if not F.IsCTFMode() then return end
     if not (p and p.mo) then return end
 
     --// Keep track of whether player doesn't have flag anymore and if their team's score just went up.
@@ -1172,7 +1250,7 @@ F.UpdateCaps = function(p)
 end
 
 --F.UpdateScore = function(mo)
---	if gametype ~= GT_BATTLECTF then return end
+--	if not F.IsCTFMode() then return end
 --	redscore = F.RedScore
 --	bluescore = F.BlueScore
 --end
@@ -1340,7 +1418,7 @@ F.DelayCapActivateIndicator = function()
 		F.DelayCap = true
 	end
 	if (F.DC_NoticeTimer >= F.NOTICE_TIME) or (F.DC_NoticeTimer < 0) or
-		((gametype ~= GT_BATTLECTF) and not(B.DiamondGametype() or B.RubyGametype()))
+		((not F.IsCTFMode()) and not(B.DiamondGametype() or B.RubyGametype()))
 	then 
 		return 
 	end
@@ -1349,83 +1427,4 @@ F.DelayCapActivateIndicator = function()
 
 	if (not(leveltime%3)) then F.DC_ColorSwitch = not $ end
 	F.DC_NoticeTimer = $+1
-end
-
-F.CustomCaptureSFX = function()
-	for i = 1,2 do
-
-		local flag = ({F.RedFlag, F.BlueFlag})[i]
-		local inv_team = ({2, 1})[i]
-
-		if flag and flag.valid and flag.player then --If i team's flag is being held...
-			if i == 1 then --It's the blue flag
-				if F.BlueFlag_player == nil then --If there isn't a flagholder marked yet
-					F.BlueFlag_oldscore = redscore --Save score the red team had the moment it was held
-				end
-				F.BlueFlag_player = flag.player --Save the flagrunner
-			else -- It's the red flag
-				if F.RedFlag_player == nil then --If there isn't a flagholder marked yet
-					F.RedFlag_oldscore = bluescore --Save score the blue team had the moment it was held
-				end
-				F.RedFlag_player = flag.player --Save the flagrunner
-			end
-		end
-
-		local flag_player = ({F.RedFlag_player, F.BlueFlag_player})[i]
-		local old_score = ({F.RedFlag_oldscore, F.BlueFlag_oldscore})[i]
-		local new_score = ({redscore, bluescore})[i]
-
-		--If the current score of our team is greater than the score that was initially saved
-		if new_score > old_score then
-			if flag_player then --And we have a flagholder saved
-				for p in players.iterate() do
-					if splitscreen and players and players[1] and p == players[1] then --If we're player 2 in splitscreen, skip it
-						return
-					end
-					local sfx = sfx_lose
-					local loss = true
-					if (p.ctfteam == flag_player.ctfteam) or p.spectator or splitscreen then --If it's a splitscreen game, or we're a spectator, or we're on the flagrunner's team
-						sfx = sfx_flgcap 
-						loss = false
-						--Success!
-					end
-					S_StartSoundAtVolume(nil, B.LongSound(flag_player, sfx, loss), (B.LongSound(flag_player, nil, nil, nil, true)).volume or 255, p)
-					--Play our sound
-				end
-
-				local ctfteam = (inv_team==1 and 1) or 2
-				local inv_side = i
-
-				local color = B.GetTeamColor(ctfteam)
-				local pcolor = B.GetTeamColor(inv_side)
-
-				local color_chat = B.GetChatEsc(B.GetChatMap(color))
-
-				local pcolor_chat = B.GetChatEsc(B.GetChatMap(pcolor))
-				
-				local flagname = B.GetFlagName(ctfteam)
-				local pname = flag_player.name
-				F.GameState.CaptureHUDTimer = 5*TICRATE
-				F.GameState.CaptureHUDName = (gametype == GT_BATTLECTF and flag_player.name) or ""
-				F.GameState.CaptureHUDTeam = flag_player.ctfteam
-
-				if flag_player.mo and flag_player.mo.valid then
-					B.DoFirework(flag_player.mo)
-				end
-
-				if pname then
-					print(pcolor_chat+pname+"\x80"+" CAPTURED THE "+color_chat+flagname+"\x80"+".")
-				else
-					print("THE"+color_chat+flagname+"\x80"+" WAS "+pcolor_chat+"CAPTURED"+"\x80"+".")
-				end
-
-				
-				if flag_player == F.BlueFlag_player then
-					F.BlueFlag_player = nil
-				elseif flag_player == F.RedFlag_player then
-					F.RedFlag_player = nil
-				end
-			end
-		end
-	end
 end
