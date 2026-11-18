@@ -36,7 +36,7 @@ local vertwidth = ANG15/2 //Vertical spread
 local blastcount1 = 3
 local blastcount2 = 5
 local blastbuffer = 15 --Time between each auto-shot
-local dashslice_buildup = 12
+local dashslice_buildup = 10
 local dashslice_cost = 10
 
 local charged_meteroverride = 35552
