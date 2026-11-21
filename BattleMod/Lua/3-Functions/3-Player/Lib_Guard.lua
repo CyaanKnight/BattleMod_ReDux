@@ -2,6 +2,17 @@ local B = CBW_Battle
 local G = B.GuardFunc
 local CV = B.Console
 
+local RH = B._RunHook
+
+-- This runs when the player guards. Return true to override.
+CBW_Battle._DefineHook("PlayerGuard", CBW_HookHandlers.True)
+
+-- This runs when the GuardTrigger function has ran. Return true or false to override, return nil for the function to keep running. See below for details.
+CBW_Battle._DefineHook("GuardTrigger", CBW_HookHandlers.BoolOrNil)
+
+-- This runs when the player parries a enemy/projectile/player/hazard. Return true to override.
+CBW_Battle._DefineHook("PlayerParry", CBW_HookHandlers.True)
+
 B.GuardControl = function(player)
 	if CV.Guard.value == 0
 	or (B.TagGametype() and not (player.pflags & PF_TAGIT or player.battletagIT)
@@ -55,7 +66,7 @@ B.Guard = function(player,buttonpressed)
 	end
 	//Neutral
 	if (player.guard == 0) then
-		if buttonpressed == 1 and CV.parrytoggle.value then
+		if buttonpressed == 1 and CV.parrytoggle.value and not RH("PlayerGuard", nil, player) then
 			player.pflags = $ &~ PF_JUMPED
 			player.skidtime = 0
 			if player.powers[pw_flashing] or player.nodamage then
@@ -167,6 +178,12 @@ end
 //Successful guard action
 B.GuardTrigger = function(target, inflictor, source, damage, damagetype)
 	if not(target.valid and target.player) then return false end
+
+	local result = RH("GuardTrigger", nil, target.player, inflictor, source, damage, damagetype)
+	if result ~= nil then
+		return result
+	end
+
 	if target.player.guardbuffer then
 		B.ResetPlayerProperties(target.player,false,true)
 		target.player.guard = 0
@@ -197,7 +214,7 @@ end
 
 //Standard parry trigger action
 G.Parry = function(target, inflictor, source, damage, damagetype)
-	if target.player.guard == 1 and inflictor and inflictor.valid 
+	if target.player.guard == 1 and inflictor and inflictor.valid and not RH("PlayerParry", nil, target.player, inflictor, source, damage, damagetype)
 		B.StartSoundFromNewSource(target, sfx_cdpcm9)
 		B.StartSoundFromNewSource(target, sfx_s259)
 		target.player.guard = 2
