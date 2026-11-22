@@ -170,7 +170,7 @@ B.PlayerCorkDamage = function(pmo,mo,source)
 		local blocked = pmo.player.battle_def >= mo.blockable
 		local sweetspot_blocked = func and func(pmo, mo) and pmo.player.battle_sdef >= mo.blockable
 		
-		if vulnerable and (blocked or sweetspot_blocked) then
+		if vulnerable and (blocked or sweetspot_blocked) or pmo.player.powers[pw_flashing] then
 			B.ResetPlayerProperties(pmo.player,false,false)
 			
 			if P_IsObjectOnGround(pmo) then
