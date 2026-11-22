@@ -73,20 +73,26 @@ B.pogo = function(player)
 	if player.pflags & PF_BOUNCING then
 	    --Handling
 	    player.thrustfactor = skins[player.mo.skin].thrustfactor+2
+		player.powers[pw_strong] = $|STR_BOUNCE|STR_SPRING
 		if not (player.pflags & PF_JUMPDOWN) then
 			if (mo.momz*P_MobjFlip(mo)) > 0 then mo.momz = $/2 end
 			P_ResetPlayer(player)
 			if P_IsObjectOnGround(mo) then
 				mo.state = S_PLAY_WALK
-			//elseif (player.charflags & SF_MULTIABILITY) then
-			//	player.pflags = $ | P_GetJumpFlags(player)
-			//	mo.state = S_PLAY_JUMP
+			elseif (player.charflags & SF_MULTIABILITY) then
+				player.pflags = $ | P_GetJumpFlags(player)
+				mo.state = S_PLAY_FALL
 			else
-			//	player.pflags = $ | PF_THOKKED
+				player.pflags = $ | PF_THOKKED
 				mo.state = S_PLAY_FALL
 		    end
 		end
+		if (mo.eflags&MFE_SPRUNG) then
+			mo.state = S_PLAY_BOUNCE_LANDING
+			S_StartSound(mo, sfx_boingf)
+		end
 	else
+		player.powers[pw_strong] = $&~(STR_BOUNCE|STR_SPRING)
 		player.thrustfactor = skins[player.mo.skin].thrustfactor
 	end
 end
