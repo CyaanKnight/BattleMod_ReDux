@@ -5,7 +5,7 @@ local cooldown2 = TICRATE * 3/2
 local duration = 3 * TICRATE
 local xythrust = 26
 local zthrust = 9
-local dropspeed = 20
+local dropspeed = 22
 local nojumpwindow = 8
 local rollspeed = 38
 local dodgeroll_time = 12
@@ -42,6 +42,7 @@ B.Action.Slide = function(mo,doaction)
 	end
 	if player.pflags&PF_BOUNCING
 		player.actiontext = "Spring Drop"
+		player.actionrings = 5
 	end
 	
 	//Perform Thrust
@@ -118,10 +119,17 @@ B.Action.Slide = function(mo,doaction)
 			return
 		end
 	    mo.state = S_PLAY_ROLL
+		player.pflags = $|PF_SPINNING
 		player.drawangle = angle
 		P_InstaThrust(mo,angle,rollspeed*mo.scale/water)
 		P_SetObjectMomZ(mo,0,false)
-		P_SpawnGhostMobj(mo)
+		if not(leveltime%3) then
+			local ghost = P_SpawnGhostMobj(mo)
+			if ghost and ghost.valid then
+				ghost.colorized = true
+				ghost.fuse = 10
+			end
+		end
 		if player.actiontime%3 == 1 and P_IsObjectOnGround(mo) then
 			S_StartSound(mo, sfx_s3k7e, player)
 			local r = mo.radius/FRACUNIT
@@ -201,7 +209,13 @@ B.Action.Slide = function(mo,doaction)
 	end
 	if player.actionstate == 1
 		player.actiontime = $+1
-		P_SpawnGhostMobj(mo)
+		if not(leveltime%3) then
+			local ghost = P_SpawnGhostMobj(mo)
+			if ghost and ghost.valid then
+				ghost.colorized = true
+				ghost.fuse = 10
+			end
+		end
 	end
 	
 	//Drop bombs
@@ -266,8 +280,8 @@ B.Action.Slide = function(mo,doaction)
 					MT_DUST
 				)
 			end
-		else
-			player.lockjumpframe = max(2, $)
+		//else
+		//	player.lockjumpframe = max(2, $)
 		end
 
 		if not(leveltime%3) then
@@ -347,7 +361,7 @@ local function fanghop(player)
 	mo.momy = $ * -1/6
 	player.actionstate = 0
 	player.actiontime = 0
-	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~PF_THOKKED
+	player.pflags = ($ | (PF_JUMPED | PF_STARTJUMP | PF_NOJUMPDAMAGE)) & ~(PF_THOKKED|PF_SPINNING)
 	player.powers[pw_nocontrol] = 10
 end
 
@@ -380,9 +394,9 @@ end
 
 B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
 	//Spring Drop
-	if plr[n1] and plr[n1].actionstate == 1 and plr[n1].pflags&PF_BOUNCING and not P_IsObjectOnGround(mo[n1]) then
+	if plr[n1] and atk[n1] == 2 and plr[n1].actionstate == 1 and plr[n1].pflags&PF_BOUNCING and not P_IsObjectOnGround(mo[n1]) then
 		plr[n1].pflags = $|PF_BOUNCING
-		mo[n1].state = S_PLAY_BOUNCE
+		mo[n1].state = S_PLAY_BOUNCE_LANDING
 		plr[n1].actionstate = 0
 		plr[n1].actiontime = 0
 		plr[n1].nobombjump = true
@@ -406,7 +420,11 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			mo._fbomb.bombtype = 0
 			mo._fbomb.fuse = 9*TICRATE
 		end*/
-	end
+	elseif plr[n1] and atk[n1] == 2 and plr[n1].pflags&PF_BOUNCING then
+	    plr[n1].pflags = $|PF_BOUNCING
+        mo[n1].state = S_PLAY_BOUNCE_LANDING
+		S_StartSound(mo[n1], sfx_boingf)
+    end
 
 	if not (plr[n1] and plr[n1].fangmarker) then
 		return false
@@ -425,7 +443,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 				fanghop(plr[n1])
 			end
 			if plr[n2] then
-				B.DoPlayerTumble(plr[n2], 28, angle[n1], mo[n1].scale*3, true, true)
+				B.DoPlayerTumble(plr[n2], 38, angle[n1], mo[n1].scale*3, true, true)
 			end
 			P_InstaThrust(mo[n2], angle[n2], mo[n1].scale * 5)
 			B.ZLaunch(mo[n2], 8 * mo[n2].scale, false)
@@ -437,15 +455,7 @@ B.Fang_Collide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thr
 			mo[n1].momx = $/3
 			mo[n1].momy = $/3
 		else
-			P_InstaThrust(mo[n1], angle[n2], -15 * mo[n1].scale)
-			P_SetObjectMomZ(mo[n1], 13 * mo[n1].scale)
-			mo[n1].angle = angle[n2]
-			plr[n1].drawangle = angle[n2]
-			plr[n1].actionstate = 0
-			plr[n1].actiontime = 0
-			plr[n1].pflags = ($|PF_JUMPED|PF_STARTJUMP) & ~PF_SPINNING
-			plr[n1].mo.state = S_PLAY_FALL
-			plr[n1].lockjumpframe = 0
+			fanghop(plr[n1])
 		end
 		if plr[n2] then
 			B.DoPlayerTumble(plr[n2], 38, angle[n1], mo[n1].scale*3, true, true)
@@ -483,7 +493,8 @@ B.Fang_SlideJump = function(player)
 
 	if skin and skin.special and skin.special ~= B.Action.Slide then return end
 	if player.actionstate ~= 2 then return end
-	if not P_IsObjectOnGround(mo) then return end
+	if player.lockjumpframe then return end
+//	if not P_IsObjectOnGround(mo) then return end
 
 	P_DoJump(player)
 	player.mo.state = S_PLAY_ROLL
