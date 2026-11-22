@@ -1,4 +1,4 @@
 name = fang
-flags = SF_FASTEDGE
+flags = SF_NOJUMPSPIN|SF_NOJUMPDAMAGE|SF_FASTEDGE|SF_MULTIABILITY
 jumpfactor = 1.05
 spinitem = 0
