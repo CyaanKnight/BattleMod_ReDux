@@ -870,6 +870,7 @@ function B.Sonic_PostCollide(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 				mo[n1].recurl_actionable = nil
 				mo[n1].air_recoilanim_override = nil
 				P_InstaThrust(mo[n2], angle[n2], bumpspeed)
+				B.DoPlayerShove(plr[n2], mo[n1], mo[n1], 10, nil, sfx_s3k8b)
 			else
 				P_InstaThrust(mo[n2], angle[n2], bumpspeed)
 				mo[n1].hummingtop_hit = true
