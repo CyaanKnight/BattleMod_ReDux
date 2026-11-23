@@ -71,11 +71,6 @@ B.AddTeamMatchup("bigthecat", "cream")
 B.AddTeamMatchup("sonic", "vector")
 B.AddTeamMatchup("bigthecat", "vector")
 
--- Rush Adventure
-B.AddTeamMatchup("marine", "blaze")
-B.AddTeamMatchup("marine", "johnny")
-B.AddTeamMatchup("johnny", "blaze")
-
 -- Sonic 06
 B.AddTeamMatchup("blaze", "shadow")
 B.AddTeamMatchup("silver", "shadow")
