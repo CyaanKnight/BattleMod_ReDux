@@ -198,20 +198,21 @@ B.Action.SuperSpinJump=function(mo,doaction)
 				
 				//Create projectile blast
 				local step = 20
-				for n = 0, 360-step, step do
-					local angle = mo.angle+n*ANG1
-					local p = P_SPMAngle(mo,MT_GROUNDPOUND,angle,0)
-					if not(p and p.valid) then continue end
-					pcall(do 
-						B.SafeRadiusIncrease(p, 48*FRACUNIT)
-						--p.tics = 11
-						p.spritexscale = FRACUNIT+(FRACUNIT/2)
-						p.spriteyscale = FRACUNIT+(FRACUNIT/2)
-						p.spriteyoffset = -FRACUNIT*19
-						p.momz = 0
-						p.z = ((P_MobjFlip(mo)==-1 and (mo.z+mo.height)) or mo.z)+(P_MobjFlip(mo)*(mo.scale))
-					end)
+				local blastspeed = 4
+				local fuse = 10
+				
+				for n = 0, 23
+				local p = P_SpawnMobjFromMobj(mo,0,0,0,MT_GROUNDPOUND)
+					if p and p.valid then
+						p.angle = mo.angle+n*ANG15,0
+						P_InstaThrust(p, p.angle, FixedMul(p.info.speed, p.scale))
+						p.target = mo
+
+						p.momz = mo.scale*P_MobjFlip(mo)*blastspeed/water
+						p.fuse = fuse
+					end
 				end
+
 
 				/*Create damaging shockwave
 				local old_speed = mobjinfo[MT_GP_SHOCKWAVE].speed
