@@ -28,6 +28,17 @@ B.AddTeamMatchup("bean", "tails")
 B.AddTeamMatchup("knuckles", "tails")
 B.AddTeamMatchup("sonic", "eggman")
 
+-- Knuckles Chaotix
+B.AddTeamMatchup("vector", "espio")
+B.AddTeamMatchup("knuckles", "charmy")
+B.AddTeamMatchup("mighty", "vector")
+B.AddTeamMatchup("vector", "charmy")
+B.AddTeamMatchup("espio", "charmy")
+B.AddTeamMatchup("heavy", "bomb")
+B.AddTeamMatchup("vector", "heavy")
+B.AddTeamMatchup("mighty", "espio")
+B.AddTeamMatchup("charmy", "bomb")
+
 -- Sonic R
 B.AddTeamMatchup("metalknuckles", "tailsdoll")
 B.AddTeamMatchup("sonic", "metalknuckles")
