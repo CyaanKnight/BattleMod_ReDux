@@ -337,6 +337,9 @@ local function cctf_hud(v, p, cam)
 	bflag = v.getSpritePatch(B.GetFlagSprite(2), 4)
 	rflag = v.getSpritePatch(B.GetFlagSprite(1), 5)
 
+	local blue_iconcolor = v.getColormap(TC_DEFAULT, B.GetIconColor(2))
+	local red_iconcolor = v.getColormap(TC_DEFAULT, B.GetIconColor(1))
+
 	local border = "TEAM_"
 	local flags = false
 
@@ -371,7 +374,9 @@ local function cctf_hud(v, p, cam)
 		flag_scale = FRACUNIT/2
 		bflag = v.getSpritePatch(B.GetFlagSprite(2), 2)
 		rflag = v.getSpritePatch(B.GetFlagSprite(1), 3)
+		blue_iconcolor, red_iconcolor = v.getColormap(TC_DEFAULT, B.GetFlagColor(2)), v.getColormap(TC_DEFAULT, B.GetFlagColor(1))
 	end
+
 
 	BICO_POS_X = $ + xoffset_border
 	BICO_POS_Y = $ + yoffset_border
@@ -398,8 +403,8 @@ local function cctf_hud(v, p, cam)
 
 
 	-- Drawing the flags at the top of screen
-	v.drawScaled(BFLG_POS_X*FRACUNIT, (BFLG_POS_Y+yoff)*FRACUNIT, flag_scale, bflag, bpatch_flags, bcol)
-	v.drawScaled(RFLG_POS_X*FRACUNIT, (RFLG_POS_Y+yoff)*FRACUNIT, flag_scale, rflag, rpatch_flags, rcol)
+	v.drawScaled(BFLG_POS_X*FRACUNIT, (BFLG_POS_Y+yoff)*FRACUNIT, flag_scale, bflag, bpatch_flags, blue_iconcolor)
+	v.drawScaled(RFLG_POS_X*FRACUNIT, (RFLG_POS_Y+yoff)*FRACUNIT, flag_scale, rflag, rpatch_flags, red_iconcolor)
 
 	-- Draw player depended flag icons. etc (TODO: Move functions from ruby, tag and stuff into this)
 	drawFlagfromP(v)

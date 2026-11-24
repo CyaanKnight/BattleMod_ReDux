@@ -3,5 +3,6 @@ local B = CBW_Battle
 B.AddTeamChar("honey", {
     flagsprite = freeslot("SPR_HONEYFLAG"),
     skincolor = SKINCOLOR_SALMON,
-    supercolor = SKINCOLOR_SUPERRED1
+    supercolor = SKINCOLOR_SUPERRED1,
+    iconcolor = SKINCOLOR_RED
 })

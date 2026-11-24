@@ -12,13 +12,11 @@
     The following can all use SKINCOLOR_* constants, or tables with the contents of a skincolor_t*
 	skincolor
 	flagcolor (skincolor by default)
+	iconcolor - Color of character icon used in non-CTF gametypes
 	ringcolor (skincolor by default)
 	monitorcolor (skincolor by default)
 
-    supercolor - Can either be set as...
-                 a single SKINCOLOR_* constant, and will cycle the 4 colors after it like a vanilla supercolor
-                 or...
-                 a table containing five tables, each with the contents of a skincolor_t*
+    supercolor - A single SKINCOLOR_* constant that will cycle the 4 colors after it, like a vanilla supercolor
     
     static_supercolor - Boolean, if set, supercolor will act like a normal skincolor field like the other color fields.
 
@@ -305,14 +303,11 @@ end
 
 function B.GetTeamColor(ctfteam)
 	local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -321,21 +316,18 @@ function B.GetTeamColor(ctfteam)
 	if info.skincolor and B.VerifyColor(info.skincolor) then
 		return info.skincolor
 	else
-		error(string.." team skincolor is not valid!")
+		error("ctfteam "..ctfteam.." skincolor is not valid! ()")
 	end
 end
 
 function B.GetFlagColor(ctfteam)
 
 	local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -351,14 +343,11 @@ end
 function B.GetRingColor(ctfteam)
 
 	local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -371,17 +360,35 @@ function B.GetRingColor(ctfteam)
 	end
 end
 
-function B.GetMonitorColor(ctfteam)
+function B.GetIconColor(ctfteam)
 
 	local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
+	else
+		error("ctfteam must be either 1 or 2!")
+		return nil
+	end
+
+	if info.iconcolor and B.VerifyColor(info.iconcolor) then
+		return info.iconcolor
+	else
+		return B.GetTeamColor(ctfteam)
+	end
+end
+
+
+function B.GetMonitorColor(ctfteam)
+
+	local info
+
+	if ctfteam == 1 then
+		info = B.RightTeam_Info
+	elseif ctfteam == 2 then
+		info = B.LeftTeam_Info
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -401,10 +408,8 @@ function B.GetTeamSuperColor(ctfteam)
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -455,14 +460,11 @@ end
 
 function B.GetFlagSprite(ctfteam)
 	local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -473,14 +475,11 @@ end
 
 function B.GetTeamInfo(ctfteam)
     local info
-	local string
 
 	if ctfteam == 1 then
 		info = B.RightTeam_Info
-		string = "right"
 	elseif ctfteam == 2 then
 		info = B.LeftTeam_Info
-		string = "left"
 	else
 		error("ctfteam must be either 1 or 2!")
 		return nil
@@ -581,7 +580,7 @@ function B.SetMapTeams(mapnum)
 					B.SetTeamInfoVar(ctfteam, "flagcolor", value)
 					B.SetTeamInfoVar(ctfteam, "ringcolor", value)
 					B.SetTeamInfoVar(ctfteam, "monitorcolor", value)
-				elseif field == "flagcolor" or field == "ringcolor" or field == "monitorcolor" then
+				elseif field == "flagcolor" or field == "ringcolor" or field == "monitorcolor" or field == "iconcolor" then
 					local NameToColor = R_GetColorByName(headerval:lower())
 					
 					if NameToColor then
@@ -629,6 +628,43 @@ function B.TeamColors(map)
 	skincolor_bluering = B.GetRingColor(2)
 end
 
+if debug then
+	COM_AddCommand("setmatchup", function(_, char1, char2)
+		CBW_Battle.SetMatchup(B.GetMatchup(tostring(char1):lower(), tostring(char2):lower()), true)
+		skincolor_redteam = B.GetTeamColor(1)
+		skincolor_blueteam = B.GetTeamColor(2)
+		skincolor_redring = B.GetRingColor(1)
+		skincolor_bluering = B.GetRingColor(2)
+	end, COM_ADMIN)
+
+	local colorvars = {
+		["skincolor"] = true,
+		["flagcolor"] = true,
+		["iconcolor"] = true,
+		["ringcolor"] = true,
+		["monitorcolor"] = true
+	}
+
+	COM_AddCommand("setcolor", function(_, side, var, val)
+		local info
+
+		if not colorvars[tostring(var):lower()] then
+			return
+		end
+
+		if side == "left" then
+			B.LeftTeam_Info[var] = R_GetColorByName(val)
+		else
+			B.RightTeam_Info[var] = R_GetColorByName(val)
+		end
+		skincolor_redteam = B.GetTeamColor(1)
+		skincolor_blueteam = B.GetTeamColor(2)
+		skincolor_redring = B.GetRingColor(1)
+		skincolor_bluering = B.GetRingColor(2)
+	end, COM_ADMIN)
+
+
+end
 				
 
 

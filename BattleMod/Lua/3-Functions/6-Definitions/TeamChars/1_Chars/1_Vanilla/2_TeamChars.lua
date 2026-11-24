@@ -35,6 +35,7 @@ B.AddTeamChar("amy", {
     skincolor = SKINCOLOR_TAFFY,
     flagcolor = SKINCOLOR_ROSY,
     supercolor = SKINCOLOR_SUPERROSY1,
+    iconcolor = SKINCOLOR_RASPBERRY,
     flagname = "PINK"
 })
 
@@ -47,7 +48,8 @@ B.AddTeamChar("fang", {
 B.AddTeamChar("metalsonic", {
     flagsprite = SPR_METALSONFLAG,
     skincolor = SKINCOLOR_COBALT,
-    supercolor = SKINCOLOR_SUPERCOBALT1
+    supercolor = SKINCOLOR_SUPERCOBALT1,
+    iconcolor = SKINCOLOR_MIDNIGHT
 })
 
 B.AddTeamChar("eggman", {
