@@ -1,114 +1,115 @@
 
 local B = CBW_Battle
+local M = B.AddTeamMatchup
 
 -- Sonic & Knuckles
-B.AddTeamMatchup("sonic", "knuckles")
+M("sonic", "knuckles")
 
 -- Sonic 2
-B.AddTeamMatchup("sonic", "tails")
+M("sonic", "tails")
 
 -- Sonic the Fighters
-B.AddTeamMatchup("honey", "bark")
-B.AddTeamMatchup("sonic", "bean")
-B.AddTeamMatchup("bean", "honey")
-B.AddTeamMatchup("sonic", "honey")
-B.AddTeamMatchup("sonic", "amy")
-B.AddTeamMatchup("amy", "honey")
-B.AddTeamMatchup("knuckles", "espio")
-B.AddTeamMatchup("sonic", "fang")
-B.AddTeamMatchup("bean", "fang")
-B.AddTeamMatchup("bark", "fang")
-B.AddTeamMatchup("bean", "bark")
-B.AddTeamMatchup("fang", "honey")
-B.AddTeamMatchup("amy", "bean")
-B.AddTeamMatchup("amy", "bark")
-B.AddTeamMatchup("espio", "bark")
-B.AddTeamMatchup("fang", "tails")
-B.AddTeamMatchup("bean", "tails")
-B.AddTeamMatchup("knuckles", "tails")
-B.AddTeamMatchup("sonic", "eggman")
+M("honey", "bark")
+M("sonic", "bean")
+M("bean", "honey")
+M("sonic", "honey")
+M("sonic", "amy")
+M("amy", "honey")
+M("knuckles", "espio")
+M("sonic", "fang")
+M("bean", "fang")
+M("bark", "fang")
+M("bean", "bark")
+M("fang", "honey")
+M("amy", "bean")
+M("amy", "bark")
+M("espio", "bark")
+M("fang", "tails")
+M("bean", "tails")
+M("knuckles", "tails")
+M("sonic", "eggman")
 
 -- Knuckles Chaotix
-B.AddTeamMatchup("vector", "espio")
-B.AddTeamMatchup("knuckles", "charmy")
-B.AddTeamMatchup("mighty", "vector")
-B.AddTeamMatchup("vector", "charmy")
-B.AddTeamMatchup("espio", "charmy")
-B.AddTeamMatchup("heavy", "bomb")
-B.AddTeamMatchup("vector", "heavy")
-B.AddTeamMatchup("mighty", "espio")
-B.AddTeamMatchup("charmy", "bomb")
+M("vector", "espio")
+M("knuckles", "charmy")
+M("mighty", "vector")
+M("vector", "charmy")
+M("espio", "charmy")
+M("heavy", "bomb")
+M("vector", "heavy")
+M("mighty", "espio")
+M("charmy", "bomb")
 
 -- Sonic R
-B.AddTeamMatchup("metalknuckles", "tailsdoll")
-B.AddTeamMatchup("sonic", "metalknuckles")
-B.AddTeamMatchup("sonic", "tailsdoll")
+M("metalknuckles", "tailsdoll")
+M("sonic", "metalknuckles")
+M("sonic", "tailsdoll")
 
 -- Sonic Rush
-B.AddTeamMatchup("sonic", "blaze")
+M("sonic", "blaze")
 
 -- Rush Adventure
-B.AddTeamMatchup("marine", "blaze")
-B.AddTeamMatchup("johnny", "blaze")
-B.AddTeamMatchup("marine", "johnny")
+M("marine", "blaze")
+M("johnny", "blaze")
+M("marine", "johnny")
 
 -- SegaSonic Bros.
-B.AddTeamMatchup("sonic", "mighty")
-B.AddTeamMatchup("sonic", "ray")
-B.AddTeamMatchup("ray", "mighty")
+M("sonic", "mighty")
+M("sonic", "ray")
+M("ray", "mighty")
 
 -- Sonic Adventure
-B.AddTeamMatchup("sonic", "chaos")
-B.AddTeamMatchup("tikal", "chaos")
-B.AddTeamMatchup("tikal", "knuckles")
+M("sonic", "chaos")
+M("tikal", "chaos")
+M("tikal", "knuckles")
 
 -- Sonic Adventure 2
-B.AddTeamMatchup("sonic", "shadow")
-B.AddTeamMatchup("rouge", "knuckles")
-B.AddTeamMatchup("tails", "eggman")
+M("sonic", "shadow")
+M("rouge", "knuckles")
+M("tails", "eggman")
 
 -- Sonic Advance
-B.AddTeamMatchup("sonic", "gemerl")
-B.AddTeamMatchup("cream", "gemerl")
-B.AddTeamMatchup("sonic", "emerl")
-B.AddTeamMatchup("emerl", "gemerl")
+M("sonic", "gemerl")
+M("cream", "gemerl")
+M("sonic", "emerl")
+M("emerl", "gemerl")
 
 -- Sonic Heroes
-B.AddTeamMatchup("amy", "vector")
-B.AddTeamMatchup("amy", "cream")
-B.AddTeamMatchup("bigthecat", "omega")
-B.AddTeamMatchup("bigthecat", "amy")
-B.AddTeamMatchup("bigthecat", "cream")
-B.AddTeamMatchup("sonic", "vector")
-B.AddTeamMatchup("bigthecat", "vector")
+M("amy", "vector")
+M("amy", "cream")
+M("bigthecat", "omega")
+M("bigthecat", "amy")
+M("bigthecat", "cream")
+M("sonic", "vector")
+M("bigthecat", "vector")
 
 -- Sonic 06
-B.AddTeamMatchup("blaze", "shadow")
-B.AddTeamMatchup("silver", "shadow")
-B.AddTeamMatchup("blaze", "silver")
-B.AddTeamMatchup("sonic", "silver")
+M("blaze", "shadow")
+M("silver", "shadow")
+M("blaze", "silver")
+M("sonic", "silver")
 
 -- Sonic Frontiers
-B.AddTeamMatchup("sonic", "sage")
-B.AddTeamMatchup("knuckles", "sage")
-B.AddTeamMatchup("tails", "sage")
-B.AddTeamMatchup("amy", "sage")
+M("sonic", "sage")
+M("knuckles", "sage")
+M("tails", "sage")
+M("amy", "sage")
 
 -- Sonic Superstars
-B.AddTeamMatchup("trip", "sonic")
-B.AddTeamMatchup("trip", "fang")
-B.AddTeamMatchup("trip", "amy")
+M("trip", "sonic")
+M("trip", "fang")
+M("trip", "amy")
 
 -- Diamond Cutters/IDW
-B.AddTeamMatchup("tangle", "whisper")
-B.AddTeamMatchup("tangle", "lanolin")
-B.AddTeamMatchup("lanolin", "whisper")
-B.AddTeamMatchup("belle", "metalsonic")
-B.AddTeamMatchup("jewel", "whisper")
-B.AddTeamMatchup("jewel", "belle")
-B.AddTeamMatchup("belle", "sage")
+M("tangle", "whisper")
+M("tangle", "lanolin")
+M("lanolin", "whisper")
+M("belle", "metalsonic")
+M("jewel", "whisper")
+M("jewel", "belle")
+M("belle", "sage")
 
 -- etc
-B.AddTeamMatchup("maimy", "metalknuckles")
-B.AddTeamMatchup("maimy", "amy")
-B.AddTeamMatchup("maimy", "tailsdoll")
+M("maimy", "metalknuckles")
+M("maimy", "amy")
+M("maimy", "tailsdoll")
